@@ -7,7 +7,7 @@ $loader->addPsr4('Rain\Wechat\\', __DIR__ . '/../../src/wechat-kernel');
 $app['path'] = dirname(__DIR__);
 
 $app['db.config'] = [
-    'dsn' => 'mysql:host=localhost;dbname=kangjun_dev',
+    'dsn' => 'mysql:host=localhost;dbname=jifen',
     'username' => 'root',
     'password' => 'root',
     'charset' => 'utf8',
