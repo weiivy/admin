@@ -1,0 +1,108 @@
+{% extends "@AdminBundle/layout.twig" %}
+{% block title %}注册{% endblock %}
+{% block stylesheet %}
+    <style>
+        body {
+            background-color: #fafafa;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="view-port">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <div class="h-20"></div>
+
+                            <div class="alert alert-success">
+                                <b>注册</b>
+                            </div>
+
+                            <form method="post" action="{{ url('register') }}">
+
+                                <div class="form-group">
+                                    <label for="email">登陆邮箱</label>
+                                    <input name="email" type="text" class="form-control" id="email"
+                                           placeholder="请输入登陆邮箱">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="password">密码</label>
+                                    <input name="password" type="password" class="form-control"
+                                           id="password"
+                                           placeholder="请输入密码">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="password">重复密码</label>
+                                    <input name="re-password" type="password" class="form-control"
+                                           id="password"
+                                           placeholder="请输入重复密码">
+                                </div>
+
+                                <div>
+                                    <button type="button" class="btn btn-primary btn-block js-register">注册</button>
+                                </div>
+
+                                <div class="mt15">
+                                    <a href="{{ url('login') }}">登陆</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(".js-register").on("click", function () {
+            var pwd = $.trim($("input[name='password']").val());
+            var rePwd = $.trim($("input[name='re-password']").val());
+            var email = $.trim($("input[name='email']").val());
+
+            if (!rain.isEmail(email)) {
+                rain.alert("请填写有效邮箱");
+                return;
+            }
+
+            if (pwd.length < 6) {
+                rain.alert("密码不能小于6个字符");
+                return;
+            }
+
+            if (pwd != rePwd) {
+                rain.alert("两次密码不一致");
+                return
+            }
+
+
+            var data = $("form").serialize();
+            $.ajax({
+                url: "{{ url('register') }}",
+                type: "POST",
+                dataType: 'json',
+                data: data,
+                success: function (result) {
+                    if (result.status == 1) {
+                        rain.alert('注册成功，请登录', function () {
+                            window.location = "{{ url('login') }}";
+                        })
+                    } else {
+                        rain.alert(result.message);
+                    }
+                },
+                error: function () {
+                    rain.alert("网络出错");
+                }
+            });
+        });
+    </script>
+{% endblock %}

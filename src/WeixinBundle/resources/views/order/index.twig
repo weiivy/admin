@@ -1,0 +1,189 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}订单列表{% endblock %}
+{% set leftMenuActive = 'order/index' %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/order-history.css') }}"/>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <ul class="btn-group-nav">
+            <li class="item js-order-title active" data-title="{{ constant('Common\\Entity\\Order::STATUS_NEW') }}" >进行中</li>
+            <li class="item js-order-title" data-title="{{ constant('Common\\Entity\\Order::STATUS_SUCCESS') }}">已完成</li>
+            <li class="item js-order-title" data-title="{{ constant('Common\\Entity\\Order::STATUS_CLOSE') }}">已取消</li>
+        </ul>
+        <div class="order-list" id="show-order-list-template">{# 订单列表模板 #}</div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script id="order-list-template" type="text/html">
+        <div class="order-list">
+        <% for (i = 0; i < data.length; i++) { %>
+
+            <ul class="common-panel common-list">
+                <li class="list-item overflow">
+                    <div class="pull-left"><%= data[i].created_at %></div>
+                    <div class="pull-right text-primary">
+                        <% if(data[i].confirm) { %>
+                               <span class="label label-primary">待确认</span>
+                        <% } else if(data[i].success) { %>
+                            <span class="label label-primary">待完成</span>
+                        <% } else if(data[i].pay) { %>
+                            <span class="label label-primary">待支付</span>
+                        <% } else if(data[i].comment) { %>
+                            <span class="label label-primary">待评价</span>
+                        <% } %>
+                    </div>
+                </li>
+                <li class="list-item list-input-item has-corner" onclick="location='{{ url('order/info') }}?id=<%= data[i].id %>'">
+                    <span class="addon vertical-top">
+                        <span class="corner">
+                            <% if(data[i].discount == 0) { %>
+                                <%= data[i].position %>
+                            <% } else { %>
+                                特
+                            <% } %>
+                        </span>
+                       <% if (data[i].image.length == 0) { %>
+                            <div class="thumb thumb-cover" style="background-image: url('{{ asset('images/') }}no-pic.jpg')"></div>
+                       <% } else { %>
+                            <div class="thumb thumb-cover" style="background-image: url('{{ asset('uploads/product/') }}<%= data[i].image %>')"></div>
+                       <% } %>
+
+                    </span>
+
+                    <div class="input">
+                        <div>服务:<%= data[i].name %> <span class="text-primary">x<%= data[i].quantity %></span></div>
+                        <div>技师:<% if (data[i].employee_id == 0) { %>未派发技师<% } else { %><%= data[i].employee_id %><% } %></div>
+                         <% if(data[i].cardPay != 0 && data[i].pay_type != 0) { %>
+                            <div>优惠劵: <span class="text-danger">&yen;<%= data[i].cardPay %>元</span></div>
+                         <% } %>
+                        <div>服务时间:<%= data[i].booking_time %></div>
+                       {# <div>服务类型:<%= data[i].service_type %></div>#}
+                    </div>
+                    <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+                </li>
+
+                <li class="list-item list-input-item">
+                    <div class="input text-left text-danger text-lg">&yen;<%= data[i].total_fee %>元</div>
+                    <div class="addon ">
+                        <% if (data[i].cancel) { %><button class="btn btn-primary js-change-cancel" data-id="<%= data[i].id %>">取消订单</button> <% } %>
+                        <% if(data[i].pay) { %> <a href="{{ url('order/pay') }}?id=<%= data[i].id %>" class="btn btn-primary">去支付</a><% } %>
+                        <% if(data[i].buy) { %> <a href="{{ url('product/info') }}?id=<%= data[i].product_id %>" class="btn btn-primary">再次预约</a><% } %>
+                        <% if(data[i].comment) { %><a href="{{ url('order/comment') }}?id=<%= data[i].id %>" class="btn btn-primary">评价</a><% } %>
+                        <% if(data[i].look ) { %>
+                             <a href="{{ url('order/comment') }}?id=<%= data[i].id %>" class="btn btn-primary">查看评价</a>
+                        <% } %>
+                    </div>
+                </li>
+            </ul>
+
+        <% } %>
+            </div>
+    </script>
+
+
+    <script id="empty-template" type="text/html">
+        <div class="empty-order text-center text-primary">
+            <i class="icon fa fa-file-text-o" style="font-size: 150px;"></i>
+            <p>抱歉,没有找到相关订单</p>
+        </div>
+    </script>
+    <script>
+        var index = 10;
+        var url = "{{ url('order/ajax-progressing') }}";
+        $(function(){
+            loadOrderList();
+            //切换标题
+            $(".js-order-title").click(function(){
+                index = parseInt($(this).attr("data-title"));
+                if(index == {{ constant('Common\\Entity\\Order::STATUS_NEW') }}){
+                    url = "{{ url('order/ajax-progressing') }}";
+                } else if(index == {{ constant('Common\\Entity\\Order::STATUS_SUCCESS') }}){
+                    url = "{{ url('order/ajax-success') }}";
+                } else if(index == {{ constant('Common\\Entity\\Order::STATUS_CLOSE') }}){
+                    url = "{{ url('order/ajax-close') }}";
+                }
+                loadOrderList();
+                $(this).siblings().removeClass("active");
+                $(this).addClass("active");
+            });
+
+
+            //取消订单
+            $(document).on('click', '.js-change-cancel',function(){
+                var orderId = parseInt($(this).attr('data-id'));
+                var loading = rain.loading(this).start();
+                rain.confirm("您确定执行此操作吗?", function() {
+                    $.ajax({
+                        url: "{{ url('order/ajax-change-cancel') }}",
+                        type: "POST",
+                        dataType: 'json',
+                        data: {id:orderId},
+                        success: function (result) {
+                            loading.stop();
+                            console.info(result);
+                            if (result.status == 1) {
+                                rain.cute(result.message, 1000, function(){
+                                    window.location.reload();
+                                });
+                            } else {
+                                if(result.message == "请去登录") {
+                                     window.location.href = "{{ url('default/login') }}";
+                                     return false;
+                                }
+                                rain.alert(result.message);
+                                return false;
+                            }
+                        },
+                        error: function () {
+                            loading.stop();
+                            rain.alert("网络错误，请刷新或稍后再试");
+                            return false;
+                        }
+                    });
+
+                }, function(){
+                    loading.stop();
+                });
+                return false;
+
+            });
+
+        });
+
+        //加载订单列表数据
+        function loadOrderList() {
+            $.ajax({
+                url: url,
+                type: "get",
+                dataType: 'json',
+                data: {index:index},
+                success: function (result) {
+                    console.info(result);
+                    var html;
+                    if (result.status == 1) {
+                        var tempData = result.data;
+                        for(var i = 0; i < tempData.length; i++){
+                            tempData[i].booking_time = rain.dateFormat(new Date(parseInt(tempData[i].booking_time) * 1000), "yyyy-mm-dd hh:ii");
+                            tempData[i].created_at = rain.dateFormat(new Date(parseInt(tempData[i].created_at) * 1000), "yyyy-mm-dd hh:ii:ss");
+                        }
+                        var data = {
+                            data:tempData
+                        };
+                        html = template("order-list-template", data);
+                    } else {
+                        html = template("empty-template");
+                    }
+                    $("#show-order-list-template").children().remove();
+                    $("#show-order-list-template").append(html);
+                },
+                error: function () {
+                    rain.alert("系统出错");
+                }
+            });
+        }
+
+
+    </script>
+{% endblock %}

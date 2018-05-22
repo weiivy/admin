@@ -1,0 +1,54 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}会员管理{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid content-main">
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="page-title">{{ member.nickname }}资金明细</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">{{ member.nickname }}资金明细列表</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                {# 一次性消息提示 #}
+                {{ include('@AppBundle/message.twig', {'session':app.session}) }}
+
+                {# 搜索表单 #}
+
+                {% if list is empty %}
+                    <div class="alert alert-warning mt15" role="alert">暂无资金明细</div>
+                {% else %}
+
+                    {# 分类列表 #}
+                    <table class="table mt15">
+                        <tr class="active">
+                            <td>类型</td>
+                            <td>金额</td>
+                        </tr>
+
+                        {% for item in list %}
+                            <tr>
+                                <td>
+                                   {{ item.kindAlisa }}
+                                </td>
+                                <td>{{ item.type }} {{ item.money }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="pull-right">
+                        {{ page.createLinks(url('member/money'))|raw }}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

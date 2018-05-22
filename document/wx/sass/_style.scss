@@ -1,0 +1,228 @@
+body {
+  font-family: "Heiti SC", "DroidSansFallback", "微软雅黑";
+}
+
+a, a:link {
+  text-decoration: none;
+}
+
+.block {
+  display: block !important;
+}
+
+.no-user-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.hr-5 {
+  height: 5px;
+}
+
+.hr-10 {
+  height: 10px;
+}
+
+.box {
+  padding: $setting-item-padding !important;
+}
+
+#global-nav-height {
+  height: 50px;
+}
+
+#global-nav {
+  display: block;
+  position: fixed;
+  left: 0;
+  width: 100%;
+  bottom: 0;
+}
+
+#global-nav .wrapper {
+  display: table;
+  width: 100%;
+  @include physical-border-top($color-line);
+  background-color: #fff;
+  font-size: 12px;
+}
+
+#global-nav .wrapper a {
+  display: table-cell;
+  width: 1%;
+  height: 50px;
+  text-align: center;
+  vertical-align: middle;
+  color: $color-content;
+}
+
+#global-nav .wrapper a.active {
+  color: $color-green;
+}
+
+#global-nav .nav-icon {
+  font-size: 24px;
+  margin-bottom: 5px;
+}
+
+.wx-auto-list .wx-item {
+  display: table;
+  width: 100%;
+}
+
+.wx-auto-list .wx-item .wx-name,
+.wx-auto-list .wx-item .wx-content {
+  display: table-cell;
+  float: none;
+  vertical-align: middle;
+}
+
+.wx-auto-list .wx-name {
+  width: 1%;
+}
+
+.wx-auto-list .wx-content {
+  text-align: right;
+}
+
+.wx-auto-list .avatar-item {
+  overflow: hidden;
+  zoom: 1;
+}
+
+.wx-auto-list .avatar-item .wx-content {
+  height: auto;
+  line-height: 1;
+}
+
+.wx-auto-list .avatar {
+  width: 48px;
+  height: 48px;
+  margin: 5px 0;
+}
+
+.wx-auto-list .wx-item .text-content {
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: normal;
+  height: 100%;
+  float: none;
+  text-align: left;
+  padding-left: 10px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.input {
+  display: block;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  resize: none;
+}
+
+textarea.input {
+  padding: 8px 0;
+  line-height: 1.5;
+}
+
+.btn:active,
+.btn:focus {
+  outline: none !important;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+.btn-wx {
+  background-color: $color-green;
+  color: #fff !important;
+  outline: none;
+  padding: 10px 12px;
+  font-size: 16px;
+}
+
+.btn-wx:active {
+  background-color: $color-green * .8;
+  color: #fff;
+}
+
+.auto-height-item {
+  height: auto;
+}
+
+.has-badge {
+  position: relative;
+}
+
+.has-badge:after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #f00;
+  right: -5px;
+  top: -5px;
+}
+
+.wx-article .wx-content p {
+  margin-top: 1em;
+}
+
+.wx-article .wx-content * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  -webkit-box-sizing: border-box !important;
+  word-wrap: break-word !important;
+}
+
+.wx-news-text {
+  line-height: 1.5;
+}
+
+.wx-news-text .wx-title {
+  font-weight: 400;
+  font-size: 20px;
+}
+
+.wx-news-text .wx-content {
+  color: $color-pub;
+  margin-top: 10px;
+}
+
+.datetime-item {
+  display: table !important;
+  width: 100%;
+}
+
+.datetime-item .wx-name{
+  width: 1%;
+  padding-right: 8px;
+}
+.datetime-item .wx-name,
+.datetime-item .wx-content {
+  display: table-cell;
+  float: none !important;
+  height: auto!important;
+  line-height: normal;
+  vertical-align: middle;
+  position: relative;
+}
+.datetime-item .input {
+  width: 100%;
+  display: block;
+  border: 0;
+  outline: 0;
+  color: #000;
+  margin: 0;
+  height: 48px;
+}
+//.datetime-item .show-input{
+//   position: absolute;
+//   background-color: #FFF;
+//   pointer-events:none;
+////   display: none;
+// }

@@ -1,0 +1,32 @@
+{
+  "name": "rain",
+  "require": {
+    "symfony/routing": "2.6.*",
+    "symfony/http-kernel": "2.6.*",
+    "twig/twig": "1.*",
+    "twig/extensions": "1.1.*",
+    "monolog/monolog": "1.12.*",
+    "swiftmailer/swiftmailer": "5.3.*",
+    "ircmaxell/password-compat": "1.*",
+    "phpunit/phpunit": "4.4.5",
+    "pimple/pimple": "~3.0",
+
+    "symfony/browser-kit": "2.6.*",
+    "symfony/css-selector": "2.6.*",
+    "symfony/dom-crawler": "2.6.*",
+    "symfony/finder": "2.6.*",
+    "symfony/process": "2.6.*"
+
+  },
+  "autoload": {
+    "files": [
+    ],
+    "classmap": [
+    ],
+    "psr-0": {
+    },
+    "psr-4": {
+      "": ["src\\"]
+    }
+  }
+}

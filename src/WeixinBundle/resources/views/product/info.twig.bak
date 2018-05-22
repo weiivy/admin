@@ -1,0 +1,138 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}服务详情{% endblock %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/detail.css') }}"/>
+{% endblock %}
+
+{# 内容 #}
+{% block content %}
+    <div class="has-corner">
+        <span class="corner">
+            {% if product.discount == 0 %}
+                {{  product.position }}
+            {% else %}
+                特
+            {% endif %}
+        </span>
+        {% if product.image is empty %}
+
+        <img class="img-responsive" src="{{ asset('images/') }}no-pic.jpg" alt=""/>
+        {% else %}
+            <img class="img-responsive" src="{{ asset('uploads/product/') }}{{ product.image }}" alt=""/>
+        {% endif %}
+    </div>
+
+    <div class="container">
+        <div class="common-panel">
+            <ul class="common-list">
+                 <li class="list-item list-input-item js-collect">
+                    <div class="input">
+                        <span class="field">项目名称:&nbsp;{{ product.name }}</span>
+                    </div>
+                    <span class="addon js-collect-change"><i class="icon fa fa-star-o text-primary text-lg"></i></span>
+                 </li>
+                <li class="list-item"><span class="field">理疗时间:&nbsp;</span><span class="content">{{ product.time }}</span></li>
+            </ul>
+        </div>
+
+        <div class="common-panel js-tab">
+            <ul class="nav-btn-bar ">
+                <li class="js-tab-nav current"><span>服务内容</span></li>
+                <li class="js-tab-nav"><span>下单须知</span></li>
+                <li class="js-tab-nav" ><span>禁忌须知</span>  </li>
+            </ul>
+            <ul class="common-list">
+                <li class=" list-item ">
+                 <div class="js-tab-body current">{{ product.content|raw }}</div>
+                 <div class="js-tab-body ">
+                    请仔细阅读禁忌提示<br />
+                    请如实填写服务享用者的联系方式及预约地址<br />
+                    快速预约时将由点到系统自动为您指定合适的服务技师，如需自选技师请技师直约<br />
+                    预约后请在30分钟内线上支付或选择服务完成后线下支付，否则订单将失效<br />
+                    预约成功后，如需取消订单请进入我的订单页面按提示操作<br />
+                    当您使用点到服务时，即表示您已阅读并同意点到软件《使用协议》及《责任声明》<br />
+                 </div>
+                 <div class="js-tab-body ">
+                    在不适宜的情况下进行按摩理疗可能会对健康造成负面影响，请您仔细阅读以下提示： <br />
+                    1、暂不为小儿（12岁以下）、妇女经期妊娠期及剖腹产后三个月内者、高龄者（68岁以上）提供按摩理疗服务  <br />
+                    2、患有头部急症、骨折外伤，胸、腰椎椎体结核，椎管内肿瘤，强直性脊柱炎等病症者不宜接受全身按摩理疗  <br />
+                    3、严重心脏病、肿瘤、传染性皮肤病、急性损伤、各种疮疡及大病术后伤口愈合不足6月者不宜接受按摩理疗服务  <br />
+                    4、大量饮酒后周身发热、头脑昏沉，饱食或暴饮两小时内，不能接受按摩服务 <br />
+                    5、严重疾病、身体疼痛者请及时就医治疗，以免耽误治疗  <br />
+                 </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="btn-order js-order" data-id="{{ product.id }}">下一步</div>
+{% endblock %}
+
+{# 没有footer #}
+{% block footer %}{% endblock %}
+
+{% block javascript %}
+
+    {{ parent() }}
+    <script>
+        $(function(){
+            //判断某项目所在城市是否有技师(上岗)
+            $( '.js-order').on('click', function(){
+                var id = $(this).attr('data-id');
+                $.ajax({
+                    url:"{{ url('product/ajax-employee-exists') }}",
+                    type:"get",
+                    data:{cityId:cityId, productId:id},
+                    dataType:'json',
+                    success:function(result){
+
+                        //无上岗技师
+                        if(result.status != 1){
+                            rain.alert(result.message);
+                            return false;
+                        } else {
+
+                            //有上岗技师
+                            window.location.href = "{{ url('common/order') }}?id=" + id;
+                        }
+                    },
+                    error:function(){
+                        rain.alert("网络错误，请刷新或稍后再试");
+                    }
+
+                });
+
+            });
+
+            //收藏
+            $(".js-collect").click(function(){
+                var _this = $(this);
+                var productId = "{{ product.id }}";
+                $.ajax({
+                    url: "{{ url('common/ajax-collect-product') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: { productId:productId },
+                    success: function (result) {
+                        if (result.status == 1) {
+                            rain.cute(result.message, 1000, function(){
+                                $(".js-collect-change").children().removeClass("fa-star-o").addClass("fa-star");
+                            });
+
+                        } else {
+                            if(result.message == "请去登录") {
+                                window.location.href = "{{ url('default/login') }}";
+                                return false;
+                            }
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        rain.alert("网络错误，请刷新或稍后再试");
+                    }
+                });
+
+            });
+        });
+    </script>
+{% endblock %}

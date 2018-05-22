@@ -1,0 +1,132 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}注册{% endblock %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/login.css') }}"/>
+{% endblock %}
+{% block content %}
+    {% block login %}{% endblock %}
+   <h1 class="topbar">注册</h1>
+
+    <div class="container">
+        <div class="common-panel">
+            <div class="common-list">
+                <div class="list-item list-input-item">
+                    <span class="addon">账号</span>
+                    <input class="input" type="tel" name="mobile" id="mobile" placeholder="请输入手机号"/>
+                </div>
+                <div class="list-item list-input-item">
+                    <span class="addon">密码</span>
+                    <input class="input" type="password" name="password" id="password" placeholder="请输入密码"/>
+                </div>
+                <div class="list-item list-input-item">
+                    <span class="addon">验证码</span>
+                    <input class="input" type="text" name="code" id="code" placeholder="请输入验证码"/>
+                    <span class="addon text-primary js-send-code">发送验证码</span>
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-submit js-register">立即注册</button>
+        <div class="text-center text-muted"><a  href="{{ url('default/login') }}">已有账号,马上登录</a> {#｜ <a href="免责声明.html">免责声明</a>#}</div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+         var time = 60;
+        $(function(){
+
+            //发验证码
+            $('.js-send-code').click(function(){
+                var username = $("#mobile").val();
+                if(username.length == 0){
+                    rain.alert("请输入账号");
+                    return false;
+                }
+
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('default/ajax-send-register') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {username:username},
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            rain.cute(result.message, 1000);
+                            setTimeout(count, 1000);
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("系统出错");
+                    }
+                });
+            });
+
+            //注册
+            $(".js-register").click(function(){
+                var mobile = $("#mobile").val();
+
+                if(!rain.isNumber(mobile) || mobile.length != 11){
+                    rain.alert("请输入正确的电话号码");
+                    return false;
+                }
+
+                var password = $("#password").val();
+                if(password.length == 0){
+                    rain.alert("请输入密码");
+                    return false;
+                }
+
+                var code = $("#code").val();
+                if(code.length == 0){
+                    rain.alert("请输入验证码");
+                    return false;
+                }
+
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('default/register') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {mobile:mobile, password:password, code:code},
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                             window.location.href = "{{ url('default/login') }}";
+                            /*rain.cute("注册成功", 1000, function(){
+                                window.location.href = "{{ url('default/login') }}"
+                            });*/
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("系统出错");
+                    }
+                });
+
+            });
+
+        });
+
+        /**
+         * 倒计时
+         */
+        function count(){
+            if(time > 0){
+                time--;
+                $(".js-send-code").html(time + "秒后,请重新发送验证码");
+                setTimeout(count, 1000);
+            } else {
+                $(".js-send-code").html( "发送验证码");
+            }
+
+        }
+
+    </script>
+{% endblock %}

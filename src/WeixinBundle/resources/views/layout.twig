@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>{% block title %}骏到家{% endblock %}</title>
+    {#<link href="{{ asset('static/admin/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">#}
+    <link href="{{ asset("static/art-dialog/css/ui-dialog.css") }}" rel="stylesheet"/>
+    <link href="{{ asset('static/admin/css/layout.css') }}" rel="stylesheet">
+    <link href="{{ asset('static/admin/css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('static/rain/css/base.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('static-web/font-awesome/css/font-awesome.min.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('static-web/css/common.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('static-web/css/dev.css') }}"/>
+    {#<link href="{{ asset('static/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css') }}" rel="stylesheet" media="screen">#}
+    {% block stylesheet %}
+    {% endblock %}
+</head>
+<body>
+{% block body %}
+    {% block content %}
+        {% block changeCity %}
+            <div class="address-bar-picker">
+                <div class="title">
+                    <div class="title-col text-left">
+                        <div class="address-current">
+                            <span class="js-current-address vertical-middle" data-id="{{ app.defaultCity }}">{{ app.cities[app.defaultCity] }}</span>
+                            <i class="icon fa fa-chevron-down  vertical-middle" style="font-size:18px; "></i>
+                        </div>
+                    </div>
+                    <div class="title-col text-right">
+                        <a class="tag-circle" href="tel:4000088301">
+                            <i class="icon fa fa-phone" ></i>
+                        </a>
+                    </div>
+                </div>
+                <ul class="address-list">
+                <li>
+                    <ul class="city-n" style="display: block">
+                        {% for key, value in app.cities %}
+                            <li class="city-item" data-id="{{ key }}">{{ value }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                </ul>
+            </div>
+        {% endblock %}
+    {% endblock %}
+    {% block footer %}
+    <div id="global-nav-space"></div>
+    <div id="global-nav">
+        <a href="{{ url('product/index') }}" class="{% if leftMenuActive is defined and leftMenuActive == 'product/index' %}current{% endif %}">
+            <i class="icon fa fa-th-large"></i>
+
+            <div>项目</div>
+        </a>
+        <a href="{{ url('employee/index') }}" class="{% if leftMenuActive is defined and leftMenuActive == 'employee/index' %}current{% endif %}">
+            <i class="icon fa fa-user-md"></i>
+
+            <div>推拿师</div>
+        </a>
+        <a href="{{ url('order/index') }}"  class="{% if leftMenuActive is defined and leftMenuActive == 'order/index' %}current{% endif %}">
+            <i class="icon fa fa-table"></i>
+
+            <div>订单</div>
+        </a>
+        <a href="{{ url('member/index') }}" class="{% if leftMenuActive is defined and leftMenuActive == 'member/index' %}current{% endif %}">
+            <i class="icon fa fa-user"></i>
+
+            <div>个人</div>
+        </a>
+    </div>
+    {% endblock %}
+
+    {% block login %}
+       {# <div class="js-show-login center-popup" style="display: none;">
+            <div class="popup-box">
+                <div class="box">
+                    <h1 class="popup-box-title">登录</h1>
+                    <i class="popup-box-close">&times;</i>
+
+                    <div class="common-panel">
+                        <div class="common-list">
+                            <div class="list-item list-input-item">
+                                <span class="addon">手机号</span>
+                                <input class="input" type="tel" name="username" id="username" placeholder="请输入手机号"/>
+                            </div>
+                            <div class="list-item list-input-item">
+                                <span class="addon">密码</span>
+                                <input class="input" type="password" name="password" id="password" placeholder="请输入密码"/>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary btn-submit js-login">立即登录</button>
+                    <div class="text-center text-muted"><a href="{{ url('default/register') }}">立即注册</a> ｜ <a href="{{ url('default/reset') }}">忘记密码?</a>｜<a
+                            href="免责声明.html">免责声明</a>
+                    </div>
+                </div>
+            </div>
+        </div>#}
+    {% endblock %}
+
+{% endblock %}
+
+<script>var baseUrl = "{{ asset('') }}";</script>
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="{{ asset('static/admin/js/html5shiv.min.js') }}"></script>
+<script src="{{ asset('static/admin/js/respond.min.js') }}"></script>
+<![endif]-->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{ asset('static/admin/js/jquery-1.11.2.min.js') }}"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+{#<script src="{{ asset('static/admin/bootstrap/js/bootstrap.min.js') }}"></script>#}
+<script src="{{ asset('static/admin/js/layout.js') }}"></script>
+<script src="{{ asset('static/art-dialog/dist/dialog-min.js') }}"></script>
+<script src="{{ asset('static/rain/base.js') }}"></script>
+{#<script src="{{ asset('static-web/js/fastclick.js') }}"></script>#}
+<script src="{{ asset('static-web/js/common.js') }}"></script>
+<script src="{{ asset('static-web/js/jquery.cookie.js') }}"></script>
+{#模板#}
+<script src="{{ asset('static/art-template/template-native.js') }}"></script>
+
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ykG8Ckq7OcrqStQuokDGA9PQ"></script>
+
+{#
+<script type="text/javascript" src="{{ asset('static/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js') }}" charset="UTF-8"></script>
+<script type="text/javascript" src="{{ asset('static/bootstrap-datetimepicker/js/bootstrap-datetimepicker.zh-CN.js') }}" charset="UTF-8"></script>
+#}
+
+
+{% block javascript %}
+    <script>
+        var cityId = {{ app.defaultCity }};
+        var citiesArr = {% autoescape false%}{{ app.cities|json_encode() }} {% endautoescape %};
+        var addressLat = 0;
+        var addressLng = 0;
+
+        getLocation();
+
+         //开启定位
+         function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition,showError);
+            } else {
+                rain.alert("浏览器不支持定位");
+            }
+         }
+
+         //定位返回的错误
+         function showError(error) {
+            switch (error.code) {
+                case error.PERMISSION_DENIED:
+                   rain.alert("您不允许地理定位");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    rain.alert("无法获取当前位置");
+                    break;
+                case error.TIMEOUT:
+                    rain.alert("操作超时");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    rain.alert("网络出错，请稍后刷新再次尝试");
+                    break;
+            }
+        }
+
+        /**
+         * 获取当前的经纬度
+         * @param position
+         */
+        function showPosition(position) {
+            $.cookie('lat',position.coords.latitude,{expires:7*24*3600,path:'/'});
+            $.cookie('lng',position.coords.longitude,{expires:7*24*3600,path:'/'});
+        }
+
+         /**
+         * 根据纬度算两地之间的距离
+         * @param lat1 地理纬度
+         * @param lng1 地理经度
+         * @param lat2 地理纬度
+         * @param lng2 地理经度
+         * @returns {string}
+         */
+        function destination(lng1, lat1, lng2, lat2){
+            // 百度地图API功能
+            var map = new BMap.Map("allmap");
+            var pointA = new BMap.Point(lng1, lat1);  // 创建点坐标A--大渡口区
+            var pointB = new BMap.Point(lng2, lat2);  // 创建点坐标B--江北区
+            return (map.getDistance(pointA,pointB) / 1000).toFixed(2);  //获取两点距离,保留小数点后两位
+        }
+
+
+        /**
+         * 根据地址获取经纬度
+         * @param $address
+         * @param $city
+         */
+        function getLatAndLng($address, $city) {
+
+            // 创建地址解析器实例
+            var myGeo = new BMap.Geocoder();
+            myGeo.getPoint($address, function(point){
+                if (point) {
+                    addressLat = point.lat;
+                    addressLng = point.lng;
+                    console.info(addressLng);
+                    console.info(addressLat);
+                }else{
+                    rain.alert("您选择地址没有解析到结果!");
+                }
+            }, $city);
+
+        }
+    </script>
+
+
+{% endblock %}
+
+</body>
+</html>

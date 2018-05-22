@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <title>wx demo</title>
+    <link rel="stylesheet" href="../../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="../../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../stylesheets/wx.css">
+</head>
+<body>
+<script>
+    // 支持物理像素
+    if (window.devicePixelRatio && devicePixelRatio >= 2) {
+        var testElem = document.createElement('div');
+        testElem.style.border = '.5px solid transparent';
+        document.body.appendChild(testElem);
+        if (testElem.offsetHeight == 1) {
+            document.querySelector('html').classList.add('hairlines');
+        }
+        document.body.removeChild(testElem);
+    }
+</script>
+
+<div class="wx-article">
+    <div class="wx-title">平台消息文章标题.</div>
+    <div class="wx-time">2015-04-23</div>
+    <div class="wx-author">微信团队</div>
+    <div class="wx-content">
+        <p>
+            <img src="../../images/icon/demo.png" alt=""/>
+        </p>
+        <p>　　当小局影响了大局，局部影响了全局，改革影响到了个人和单位利益，领导干部能否做到“勇于自我革命，敢于直面问题”呢？</p>
+        <p>　　当小局影响了大局，局部影响了全局，改革影响到了个人和单位利益，领导干部能否做到“勇于自我革命，敢于直面问题”呢？</p>
+    </div>
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,227 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}服务列表{% endblock %}
+{% set leftMenuActive = 'product/index' %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/index.css') }}"/>
+<link rel="stylesheet" href="{{ asset('static-web/swiper/css/swiper.min.css') }}"/>
+
+{% endblock %}
+{% block content %}
+    {% block changeCity %}
+        {{ parent() }}
+    {% endblock %}
+   {% if ad is not empty %}
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+              {% for index in ad %}
+                    <div class="swiper-slide">
+                        <a href="javascript:;" {% if index.url is not empty %}onclick = "window.location.href = '{{ index.url }}'"{% endif %} target="_blank">
+                            <img src="{{ asset('uploads/ad/') }}{{ index.image }}" class="img-responsive" alt=""/>
+                        </a>
+                    </div>
+              {% endfor %}
+          </div>
+        </div>
+   {% endif %}
+
+    <div class="container" >
+
+    <div class="common-panel">
+        <div class="content-block">
+            <div class="btn-group-filter js-btn-group-radio">
+                <input type="hidden" name="grade" id="grade" value="0"/>
+                <a href="javascript:;" class="item active" data-key="grade" data-val = "0">全部</a>
+                {% for key, val in gradeArr %}
+                    <a href="javascript:;" class="item" data-key="grade" data-val = {{ key }}>{{ val }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="h-10"></div>
+
+    <div id="show-product-template"></div>
+</div>
+<div class="startapp js-start-show" style="z-index: 200;{% if displayStartAppAd == 'false' %}display: none; {% endif %}"></div>
+
+{% endblock %}
+{% block javascript %}
+    <script src="{{ asset('static-web/swiper/js/swiper.min.js') }}"></script>
+    <script>
+          var mySwiper = new Swiper('.swiper-container',{
+            loop: true,
+            autoplay: 3000
+          });
+    </script>
+<script id="product-template" type="text/html">
+  <% for(i = 0; i < data.length; i++) { %>
+        <a class="common-panel"  href="{{ url('product/info') }}?id=<%= data[i].id %>">
+            <div class="thumb">
+                 <% if(data[i].image.length == 0) { %>
+                     <div class="thumb-image" style="background-image: url('{{ asset('images/') }}no-pic.jpg')"> </div>
+                <% } else { %>
+                    <div class="thumb-image" style="background-image: url('{{ asset('uploads/product/') }}<%= data[i].image %>')"> </div>
+                <% } %>
+            </div>
+            <div class="content ">
+                <div class="title"><%= data[i].name %><span class="price">&nbsp;&nbsp;&nbsp;&yen;<span class="value"><%= data[i].price %></span>&nbsp;起</span></div>
+                <div class="sub-title"><i class="icon fa fa-clock-o"></i> <span><%= data[i].time %><% if (data[i].min != 0) { %>(<%= data[i].min %>人起订)<% } %></span></div>
+                <span class="tag-circle">
+                    <% if(data[i].discount == 0) { %>
+                        <%= data[i].position %>
+                   <% } else { %>
+                        特
+                   <% } %>
+                </span>
+                <button class="btn" data-id="<%= data[i].id %>">立即预约</button>
+            </div>
+        </a>
+    <% } %>
+</script>
+<script id="empty-template" type="text/html">
+    <div class="empty-order text-center text-primary">
+        <i class="icon fa fa-file-text-o" style="font-size: 150px;"></i>
+        <p>抱歉,暂无服务</p>
+    </div>
+</script>
+    {{ parent() }}
+
+    <script>
+
+        //启动页
+        if($.cookie("start") != 1) {
+            $(".js-start-show").show();
+            $.cookie("start", 1, {expires:24*3600,path:'/'});
+            setTimeout(function(){
+                $(".js-start-show").slideUp();
+            }, 2000);
+        }
+
+        $(function(){
+            loadProductList({});
+
+             //选择城市列表
+            $(".address-current").click(function () {
+                $(window).scrollTop(0);
+                $(".common-address-picker").addClass("show-address-list");
+                $(".container").toggle();
+                $(".address-list").toggle();
+            });
+
+            //切换城市
+            $(".city-item").click(function(){
+                var dataId = $(this).attr("data-id");
+                var value = $(this).html();
+                $.ajax({
+                    url: "{{ url('employee/ajax-change-city') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {defaultCity:dataId},
+                    success: function (result) {
+                        if (result.status == 1) {
+                            $(".js-current-address").html(value);
+                            $(".common-address-picker").removeClass("show-address-list");
+                            $(".container").toggle();
+                            $(".address-list").toggle();
+                            cityId = dataId;
+                            loadProductList({});
+                        } else {
+                            rain.alert(result.message);
+                        }
+                    },
+                    error: function () {
+                        rain.alert("网络错误，请刷新或稍后再试");
+                    }
+                });
+
+            });
+
+          $(document).on('click', '.js-info', function(){
+              var url = $(this).attr("data-id");
+               window.location.href = url;
+               return false;
+           });
+
+            //判断某项目所在城市是否有技师(上岗)
+            /*$(document).on('click', '.js-order', function(){
+                var loading = rain.loading().start();
+                var id = $(this).attr('data-id');
+                $.ajax({
+                    url:"{#{{ url('product/ajax-employee-exists') }}#}",
+                    type:"get",
+                    data:{cityId:cityId, productId:id},
+                    dataType:'json',
+                    success:function(result){
+                        loading.stop();
+                        //无上岗技师
+                        if(result.status != 1){
+                            rain.alert(result.message);
+                            return false;
+                        } else {
+
+                            //有上岗技师
+                            window.location.href = "{#{{ url('product/info') }}#}?id=" + id;
+                        }
+                    },
+                    error:function(){
+                        loading.stop();
+                        rain.alert("网络错误，请刷新或稍后再试");
+                    }
+
+                });
+
+                return false;
+            });
+*/
+             //筛选
+            $(".js-btn-group-radio").change(function (e,data) {
+                var dataObj = {
+                    cityId:cityId
+                };
+
+                if(data.key == "grade") {
+                    $("#grade").val(data.val);
+                }
+
+                dataObj.grade = $.trim($("#grade").val());
+                loadProductList(dataObj);
+
+            });
+
+       });
+
+        function loadProductList(data) {
+            var loading = rain.loading().start();
+             //加载服务列表
+            $.ajax({
+                url:"{{ url('product/ajax-list') }}",
+                type:"get",
+                data:data,
+                dataType:'json',
+                success:function(result){
+                    loading.stop();
+                    console.info(result);
+                     var html;
+
+                    //有服务
+                    if (result.data.length > 0 ) {
+                        var data = {
+                            data:result.data
+                        };
+                        html = template('product-template',data);
+                    } else {
+
+                        //无服务
+                        html = template('empty-template');
+                    }
+                    $("#show-product-template").children().remove();
+                    $("#show-product-template").append(html);
+                },
+                 error: function () {
+                     loading.stop();
+                     rain.alert("网络错误，请刷新或稍后再试");
+                }
+
+            });
+        }
+    </script>
+{% endblock %}

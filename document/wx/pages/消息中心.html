@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <title>wx demo</title>
+    <link rel="stylesheet" href="../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../stylesheets/wx.css">
+    <script type="text/javascript" src="../javascripts/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../popup-master/popup.js"></script>
+    <script type="text/javascript" src="../javascripts/common.js"></script>
+
+</head>
+<body>
+<script>
+    // 支持物理像素
+    if (window.devicePixelRatio && devicePixelRatio >= 2) {
+        var testElem = document.createElement('div');
+        testElem.style.border = '.5px solid transparent';
+        document.body.appendChild(testElem);
+        if (testElem.offsetHeight == 1) {
+            document.querySelector('html').classList.add('hairlines');
+        }
+        document.body.removeChild(testElem);
+    }
+</script>
+<script>
+    //*
+    app.popupList("标题", [
+        {
+            html: "你好",
+            action: function (e, p) {
+                p.remove();
+            }
+        },
+        {
+            html: "你好",
+            action: function (e, p) {
+                p.remove();
+            }
+        }
+    ]);
+    //*/
+
+    //*
+    var p = $.popup({
+        title: "标题",
+        content: "提示信息提示信息提示信息提示信息提示信息提示信息",
+        className: "wx-popup popup-confirm",
+        button: [
+            {
+                text: "取消",
+                action: function (e, p) {
+                    p.remove();
+                }
+            },
+            {
+                text: "确定删除",
+                action: function (e, p) {
+                    p.remove();
+                }
+            }
+        ]
+    })
+    p.show();
+    //*/
+
+
+    //*
+    app.confirm("", "对话框", function () {
+        //cancel
+    }, function () {
+        //sure
+    });
+
+    //*/
+    //*
+
+    app.loadingStart();
+    setTimeout(function () {
+        app.loadingStop();
+    }, 3000);
+    //*/
+</script>
+<ul class="wx-messages">
+    <a class="wx-item" href="消息中心/平台消息.html">
+        <div class="wx-time">早上10:24</div>
+        <div class="wx-icon has-badge">
+            <img src="../images/icon/demo.png" class="img-responsive">
+        </div>
+        <div class="wx-name">平台消息</div>
+        <div class="wx-content">微信团队：登陆操作通知</div>
+    </a>
+    <a class="wx-item" href="消息中心/平台消息.html">
+        <div class="wx-time">早上10:24</div>
+        <div class="wx-icon has-badge">
+            <img src="../images/icon/demo.png" class="img-responsive">
+        </div>
+        <div class="wx-name">平台消息</div>
+        <div class="wx-content">微信团队：登陆操作通知</div>
+    </a>
+    <a class="wx-item" href="消息中心/客户消息.html">
+        <div class="wx-time">凌晨02:56</div>
+        <div class="wx-icon has-badge wx-icon-sanmarino">
+            <i class="fa fa-envelope"></i>
+        </div>
+        <div class="wx-name">客户消息</div>
+        <div class="wx-content">腾讯企业邮箱：新邮件通知</div>
+    </a>
+    <a class="wx-item" href="消息中心/客户消息.html">
+        <div class="wx-time">凌晨02:56</div>
+        <div class="wx-icon has-badge wx-icon-sanmarino">
+            <i class="fa fa-envelope"></i>
+        </div>
+        <div class="wx-name">客户消息</div>
+        <div class="wx-content">腾讯企业邮箱：新邮件通知</div>
+    </a>
+    <a class="wx-item" href="消息中心/客户消息.html">
+        <div class="wx-time">凌晨02:56</div>
+        <div class="wx-icon wx-icon-sanmarino">
+            <i class="fa fa-envelope"></i>
+        </div>
+        <div class="wx-name">客户消息</div>
+        <div class="wx-content">腾讯企业邮箱：新邮件通知</div>
+    </a>
+</ul>
+<div class="wx-group">
+    <div class="hr-5"></div>
+    <div class="wx-title text-center" id="js-load-more" style="height: 50px;">加载更多</div>
+    <div class="wx-title text-center" id="js-no-more" style="display: none;">没有更多消息了</div>
+    <div class="wx-title"></div>
+</div>
+<div id="global-nav-height"></div>
+<div id="global-nav">
+    <div class="wrapper">
+        <a href="消息中心.html" class="active">
+            <div class="nav-icon fa fa-comment"></div>
+            <div class="nav-text">消息</div>
+        </a>
+        <a href="订单管理.html">
+            <div class="nav-icon fa fa-bullseye"></div>
+            <div class="nav-text">订单管理</div>
+        </a>
+        <a href="我.html">
+            <div class="nav-icon fa fa-user"></div>
+            <div class="nav-text">我</div>
+        </a>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var totalHeight = 0;     //定义一个总的高度变量
+        var isLoading = false;
+        var tmpCount = 0;
+        var loadData = function () {
+            //浏览器的高度加上滚动条的高度
+            totalHeight = parseFloat($(window).height()) + parseFloat($(window).scrollTop());
+
+            //当文档的高度小于或者等于总的高度的时候，开始动态加载数据
+            var condition = $(document).height() <= totalHeight;
+            var condition = $(document).height() <= totalHeight + 300;
+            if (condition) {
+                if (isLoading == true) {
+                    return;
+                }
+                isLoading = true;
+
+                //ajax 模拟
+                setTimeout(function () {
+
+                    if (tmpCount > 2) {
+                        //没有更多消息了
+                        $("#js-load-more").hide();
+                        $("#js-no-more").show();
+                    } else {
+                        //加载数据
+                        $(".wx-messages").append($("#tpl-message-item").html());
+                        isLoading = false;
+                        tmpCount++;
+                    }
+
+                }, 400);
+            }
+        }
+
+        $(window).scroll(function () {
+            loadData();
+        });
+
+        $("#js-load-more").click(function () {
+            loadData();
+        })
+
+    })()
+</script>
+<script type="text/html" id="tpl-message-item">
+    <a class="wx-item" href="消息中心/客户消息.html">
+        <div class="wx-time">凌晨02:56</div>
+        <div class="wx-icon wx-icon-sanmarino">
+            <i class="fa fa-envelope"></i>
+        </div>
+        <div class="wx-name">客户消息</div>
+        <div class="wx-content">加载更多多消息1</div>
+    </a>
+    <a class="wx-item" href="消息中心/客户消息.html">
+        <div class="wx-time">凌晨02:56</div>
+        <div class="wx-icon wx-icon-sanmarino">
+            <i class="fa fa-envelope"></i>
+        </div>
+        <div class="wx-name">客户消息</div>
+        <div class="wx-content">加载更多多消息2</div>
+    </a>
+</script>
+</body>
+</html>
+

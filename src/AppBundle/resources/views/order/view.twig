@@ -1,0 +1,338 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}订单管理{% endblock %}
+{% set leftMenuActive = 'order/index' %}
+{% block stylesheet %}
+    <style>
+        html,body{
+            padding: 0;
+            margin:0;
+        }
+        .heading-bar{
+            height: 40px;
+            line-height: 40px;
+            border-bottom: 1px dashed #DDD;
+            font-weight: 600;
+            padding-left:10px ;
+            background-color: #F1F1F1;
+            margin-bottom: 10px;
+            margin-top: 20px;
+        }
+        .order-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing:0;
+            border-left:1px solid #DDD ;
+            border-right:1px solid #DDD ;
+        }
+        .order-table td{
+            padding: 5px;
+            background-color: #FFF;
+            border-top: 1px solid #DDD;
+            border-bottom: 1px solid #DDD;
+
+        }
+
+        .order-table .td-field{
+            background-color: #F1F1F1;
+            width: 150px;
+        }
+        .order-table .important-value{
+            color: red;
+        }
+    </style>
+    <style>
+    .order-process {
+        margin: 0 auto;
+        padding: 40px 0 80px;
+        width: 706px;
+    }
+
+    .order-process li {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .order-process .node,
+    .order-process .proce {
+        list-style: none;
+        float: left;
+        position: relative;
+        height: 13px;
+        width: 13px;
+        background-image: url('{{ asset('images/bg_state.jpg') }}');
+        background-repeat: no-repeat;
+    }
+
+    .order-process .node {
+        z-index: 2;
+        background-position: -150px -40px;
+
+    }
+
+    .order-process .node.ready {
+        background-position: -150px 0;
+    }
+
+    .order-process .proce {
+        z-index: 1;
+        width: 150px;
+        background-position: 0 -40px;
+    }
+
+    .order-process .proce.ready {
+        z-index: 1;
+        width: 150px;
+        background-position: 0 0;
+    }
+
+    .order-process .node ul {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        z-index: 1;
+        width: 318px;
+        margin-left: -152px;
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    #tooltip{
+        position:absolute;
+        border:1px solid #ccc;
+        background:#333;
+        padding:2px;
+        display:none;
+        color:#fff;
+    }
+
+
+
+    </style>
+{% endblock %}
+{% block contentRight %}
+    <div class="container-fluid content-main">
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="page-title">订单管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">订单详情</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                {# 操作 #}
+                <div class="js-show-todo">
+                    <div class="heading-bar mt15">操作</div>
+                    <div class="js-todo-content">
+                        {% if order.status == constant('Common\\Entity\\Order::STATUS_10') %}
+                            <a href="javascript:;" class="btn btn-default js-review-order" data-id="{{ order.id }}">审核中</a>
+                        {% elseif order.status == constant('Common\\Entity\\Order::STATUS_20') %}
+                            <a href="javascript:;" class="btn btn-default js-success-order" data-id="{{ order.id }}" >审核成功</a>
+                            <a href="javascript:;" class="btn btn-default js-fail-order" data-id="{{ order.id }}">审核失败</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="heading-bar">上传截图</div>
+                <table>
+                    <ul class="show-image">
+                        {% for item in orderPhotos %}
+                            <li><a href="{{ item.image }}" class="toolshow"><img src="{{ item.image }}" width="100"/></a></li>
+                        {% endfor %}
+
+                    </ul>
+                </table>
+
+                {# 订单信息 #}
+                <div class="heading-bar">订单信息</div>
+                <table class="order-table" >
+                    <tr>
+                        <td class="td-field">订单号:</td>
+                        <td>{{ order.out_trade_no }}</td>
+                        <td class="td-field">下单时间:</td>
+                        <td>{{ order.created_at|date('Y-m-d H:i:s') }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="td-field">订单状态:</td>
+                        <td>{{ order.statusAlisa }}</td>
+                        <td class="td-field">银行:</td>
+                        <td>{{ banks[order.bank] }}</td>
+                    </tr>
+                    <tr>
+                        <td class="td-field">使用积分:</td>
+                        <td>{{ order.integral }}</td>
+                        <td class="td-field">订单兑换金额:</td>
+                        <td class="important-value">&yen;{{ order.money|number_format(2, '.', ',') }}元</td>
+                    </tr>
+                    <tr>
+                        <td class="td-field">兑换码:</td>
+                        <td>{% if order.exchange_code is empty %}-{% else %}{{ order.exchange_code }}{% endif %}</td>
+                        <td class="td-field">有效日期:</td>
+                        <td class="td-field">{% if order.valid_time == '0000-00-00' %}-{% else %}{{ order.valid_time }}{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td class="td-field">
+                            订单备注:
+                        </td>
+                        <td colspan="3">{{ order.remark }}</td>
+                    </tr>
+
+                </table>
+
+            </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block javascript %}
+    <script>
+        $(function(){
+             //审核失败
+            $(".js-fail-order").click(function(){
+                var orderId = parseInt($(this).attr("data-id"));
+                rain.confirm("您确定要将订单设为审核失败吗?", function(){
+                    $.ajax({
+                        type:'post',
+                        url:"{{ url('order/ajax-fail') }}",
+                        data:{id:orderId},
+                        dataType:'json',
+                        success:function(result){
+
+                            //失败
+                            if(result.status != 1){
+                                rain.alert(result.message);
+                                return false;
+                            }
+
+                            //成功
+                            rain.cute(result.message, 1500, function(){
+                                window.location.reload();
+                            });
+
+
+                        },error:function(){
+                            rain.alert("网络出错,请稍后刷新再次尝试");
+                            return false;
+                        }
+
+                    });
+                }, function(){
+
+                });
+
+                return false;
+
+            });
+
+            //设置为审核中
+            $(".js-review-order").click(function(){
+                var orderId = parseInt($(this).attr("data-id"));
+                rain.confirm("您确定要将订单设为审核中吗?", function(){
+                    $.ajax({
+                        type:'post',
+                        url:"{{ url('order/ajax-reviewing') }}",
+                        data:{id:orderId},
+                        dataType:'json',
+                        success:function(result){
+
+                            //console.info(result);return false;
+                            //失败
+                            if(result.status != 1){
+                                rain.alert(result.message);
+                                return false;
+                            }
+
+                            //成功
+                            rain.cute(result.message, 1500, function(){
+                                window.location.reload();
+                            });
+
+
+                        },error:function(){
+                            rain.alert("网络出错,请稍后刷新再次尝试");
+                            return false;
+                        }
+
+
+                    });
+                }, function(){
+
+                });
+
+                return false;
+
+            });
+
+            //设为审核成功
+            $(".js-success-order").click(function(){
+                var orderId = parseInt($(this).attr("data-id"));
+                var flag = $(this).attr("data-flag");
+                var cute = "您确定要将订单设为审核成功吗";
+                rain.confirm(cute, function(){
+
+                    $.ajax({
+                        type:'post',
+                        url:"{{ url('order/ajax-success') }}",
+                        data:{id:orderId},
+                        dataType:'json',
+                        success:function(result){
+
+                            //失败
+                            if(result.status != 1){
+                                rain.alert(result.message);
+                                return false;
+                            }
+
+                            //成功
+                            rain.cute(result.message, 1500, function(){
+                                window.location.reload();
+                            });
+
+
+                        },error:function(){
+                            rain.alert("网络出错,请稍后刷新再次尝试");
+                            return false;
+                        }
+
+
+                    });
+                }, function(){
+
+                });
+
+                return false;
+
+            });
+
+
+            //处理图片
+            var x = 10;
+            var y = 20;
+            $("a.toolshow").mouseover(function(e){
+                var tooltip = "<div id='tooltip'><img src='"+ this.href +"' alt='产品预览图'/><\/div>"; //创建 div 元素
+                $("body").append(tooltip);	//把它追加到文档中
+                $("#tooltip") .css({
+                        "top": (e.pageY+y) + "px",
+                        "left":  (e.pageX+x)  + "px"
+                 }).show("fast");	  //设置x坐标和y坐标，并且显示
+            }).mouseout(function(){
+
+                $("#tooltip").remove();	 //移除
+            }).mousemove(function(e){
+                $("#tooltip").css({
+                        "top": (e.pageY+y) + "px",
+                        "left":  (e.pageX+x)  + "px"
+                 });
+            });
+        });
+
+    </script>
+{% endblock %}
+

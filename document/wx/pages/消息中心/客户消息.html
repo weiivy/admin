@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <title>wx demo</title>
+    <link rel="stylesheet" href="../../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="../../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../stylesheets/wx.css">
+</head>
+<body>
+<script>
+    // 支持物理像素
+    if (window.devicePixelRatio && devicePixelRatio >= 2) {
+        var testElem = document.createElement('div');
+        testElem.style.border = '.5px solid transparent';
+        document.body.appendChild(testElem);
+        if (testElem.offsetHeight == 1) {
+            document.querySelector('html').classList.add('hairlines');
+        }
+        document.body.removeChild(testElem);
+    }
+</script>
+<div class="wx-news wx-news-text">
+    <div class="wx-item">
+
+        <h2 class="wx-title">标题标题标题标题</h2>
+        <div>类型 : 客户消息</div>
+
+        <div class="wx-time">时间 : 2015-12-13</div>
+        <div>内容 :</div>
+        <div class="wx-content">
+            客户发来消息的内容
+        </div>
+    </div>
+</div>
+</body>
+</html>
+

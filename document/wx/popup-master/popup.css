@@ -1,0 +1,163 @@
+html, body {
+    padding: 0;
+    margin: 0;
+}
+
+.popup {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    z-index: 1111;
+}
+
+.popup.is-visible {
+    display: block;
+}
+
+.popup.full-screen .popup-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    background: #fff;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+}
+
+.popup .popup-container {
+    position: relative;
+    top: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    background: #fff;
+    border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    overflow: hidden;
+}
+
+/*.popup .popup-close {*/
+    /*position: absolute;*/
+    /*right: 0;*/
+    /*top: 0;*/
+    /*cursor: pointer;*/
+    /*width: 20px;*/
+    /*height: 20px;*/
+    /*font-size: 20px;*/
+    /*padding: 5px;*/
+    /*color: #ff7677;*/
+/*}*/
+
+.popup .popup-header {
+    font-weight: bold;
+    line-height: 50px;
+    padding-left: 8px;
+    padding-right: 8px;
+    text-align: center;
+}
+
+.popup .popup-content {
+    overflow: auto;
+}
+
+/*按钮样式*/
+.popup .popup-footer {
+    padding: 0;
+    margin: 0 -1px 0 0;
+    overflow: hidden;
+    zoom: 1;
+    text-align: center;
+
+}
+
+.popup .popup-footer li {
+    float: left;
+    overflow: hidden;
+}
+
+.popup .popup-footer a {
+    display: block;
+    height: 50px;
+    line-height: 50px;
+    border-right: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    color: #000;
+    text-decoration: none;
+}
+
+.popup .popup-footer a:active {
+    background-color: #ddd;
+}
+
+/* 自定义内置的一些样式 */
+.popup-css-alert .popup-container,
+.popup-css-confirm .popup-container,
+.popup-css-cute .popup-container,
+.popup-css-modal-cute .popup-container,
+.popup-css-select .popup-container {
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+
+}
+
+.popup-css-select .popup-header:not(:empty) {
+    border-bottom: 1px solid #ddd;
+}
+
+.popup-css-alert .popup-content,
+.popup-css-confirm .popup-content,
+.popup-css-cute .popup-content,
+.popup-css-modal-cute .popup-content {
+    min-height: 50px;
+    line-height: 50px;
+    padding-left: 8px;
+    padding-right: 8px;
+    text-align: center;
+}
+
+.popup-css-select .popup-content {
+    padding-left: 3px;
+    padding-right: 3px;
+}
+
+.popup-css-loading .popup-container {
+    width: 150px !important;
+    height: 150px !important;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    background: rgba(0, 0, 0, .75) url(popup-loading.gif) no-repeat center center;
+}
+
+.popup-css-select .popup-content .popup-select-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.popup-select-list .item {
+    border-top: 1px solid #ddd;
+    padding-left: 8px;
+    padding-right: 8px;
+    line-height: 44px;
+}
+
+.popup-select-list .item:active {
+    background-color: #ddd;
+}
+
+.popup-select-list .item:first-child {
+    border-top: 0;
+}

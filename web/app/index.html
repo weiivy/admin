@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="utf-8">
+    <title>康俊推拿</title>
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="x5-page-mode" content="app">
+    <link rel="stylesheet" href="css/font-awesome/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="css/common.css"/>
+    <link rel="stylesheet" href="css/index.css"/>
+    <meta name="format-detection" content="telephone=no"/>
+    <title></title>
+</head>
+<body ng-app="routeApp">
+<div ng-view></div>
+<div id="global-nav-space"></div>
+<div id="global-nav">
+    <a href="#/product/index" class="current">
+        <i class="icon fa fa-th-large"></i>
+
+        <div>项目</div>
+    </a>
+    <a href="#/employee/index">
+        <i class="icon fa fa-user-md"></i>
+
+        <div>推拿师</div>
+    </a>
+    <a href="#/order/index">
+        <i class="icon fa fa-table"></i>
+
+        <div>订单</div>
+    </a>
+    <a href="#/member/index">
+        <i class="icon fa fa-user"></i>
+
+        <div>个人</div>
+    </a>
+</div>
+
+<script src="js/jquery-1.11.1.min.js"></script>
+<script src="js/common.js"></script>
+<script src="src/angular.js"></script>
+<script src="src/angular-route.js"></script>
+<script src="routes/app.js"></script>
+<script src="controllers/main.js"></script>
+
+</body>
+</html>

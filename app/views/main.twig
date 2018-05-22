@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Admin{% endblock %}</title>
+
+    <link href="{{ asset('static/admin/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset("static/art-dialog/css/ui-dialog.css") }}" rel="stylesheet"/>
+    <link href="{{ asset('static/admin/css/layout.css') }}" rel="stylesheet">
+    <link href="{{ asset('static/admin/css/style.css') }}" rel="stylesheet">
+    <link href="{{ asset('static/rain/css/base.css') }}" rel="stylesheet">
+
+    {% block stylesheet %}
+    {% endblock %}
+
+</head>
+<body>
+{% block body %}
+
+    {% block header %}
+        <nav class="layout-header">
+            <div class="container layout-width">
+                <div class="row">
+                    <div class="col-md-12">
+
+                        <div class="pull-left">
+                            <a href="{{ url('/') }}" class="logo">
+                                <img src="{{ asset('images/logo.png') }}" height="40"/>
+                                <span style="font-size: 20px">积分随便兑管理平台</span>
+                            </a>
+                        </div>
+
+                        <div class="pull-right">
+
+                        <span class="account-info">
+
+                            <a href="">{{ app.user ? app.user.username : '' }}</a>
+                            <a class="login-out" href="{{ url('logout') }}">退出</a>
+                        </span>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </nav>
+    {% endblock %}
+
+    {% block content %}
+        <section class="container layout-main layout-width">
+            <div class="row">
+                <div class="col-md-12">
+
+                    <!--左菜单区域-->
+                    <div class="layout-menu pull-left">
+                        <ul class="main-menu">
+                            <li>
+                                <span class="menu-item">
+                                    <i class="icon glyphicon glyphicon-credit-card"></i>
+                                    <i class="icon pull-right"></i>
+                                    <span>银行信息管理</span>
+                                </span>
+                            </li>
+
+                            <li class="level-2  {% if leftMenuActive is defined and leftMenuActive == 'bank/index' %}active{% endif %}">
+                                <a class="menu-item" href="{{ url('bank/index') }}">
+                                    <i class="icon"></i>
+                                    <i class="icon pull-right"></i>
+                                    <span>银行管理</span>
+                                </a>
+                            </li>
+                            <li class="level-2  {% if leftMenuActive is defined and leftMenuActive == 'bank-config/index' %}active{% endif %}">
+                                <a class="menu-item" href="{{ url('bank-config/index') }}">
+                                    <i class="icon"></i>
+                                    <i class="icon pull-right"></i>
+                                    <span>积分兑换比例管理</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <span class="menu-item">
+                                    <i class="icon glyphicon glyphicon-user"></i>
+                                    <i class="icon pull-right"></i>
+                                    <span>会员中心</span>
+                                </span>
+                            </li>
+
+                            <li class="level-2  {% if leftMenuActive is defined and leftMenuActive == 'contact/index' %}active{% endif %}">
+                                <a class="menu-item" href="{{ url('contact/index') }}">
+                                    <i class="icon"></i>
+                                    <i class="icon pull-right"></i>
+                                    <span>粉丝管理</span>
+                                </a>
+                            </li>
+                            <li class="level-2  {% if leftMenuActive is defined and leftMenuActive == 'member/index' %}active{% endif %}">
+                                <a class="menu-item" href="{{ url('member/index') }}">
+                                    <i class="icon"></i>
+                                    <i class="icon pull-right"></i>
+                                    <span>会员管理</span>
+                                </a>
+                            </li>
+
+
+                            <li>
+                                <span class="menu-item">
+                                    <i class="icon glyphicon glyphicon-shopping-cart"></i>
+                                    <i class="icon pull-right"></i>
+                                    <span>订单中心</span>
+                                </span>
+                            </li>
+                            <li class="level-2 {% if leftMenuActive is defined and leftMenuActive == 'order/index' %}active{% endif %}">
+                                <a class="menu-item" href="{{ url('order/index') }}">
+                                    <i class="icon"></i>
+                                    <i class="icon pull-right"></i>
+                                    <span>订单管理</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <!-- 左菜单区域结束-->
+
+                    <!--右内容区域-->
+                    <div class="layout-content pull-left">
+                        {% block contentRight %}{% endblock %}
+                    </div>
+                    <!--右内容区域结束-->
+
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </section>
+    {% endblock %}
+
+    {% block footer %}
+        <footer class=" layout-footer">
+            <div class="container layout-width">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="links">
+                            <li><p class="copyright">Copyright.All Rights Reserved.</p></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    {% endblock %}
+
+{% endblock %}
+
+<script>var baseUrl = "{{ asset('') }}";</script>
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="{{ asset('static/admin/js/html5shiv.min.js') }}"></script>
+<script src="{{ asset('static/admin/js/respond.min.js') }}"></script>
+<![endif]-->
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="{{ asset('static/admin/js/jquery-1.11.2.min.js') }}"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="{{ asset('static/admin/bootstrap/js/bootstrap.min.js') }}"></script>
+<script src="{{ asset('static/admin/js/layout.js') }}"></script>
+<script src="{{ asset('static/art-dialog/dist/dialog-min.js') }}"></script>
+<script src="{{ asset('static/rain/base.js') }}"></script>
+
+{% block javascript %}
+{% endblock %}
+
+</body>
+</html>

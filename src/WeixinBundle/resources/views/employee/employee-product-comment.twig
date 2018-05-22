@@ -1,0 +1,102 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}技师服务评论{% endblock %}
+{% set leftMenuActive = 'employee/index' %}
+{% block content %}
+    <div class="container un-select">
+        <div id="show-employee-product-comment-template"></div>
+        <div class="container text-center js-more"><i class="icon fa"></i> 加载更多</div>
+
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script id="employee-product-comment-template" type="text/html">
+        <% for(i = 0; i < data.length; i++) { %>
+        <div class="common-panel common-list">
+            <div class="list-item list-input-item">
+                    <span class="input">
+                        <%= data[i].nickname %>(<%= data[i].username %>)
+                    </span>
+
+                <div class="addon text-primary">
+                    <i class="vertical-middle icon fa fa-2x fa-smile-o"></i>
+                    <span class="vertical-middle"><%= data[i].rate %></span>
+                </div>
+            </div>
+            <div class="list-item list-input-item">
+                <div class="input"><%= data[i].content %></div>
+                <div class="addon text-muted vertical-bottom"><%= data[i].created_at %></div>
+            </div>
+        </div>
+        <% } %>
+    </script>
+    <script id="empty-template" type="text/html">
+        <div class="empty-order text-center text-primary">
+            <i class="icon fa fa-file-text-o" style="font-size: 150px;"></i>
+            <p>抱歉,暂无评论</p>
+        </div>
+    </script>
+    <script>
+        var currentPage = 1;
+        var productId = {{ app.request.get('productId') }};
+        var employeeId = {{ app.request.get('employeeId') }};
+        $(function(){
+            $.ajax({
+                url: "{{ url('employee/ajax-employee-product-comment') }}?currentPage=" + currentPage,
+                type: "POST",
+                dataType: 'json',
+                data: {employeeId:employeeId, productId:productId},
+                success: function (result) {
+                    var html;
+                   if(result.status != 1){
+                        html = template('empty-template');
+                       $(".js-more").remove();
+
+                   } else {
+                       var data = {
+                            data:result.data
+                        };
+                       html = template('employee-product-comment-template', data);
+                       currentPage++;
+                   }
+                   $("#show-employee-product-comment-template").append(html);
+
+                },
+                error: function () {
+                    rain.alert("系统出错");
+                }
+            });
+
+            //加载更多
+            $(".js-more").click(function(){
+                $.ajax({
+                url: "{{ url('employee/ajax-employee-product-comment') }}?currentPage=" + currentPage,
+                type: "POST",
+                dataType: 'json',
+                data: {productId:productId, employeeId:employeeId},
+                success: function (result) {
+                   var html;
+                   //有更多加载
+                   if(result.status = 1 && result.data != 0){
+                       var data = {
+                            data:result.data
+                        };
+                       html = template('employee-product-comment-template', data);
+                       currentPage++;
+                       $("#employee-product-comment-template").append(html);
+                   } else {
+
+                       //没有更多移除加载更多按钮
+                       $(".js-more").remove();
+                   }
+
+                },
+                error: function () {
+                    rain.alert("系统出错");
+                }
+            });
+
+            });
+        });
+    </script>
+{% endblock %}

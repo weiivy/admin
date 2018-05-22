@@ -1,0 +1,224 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}技师列表{% endblock %}
+{% set leftMenuActive = 'employee/index' %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/technician-list.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('static-web/pull-refresh-master/pull-refresh.css') }}"/>
+{% endblock %}
+{% block content %}
+    {% block changeCity %}
+        {{ parent() }}
+    {% endblock %}
+
+<div class="container" >
+
+    <div class="common-panel">
+        <div class="content-block">
+            <div class="btn-group-filter js-btn-group-radio">
+                <input type="hidden" name="grade" id="grade" value="0"/>
+                <a href="javascript:;" class="item active" data-key="grade" data-val = "0">全部</a>
+                {% for key, val in gradeArr %}
+                    <a href="javascript:;" class="item" data-key="grade" data-val = {{ key }}>{{ val }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="h-10"></div>
+
+    <div id="show-employee-template"></div>
+    <div class="pull-loadmore"></div>
+</div>
+{% endblock %}
+{% block javascript %}
+    <script src="{{ asset('static-web/pull-refresh-master/pull-refresh.min.js') }}"></script>
+{# 技师列表 #}
+<script id="employee-template" type="text/html">
+    <% for(i = 0; i < data.length; i++) { %>
+         <a class="common-panel has-touch-bg" href="{{ url('employee/info') }}?id=<%= data[i].id %>">
+            <div class="thumb">
+                <% if(data[i].avatar.length == 0) { %>
+                     <div class="thumb-image" style="background-image: url('{{ asset('images/') }}no-pic.jpg')"></div>
+                <% } else { %>
+                    <div class="thumb-image" style="background-image: url('{{ asset('uploads/avatar/') }}<%= data[i].avatar %>')"></div>
+                <% } %>
+                <span class="man-tag"><%= data[i].grade %></span>
+            </div>
+
+            <div class="content ">
+                <div class="title"><span class="name"><%= data[i].name %></span> <span class="sex"><%= data[i].sex %></span> <span class="count"><i
+                        class="icon  icon-bookmark-empty"></i>&nbsp;<span class="value"><%= data[i].count %>单</span></span></div>
+                <div class="sub-title">
+                    <% if (data[i].distination != undefined) { %>
+                    <span class="distance text-primary">
+                        <i class="icon fa fa-map-marker"></i>
+                        <%= data[i].distination %>公里&nbsp;
+                    </span>
+                     <% } %>
+                    <div class="local">位置:<%= data[i].location %></div>
+                </div>
+                <div class="summary text-overflow-3">
+                    <span>推拿师介绍:</span>
+                    <span ><%= data[i].intro %></span>
+                </div>
+            </div>
+         </a>
+    <% } %>
+</script>
+
+{# 暂无技师 #}
+<script id="empty-template" type="text/html">
+    <div class="empty-order text-center text-primary">
+            <i class="icon fa fa-file-text-o" style="font-size: 150px;"></i>
+            <p>抱歉,暂无技师</p>
+        </div>
+</script>
+    {{ parent() }}
+    <script>
+        $(function(){
+
+            var globalhandle ;
+
+            //初始加载页面
+            var dataObj = {
+                cityId:cityId,
+                currentPage:1
+            };
+            pullbox.onLoadMore=function(handle){
+                globalhandle = handle;
+                loadEmployeeList(dataObj, handle);
+            };
+
+            //选择城市列表
+            $(".address-current").click(function () {
+                $(window).scrollTop(0);
+                $(".common-address-picker").addClass("show-address-list");
+                $(".container").toggle();
+                $(".address-list").toggle();
+            });
+
+            //切换城市
+            $(".city-item").click(function(){
+                var dataId = $(this).attr("data-id");
+                var value = $(this).html();
+                $.ajax({
+                    url: "{{ url('employee/ajax-change-city') }}",
+                    type: "get",
+                    dataType: 'json',
+                    data: {defaultCity:dataId},
+                    success: function (result) {
+                        if (result.status == 1) {
+                            $(".js-current-address").html(value);
+                            $(".common-address-picker").removeClass("show-address-list");
+                            $(".container").toggle();
+                            $(".address-list").toggle();
+                            cityId = dataId;
+                            dataObj = {
+                                cityId:cityId,
+                                currentPage:1
+                            };
+                            $("#show-employee-template").children().remove();
+
+                            //加载数据
+                            pullbox.onLoadMore(globalhandle);
+
+                            return;
+                        } else {
+                            rain.alert(result.message);return;
+
+                        }
+                    },
+                    error: function () {
+                        rain.alert("网络错误，请刷新或稍后再试");
+                        return;
+                    }
+                });
+
+            });
+
+            //筛选
+            $(".js-btn-group-radio").change(function (e,data) {
+                dataObj = {
+                    cityId:cityId,
+                    currentPage:1
+                };
+
+                if(data.key == "grade") {
+                    $("#grade").val(data.val);
+                }
+
+                dataObj.grade = $.trim($("#grade").val());
+                $("#show-employee-template").children().remove();
+
+                //加载数据
+                pullbox.onLoadMore(globalhandle);
+
+            });
+        });
+
+        //加载技师列表
+        function loadEmployeeList(data, handle){
+
+            var loading = rain.loading().start();
+             //加载服务列表
+            $.ajax({
+                url:"{{ url('employee/ajax-list') }}",
+                type:"get",
+                data:data,
+                dataType:'json',
+                success:function(result){
+                    loading.stop();
+                   console.info(result);
+                   var html = '';
+
+                    //有技师
+                    if (result.data.length > 0 ) {
+
+                        /* 根据距离排序 */
+                        var temp = result.data;
+                        var lat = $.cookie('lat');
+                        var lng = $.cookie('lng');
+                        if(lat != undefined && lng != undefined) {
+                             for(var i = 0; i < temp.length; i++) {
+                                temp[i].distination = destination(lng, lat, temp[i].location_x,temp[i].location_y);
+                             }
+
+                            for (var k = 0; k < temp.length; k++) {
+                                for (var j = temp.length; j > 0; j--) {
+                                    if (temp[j] != undefined && parseFloat(temp[j].distination) < parseFloat(temp[j-1].distination)) {
+                                        var tempNew = temp[j - 1];
+                                        temp[j - 1] = temp[j];
+                                        temp[j] = tempNew;
+                                    }
+                                }
+                            }
+                        }
+                        /* 根据距离排序 */
+
+                        var dataAppend = {
+                            data:temp
+                        };
+                        data.currentPage++;
+                        html = template('employee-template',dataAppend);
+                        handle.finish();
+                        $(".pull-loadmore").hide();
+                    } else{
+
+                        //无技师
+                        if(data.currentPage == 1){
+                               html = template('empty-template');
+                        }
+                        $(".pull-loadmore").hide();
+                    }
+                    $("#show-employee-template").append(html);
+                },
+                 error: function () {
+                     loading.stop();
+                     rain.alert("网络错误，请刷新或稍后再试");
+                }
+
+            });
+        }
+
+    </script>
+
+{% endblock %}

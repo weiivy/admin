@@ -1,0 +1,656 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}服务详情{% endblock %}
+{% set leftMenuActive = 'employee/index' %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/product-detail.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('static-web/css/order.css') }}"/>
+{% endblock %}
+{% block content %}
+    {% if product is defined and product.min != 0 %}
+        {% set productMin = product.min %}
+    {% else %}
+        {% set productMin = '' %}
+    {% endif %}
+    <form id="show-product-detail-template">
+         <div id="js-main-page">
+             <div class="has-corner">
+                <span class="corner">
+                    {% if product.discount == 0 %}
+                        {{ product.positionAlias() }}
+                    {% else %}
+                        特
+                    {% endif %}
+                </span>
+                {% if product.image is empty %}
+                     <img class="img-responsive" src="{{ asset('images/') }}no-pic.jpg" alt=""/>
+                {% else %}
+                    <img class="img-responsive" src="{{ asset('uploads/product/') }}{{ product.image }}" alt=""/>
+                {% endif %}
+            </div>
+            <div class="container">
+                <div class="common-panel js-tab">
+                    <ul class="nav-btn-bar ">
+                        <li class="js-tab-nav active"><span>服务内容</span></li>
+                        <li class="js-tab-nav"><span>下单须知</span></li>
+                        <li class="js-tab-nav" ><span>禁忌须知</span>  </li>
+                    </ul>
+                    <ul class="common-list">
+                        <li class=" list-item ">
+                         <div class="js-tab-body active">
+                             {{ product.content|raw }}
+                         </div>
+                         <div class="js-tab-body ">
+                              请仔细阅读禁忌提示<br />
+                                请如实填写服务享用者的联系方式及预约地址<br />
+                                快速预约时将由点到系统自动为您指定合适的服务技师，如需自选技师请技师直约<br />
+                                预约后请在30分钟内线上支付或选择服务完成后线下支付，否则订单将失效<br />
+                                预约成功后，如需取消订单请进入我的订单页面按提示操作<br />
+                                当您使用点到服务时，即表示您已阅读并同意点到软件《使用协议》及《责任声明》<br />
+                         </div>
+                         <div class="js-tab-body ">
+                             在不适宜的情况下进行按摩理疗可能会对健康造成负面影响，请您仔细阅读以下提示： <br />
+                            1、暂不为小儿（12岁以下）、妇女经期妊娠期及剖腹产后三个月内者、高龄者（68岁以上）提供按摩理疗服务  <br />
+                            2、患有头部急症、骨折外伤，胸、腰椎椎体结核，椎管内肿瘤，强直性脊柱炎等病症者不宜接受全身按摩理疗  <br />
+                            3、严重心脏病、肿瘤、传染性皮肤病、急性损伤、各种疮疡及大病术后伤口愈合不足6月者不宜接受按摩理疗服务  <br />
+                            4、大量饮酒后周身发热、头脑昏沉，饱食或暴饮两小时内，不能接受按摩服务 <br />
+                            5、严重疾病、身体疼痛者请及时就医治疗，以免耽误治疗  <br />
+                         </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="common-panel order-panel">
+                    <ul class="common-list  product-info">
+                        <li class="list-item overflow">
+                            <div class="pull-left"> <span class="text-danger">&yen;{{ product.grade_price }}</span> / <span class="text-primary"> {{ product.time }}</span></div>
+                            <div class="pull-right text-primary">{{ product.count }}人做过</div>
+                        </li>
+
+                         <li class="list-item list-input-item">
+                        <span class="addon ">购买数量:</span>
+                             
+                        <div class="input text-right">
+                             <div class="calc">
+                                <span class="min js-min"><i class="fa fa-minus text-primary"></i></span>
+                                <span class="num js-num-value">{{ productMin | default(1) }}</span>
+                                <input type="hidden" name="Order[quantity]" value="{{ productMin | default(1) }}"/>
+                            <span class="max js-max"><i class="fa fa-plus text-primary"></i></span>
+                        </div>
+                        </div>
+                    </li>
+                    <li class="list-item list-input-item">
+                        <span class="addon ">总价:</span>
+                        <div class="input text-right">
+                           <span class="text-danger"> &yen;
+                              <span class="js-total-price">{{ productMin|default(1) * product.grade_price|default(0) }}</span>
+                           </span>
+                             /
+                           <span class="js-total-time text-primary">{{ productMin|default(1) * product.time|default(0) }}</span>分钟
+                        </div>
+                    </li>
+                    </ul>
+                </div>
+
+                <div class="common-panel order-form-info">
+                    <ul class="common-list">
+                       {#<li class="list-item list-input-item ">
+                            <span class="addon time">服务类型:</span>
+                            <div class="input">
+                                <div class="btn-group-filter js-btn-group-radio js-service-type" data-service-type="">
+                                    {% for key, value in serviceTypeArr %}
+                                    <span class="item btn-primary js-select-service-type" data-key="{{ key }}">{{ value }}</span>
+                                    {% endfor %}
+                               </div>
+                            </div>
+                       </li>#}
+
+                       <li class="list-item list-input-item" >
+                            <span class="addon time"><i class="icon fa fa-user" style="width:16px"></i> 客户姓名:</span>
+                            <input  autocomplete="off" id="js-user-name"  type="text" name="Order[name]" class="input" value="{{ member.nickname|default('') }}"/>
+                       </li>
+                       <li class="list-item list-input-item" onclick="showTimeView()">
+                            <span class="addon time"><i class="icon fa fa-clock-o"   style="width:16px"></i> 预约时间:</span>
+                            <input  autocomplete="off" id="js-order-time" type="text" name="Order[booking_time]" class="input" readonly/>
+                            <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+                       </li>
+                       <li class="list-item list-input-item js-change-address-service-type">
+                            <span class="addon time"><i class="icon fa fa-map-marker" style="width:16px"></i> 常用地址:</span>
+                            <input autocomplete="off" id="js-order-address" data-address="{{ defaultAddress.detail|default('') }}" data-address_id="{{ defaultAddress.id|default('') }}"
+                                   data-product_id="{{ productId }}" data-quantity="1" type="text" class="input"
+                                   value="{{ defaultAddress.detail|default('') }}  {{ defaultAddress.mobile|default('') }}" readonly/>
+                            <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+                        </li>
+
+                    </ul>
+                </div>
+                <ul class="common-panel common-list technician-info" id="show-employee-detail-template">
+                     <li class="list-item list-input-item">
+
+                         <div class="addon">
+                             {% if employee.avatar is empty %}
+                                 <div class="thumb" style="background-image: url('{{ asset('images/') }}no-pic.jpg')"></div>
+                             {% else %}
+                                 <div class="thumb" style="background-image: url('{{ asset('uploads/avatar/') }}{{ employee.avatar }}')"></div>
+                             {% endif %}
+                          </div>
+                         <div class="input">
+                            <div class="content">
+                                <div class="title">
+                                    <span class="name">{{ employee.name|default('-') }}</span>
+                                    <span class="man-tag">{{ employee.grade|default('') }}</span>
+                                </div>
+                                <div class="comment-stars">
+                                    {% for value in range(0, 4) %}
+                                        <i class="icon fa {% if value < commentGrade %}fa-star {% else %} fa-star-o {% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                                <div class="order-count">接单数:{{ employee.count|default('0') }}</div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="service-circle list-item list-input-item">
+                        <div class="addon vertical-top "><i class="icon fa fa-map-marker"></i> 服务商圈</div>
+                        <div class="input">
+                            {{ employee.area }}
+                        </div>
+                    </li>
+                    <a href="{{ url('employee/employee-product-comment') }}?productId={{ productId }}&employeeId={{ employeeId }}" class="customer-comment list-item">
+                        <i class="icon fa fa-comment-alt"></i> 顾客评价 ({{ commentCount|default('0') }})
+                    </a>
+                </ul>
+
+                {#<div class="common-panel">
+                    <ul class="common-list">
+                        <li class="list-item ">骏到家简介</li>
+                        <li class="list-item ">
+                             <div>
+                                骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介
+                                骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介
+                                骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介
+                                骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介
+                                骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介
+                                骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介骏到家简介
+                             </div>
+                        </li>
+                    </ul>
+                </div>#}
+                <div class="btn btn-primary btn-lg btn-submit js-submit">立即预约</div>
+            </div>
+        </div>
+    </form>
+
+    <div id="js-modal-address-list" style="display: none;">
+        <div class="container">
+            <div class="common-panel ">
+                <ul class="common-list">
+                    <li class="list-item list-input-item">
+                        <span class="addon">上门地址:</span>
+                        <input type="hidden" name="detail" id="address" value=""/>
+                        <input id="suggestId" type="text" class="input"/>
+                        <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
+                    </li>
+                    <li class="list-item list-input-item">
+                        <span class="addon">详细门牌:</span>
+                        <input type="text" class="input" name="code" id="code" value=""/>
+                    </li>
+                    <li class="list-item list-input-item">
+                        <span class="addon">联系电话:</span>
+                        <input type="text" class="input" name="mobile" id="mobile" value="{{ member.mobile|default('') }}"/>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="container">
+            <button class="btn btn-block btn-primary js-add-address">确定</button>
+        </div>
+
+        <div class="container">
+
+            <div class="common-panel">
+                <ul class="common-list show-address-list">
+                    <div class="list-item has-touch-bg" onclick="showAddressEditView()">
+                        使用历史地址
+                    </div>
+                    {% for key, value in cities %}
+                       <li class="list-item list-input-item has-touch-bg js-address" data-code="{{ key }}">
+                            <div class="input text-muted">上门地址:{{ value.detail|default('') }} {{ value.mobile|default('') }}</div>
+                       </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="js-modal-time" style="display: none;">
+    <div class="container">
+         <div class=" text-default js-close-time-show">
+            <div class="btn btn-sm btn-primary"><i class="fa fa-angle-left"></i>&nbsp;&nbsp;返回</div>
+        </div>
+        <p class="text-primary"><i class="icon fa fa-info-sign"></i> <span>温馨提示:灰色时间段代表已被Ta人预约啦!</span></p>
+
+        <div class="common-panel">
+            <div id="common-popup-time" class="common-popup-time">
+                <div class="nav-day">
+                    <div class="day-item active">今天</div>
+                    <div class="day-item">明天</div>
+                    <div class="day-item">后天</div>
+                </div>
+                <div class="body">
+                    <div class="time-list active">
+                        <!--今天日期-->
+                        {% set today = ('now'|date('Y-m-d')) %}
+                        {% set todayArr = [] %}
+                        {% if checkedTime[today] is defined %}
+                            {% set todayArr = checkedTime[today] %}
+                        {% endif %}
+                        {% for key, value in timeArr %}
+
+                            {% set disabled1 = false %}
+                            {% for v in todayArr %}
+                                 {% if v == value %}
+                                    {% set disabled1 = true %}
+                                 {% endif %}
+                            {% endfor %}
+                            <li class="{% if disabled1 %}disabled{% endif %}"><span class="time-value" data-date="{{ 'now'|date('Y-m-d') }}">{{ value }}</span></li>
+                        {% endfor %}
+                    </div>
+                    <div class="time-list ">
+
+                        <!--明天日期-->
+                        {% set  tomorrow = ('+1days'|date('Y-m-d')) %}
+                        {% set tomorrowArr = [] %}
+                        {% if checkedTime[tomorrow] is defined %}
+                            {% set tomorrowArr = checkedTime[tomorrow] %}
+                        {% endif %}
+                        {% for key, value in timeArr %}
+                            {% set disabled2 = false %}
+                            {% for v in tomorrowArr %}
+                                 {% if v == value %}
+                                    {% set disabled2 = true %}
+                                 {% endif %}
+                            {% endfor %}
+                            <li class="{% if disabled2 %}disabled{% endif %}"><span class="time-value" data-date="{{ '+1days'|date('Y-m-d') }}">{{ value }}</span></li>
+                        {% endfor %}
+                    </div>
+                    <div class="time-list ">
+                        <!--循环时间-->
+                        {% for value in timeArr %}
+                            <li><span class="time-value" data-date="{{ '+2days'|date('Y-m-d') }}">{{ value }}</span></li>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button class="btn btn-submit btn-primary js-close-time">确认</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %} {% endblock %}
+
+{% block javascript %}
+    {{ parent() }}
+
+    <script>
+
+        var price = parseFloat({{ product.grade_price|default(0) }});
+        var time = parseInt('{{ product.time }}');
+        //起订人数
+        var minCount = {% if product is defined and product.min != 0 %}{{ product.min }}{% else %}1{% endif %};
+        var employeeId = {{ employeeId }};
+        var productId = {{ productId }};
+        var addressList = {% autoescape false%}{{ cities|json_encode() }} {% endautoescape %};
+        var number = parseInt($(".js-num-value").html());
+        var defaultAddressId ={{ defaultAddress.id|default(0) }};
+
+        $(function(){
+
+            var addressInfo = $("#js-order-address").attr("data-address");
+            if(addressInfo.length != 0) {
+                getLatAndLng(addressInfo, citiesArr[cityId]);
+            }
+
+             //减少购买数量，不能少于起订人数
+            $(".calc .min").click(function(){
+                number = parseInt($(".js-num-value").html());
+                if(number <= minCount){
+                    return false;
+                }
+                number--;
+                $(".js-num-value").html(number);
+                $("input[name='Order[quantity]']").val(number);
+
+                //修改总价
+                $(".js-total-price").html(number * price);
+                $(".js-total-time").html(number * time);
+            });
+
+            //添加购买数量
+            $(".calc .max").click(function(){
+                number = parseInt($(".js-num-value").html());
+
+                if((time == 60 || time == 20) && number * time >= 240){
+                    return false;
+                } else if(time == 45 && number * time >= 270){
+                    return false;
+                } else if((time == 90 || time == 120) && number * time >= 360) {
+                    return false;
+                }
+                number++;
+                $(".js-num-value").html(number);
+                $("input[name='Order[quantity]']").val(number);
+
+                //修改总价
+                $(".js-total-price").html(number * price);
+                $(".js-total-time").html(number * time);
+            });
+
+            //添加常用地址
+            $(".js-add-address").click(function(){
+                var mobile = $.trim($("#mobile").val());
+                var code = $.trim($("#code").val());
+                var address = $.trim($("#address").val());
+                var currentCity = $.trim($("#address").attr("data-current-city"));
+
+                //验证
+                if(address.length == 0){
+                    rain.alert("请填写地址");
+                    return false;
+                }
+
+                if(code.length == 0){
+                    rain.alert("请填写门牌号");
+                    return false;
+                }
+
+                if(!rain.isNumber(mobile) || mobile.length != 11){
+                    rain.alert("请填写正确的电话");
+                    return false;
+                }
+                var data = {
+                    Address:{
+                        address:address,
+                        number:code,
+                        mobile:mobile
+                    }
+                };
+
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('member/ajax-add-address') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: data,
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            $("#js-main-page").show();
+                            $("#js-modal-address-list").hide();
+                            $("#js-modal-address").hide();
+                            $("#js-order-address").val(result.data.detail + result.data.mobile);
+                            $("#js-order-address").attr('data-address_id', result.data.id);
+                            getLatAndLng(result.data.detail, currentCity);
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                    }
+                });
+
+            });
+
+            //从常用地址列表选择地址
+            $(".js-address").click(function(){
+                var code = $(this).attr('data-code');
+                var addressId = addressList[code].id;
+                if(addressId != defaultAddressId) {
+                    rain.confirm("您确定要修改地址吗?", function() {
+                        $("#js-order-address").val(addressList[code].detail + addressList[code].mobile);
+                        $("#js-order-address").attr('data-address', addressList[code].detail);
+                        $("#js-order-address").attr('data-address_id', addressId);
+                        $("#js-modal-address-list").hide();
+                        $("#js-main-page").show();
+                        defaultAddressId = addressId;
+                        $(window).scrollTop($("#js-order-address").offset().top)
+                        getLatAndLng(addressList[code].detail, citiesArr[cityId]);
+
+                    }, function() {
+                        $("#js-modal-address-list").hide();
+                        $("#js-main-page").show();
+                        $(window).scrollTop($("#js-order-address").offset().top)
+                    });
+                } else {
+                    $("#js-modal-address-list").hide();
+                    $("#js-main-page").show();
+                    $(window).scrollTop($("#js-order-address").offset().top)
+                }
+            });
+
+
+            //显示常用地址列表
+            $("#js-order-address").click(function(){
+                $("#js-main-page").hide();
+                $("#js-modal-address-list").show();
+            });
+
+            $("#js-show-modal-address").click(function(){
+                $("#js-modal-address-list").hide();
+                return false;
+            });
+
+
+            //预约
+            $(document).on('click', '.js-submit', function(){
+                var bookingTime = $("input[name='Order[booking_time]']").val();
+                var quantity = $("#js-order-address").attr("data-quantity");
+                var productId = $("#js-order-address").attr("data-product_id");
+                var name = $.trim($("#js-user-name").val());
+
+                //客户姓名
+                if(name.length == 0) {
+                    rain.alert("请填写客户姓名");
+                    return false;
+                }
+
+                if(bookingTime.length == 0) {
+                    rain.alert("请选择预约时间");
+                    return false;
+                }
+
+                var cute = '';
+
+                //验证地址
+                var addressId = $("#js-order-address").attr("data-address_id");
+                if(addressId == undefined){
+                    rain.alert("请添加地址");
+                    return false;
+                }
+
+                var data = {
+                    Order:{
+                        booking_time:bookingTime,
+                        quantity:quantity,
+                        product_id:productId,
+                        address_id:addressId,
+                        employee_id:employeeId,
+                        quantity:number,
+                        name:name,
+                        grade:{{ employee.gradeAlias }},
+                        employee_source:{{ constant('Common\\Entity\\Order::EMPLOYEE_SOURCE_CLOCK') }}
+                    }
+                };
+
+                //是否超出技师服务范围
+                if(addressLat != 0 && addressLng != 0) {
+                    var destinationVal = destination(addressLng, addressLat, {{ employee.location_x|default(0) }}, {{ employee.location_y|default(0) }});
+                    var locationFlag = false;
+                    if(destinationVal > 10) {
+                        cute = "您当前选择地址超出技师服务范围,如果继续选择该技师，您将支付技师的打车费用";
+                    }
+                }
+
+                var loading = rain.loading(this).start();
+                if(cute.length == 0) {
+                   createOrder(data, loading);
+                } else {
+                    rain.confirm(cute, function(){
+                       createOrder(data, loading);
+                    }, function(){
+                        loading.stop();
+                    });
+
+                }
+
+                return false;
+
+            });
+
+            $("#js-modal-time").find(".day-item").click(function () {
+                showTimeView($(this).index());
+            });
+
+            //选择上门时间
+            $("#js-modal-time").find(".time-value").click(function () {
+                var day = $(this).attr("data-date");
+                var hour = $(this).html();
+                var temp = day + " " + hour;
+                if(!$(this).parent().hasClass("disabled")){
+                    $("#js-order-time").val(temp);
+                }
+
+            });
+
+             //提示时间不可选
+            $(".time-value").click(function(){
+                var parent = $(this).parent();
+                if(parent.hasClass("disabled")) {
+                    rain.alert("此时段不可选")
+                } else {
+                    $(".time-list>li.active").removeClass("active");
+                    parent.addClass("active");
+                }
+            });
+
+            //确定选择时间关闭窗口
+            $(".js-close-time").click(function(){
+                hideTimeView();
+            });
+
+             //关闭窗口
+            $(".js-close-time-show").click(function(){
+                //$("#js-order-time").val('');
+                $(".time-list>li").removeClass('active');
+                hideTimeView();
+
+            });
+
+
+        });
+
+        function createOrder(data, loading) {
+            $.ajax({
+                url: "{{ url('order/ajax-create-order') }}",
+                type: "POST",
+                dataType: 'json',
+                data: data,
+                success: function (result) {
+                    loading.stop();
+                    if (result.status == 1) {
+                        rain.cute("您的订单已经生成，请在10分钟内完成支付，否则将取消订单", 1000, function(){
+                              window.location.href = "{{ url('order/pay') }}?id="+ result.data;
+                        });
+
+                    } else {
+                        if(result.message == "请去登录") {
+                            window.location.href = "{{ url('default/login') }}";
+                            return false;
+                        }
+                        rain.alert(result.message);
+                        return false;
+                    }
+                },
+                error: function () {
+                    loading.stop();
+                    rain.alert("网络错误，请刷新或稍后再试");
+                }
+            });
+        }
+
+         /**
+         * 显示时间
+         */
+        function showTimeView(tabIndex) {
+            $("#js-main-page").hide();
+            $("#js-modal-time").show();
+            if (tabIndex != undefined) {
+                $("#js-modal-time").find(".day-item").removeClass("active");
+                $("#js-modal-time").find(".time-list").removeClass("active");
+                $("#js-modal-time").find(".day-item").eq(tabIndex).addClass("active");
+                $("#js-modal-time").find(".time-list").eq(tabIndex).addClass("active");
+            }
+        }
+
+        /**
+         * 隐藏时间
+         */
+        function hideTimeView() {
+            $("#js-modal-time").hide();
+            $("#js-main-page").show();
+            $(window).scrollTop($("#js-order-time").offset().top)
+        }
+
+    </script>
+
+    <script type="text/javascript">
+        // 百度地图API功能
+        function G(id) {
+            return document.getElementById(id);
+        }
+
+        $("#suggestId").focusout(function(){
+           $("#address").val($(this).val());
+           $("#address").attr("data-current-city", cityId);
+        });
+
+        var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
+                {"input" : "suggestId"
+                });
+
+        ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
+            var str = "";
+            var _value = e.fromitem.value;
+            var value = "";
+            if (e.fromitem.index > -1) {
+                value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            }
+            str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+
+            value = "";
+            if (e.toitem.index > -1) {
+                _value = e.toitem.value;
+                value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            }
+            str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+            G("searchResultPanel").innerHTML = str;
+            $("#address").val(value);
+            $("#address").attr("data-current-city", _value.city);
+        });
+
+        var myValue;
+        ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+            var _value = e.item.value;
+            myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            G("searchResultPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+            $("#address").val(myValue);
+            $("#address").attr("data-current-city", _value.city);
+        });
+
+    </script>
+
+
+{% endblock %}

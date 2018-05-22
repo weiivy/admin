@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <title>wx demo</title>
+    <link rel="stylesheet" href="../../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="../../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../stylesheets/wx.css">
+</head>
+<body>
+<script>
+    // 支持物理像素
+    if (window.devicePixelRatio && devicePixelRatio >= 2) {
+        var testElem = document.createElement('div');
+        testElem.style.border = '.5px solid transparent';
+        document.body.appendChild(testElem);
+        if (testElem.offsetHeight == 1) {
+            document.querySelector('html').classList.add('hairlines');
+        }
+        document.body.removeChild(testElem);
+    }
+</script>
+<style>
+    .wx-settings .time-range-item .wx-name {
+        font-size: 12px;
+    }
+</style>
+<div class="wx-group no-user-select">
+
+    <div class="wx-title">不接受预约时间段</div>
+
+    <div class="wx-settings">
+
+        <li class="wx-item time-range-item ">
+            <div class="wx-content">
+                <button class="btn btn-danger">删除</button>
+            </div>
+            <div class="wx-name">2014-12-22 10:00 至 2014-12-26 11:00</div>
+        </li>
+        <li class="wx-item time-range-item">
+            <div class="wx-content">
+                <button class="btn btn-danger">删除</button>
+            </div>
+            <div class="wx-name">2014-12-22 10:00 至 2014-12-26 11:00</div>
+        </li>
+        <li class="wx-item time-range-item">
+            <div class="wx-content">
+                <button class="btn btn-danger">删除</button>
+            </div>
+            <div class="wx-name">2014-12-22 10:00 至 2014-12-26 11:00</div>
+        </li>
+
+    </div>
+
+</div>
+<div class="wx-group no-user-select">
+
+    <div class="wx-title"></div>
+
+    <div class="wx-settings">
+
+        <a class="wx-item " href="新增时间段.html">
+            <div class="wx-content"></div>
+            <div class="wx-name">新增时间段</div>
+        </a>
+    </div>
+    <div class="wx-title"></div>
+
+</div>
+
+</body>
+</html>
+

@@ -1,0 +1,47 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}收藏{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/fav-product.css') }}"/>
+{% endblock %}
+{% block content %}
+    <div class="container">
+    <ul class="btn-group-nav">
+        <a class="item active" href="{{ url('member/collect-product') }}">产品</a>
+        <a class="item" href="{{ url('member/collect-employee') }}">技师</a>
+    </ul>
+     {% if product is empty %}
+           <div class="empty-order text-center text-primary">
+                <i class="icon fa fa-file-text-o" style="font-size: 150px;"></i>
+                <p>抱歉,暂无收藏</p>
+           </div>
+     {% else %}
+        <ul class="service-list">
+
+           {% for val in product %}
+                <li class="has-corner">
+                    <a href="{{ url('product/info') }}?id={{ val.id }}">
+                        <span class="corner">
+                            {% if val.discount == 0 %}
+                                {{ val.position }}
+                            {% else %}
+                                特
+                            {% endif %}
+
+                        </span>
+                        <div class="thumb" style="background-image: url({% if val.image is empty %}'{{ asset('images/') }}no-pic.jpg'{% else %}'{{ asset('uploads/product/') }}{{ val.image }}'{% endif %})"></div>
+                        <div class="info">
+                            <p>
+                                <span class="name">{{ val.name }}</span>
+                                <span class="price">&yen; {{ val.price }}元/{{ val.time }}</span>
+                            </p>
+
+                            <p class="history-count">{{ val.count }}人做过</p>
+                        </div>
+                    </a>
+                </li>
+            {% endfor %}
+       {% endif %}
+    </ul>
+</div>
+{% endblock %}

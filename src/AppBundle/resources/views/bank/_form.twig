@@ -1,0 +1,44 @@
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">银行名称</label>
+
+    <div class="col-sm-6">
+        <input type="text" name="Bank[bank_name]" class="form-control" id="bank_name"
+               value="{{ bank.bank_name|default(app.request.get('Bank').bank_name|default('')) }}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">银行缩写</label>
+
+    <div class="col-sm-6">
+        <input type="text" name="Bank[bank]" class="form-control" id="bank"
+               value="{{ bank.bank|default(app.request.get('Bank').bank|default('')) }}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">状态</label>
+
+    <div class="col-sm-6">
+        {% autoescape false %}
+            {{ app.html.dropDownList('Bank[status]', bank.status|default(10) , statusArr, {'class':"form-control"}) }}
+        {% endautoescape %}
+    </div>
+
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label"></label>
+
+    <div class="col-sm-6">
+        <button class="btn btn-success js-save">
+            {% if bank is defined %}
+                保存
+            {% else %}
+                提交
+            {% endif %}
+        </button>
+    </div>
+</div>

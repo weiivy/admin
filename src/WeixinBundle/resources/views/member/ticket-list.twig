@@ -1,0 +1,42 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}我的卡券{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/kaquan.css') }}"/>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% for ticket in tickets %}
+            <div class="kaquan {% if ticket.status == "已过期" or ticket.status == "已使用" %}
+            kaquan-default{% else %}kaquan-primary{% endif %}">
+                <div class="content">
+                    <p class="text-lg">{{ ticket.title|default('-') }}
+                        <small>{{ ticket.notice|default('-') }}</small>
+                    </p>
+                    <p class="text-right">￥<span>{{ ticket.reduce_cost|default(0) }}</span></p>
+                    <p class="text-sm">{{ ticket.description|default('-') }}</p>
+                    <p class="text-center">发券日期: {{ ticket.created_at }}</p>
+                </div>
+                <div class="addon text-center">
+                    {% if ticket.status != "已使用" %}
+                        <p>有效期剩余</p>
+                        <p>{{ ticket.diff }}天</p>
+                    {% else %}
+                        <p>{{ ticket.status }}</p>
+                    {% endif %}
+                    <p>
+                        {% if ticket.status == "已过期" or ticket.status == "已使用" %}
+                            <i class="fa fa-ban"></i>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-order text-center text-primary">
+            <i class="icon fa fa-file-text-o" style="font-size: 150px;"></i>
+            <p>暂无卡券</p>
+        </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

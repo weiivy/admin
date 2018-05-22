@@ -1,0 +1,123 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}消费明细{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/personal.css') }}"/>
+    <link rel="stylesheet" href="{{ asset('static-web/pull-refresh-master/pull-refresh.css') }}"/>
+    <style>
+        .avatar {
+            width: 100px;
+            height: 100px;
+            background-color: #ddd;
+            margin: 20px auto 10px;
+            background-repeat: no-repeat;
+            background-position: center;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            background-size: cover;
+        }
+
+        .name {
+            text-align: center;
+            font-size: 12px;
+            margin-bottom: 40px;
+        }
+
+        .load-txt {
+            text-align: center;
+            color: #808080;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="common-panel ">
+        <ul class="common-list js-list" id="show-balance-template" ></ul>
+    </div>
+    <div class="pull-refresh"></div>
+    <div class="load-txt" style="display: none;">没有更多了</div>
+</div>
+
+{% endblock %}
+{% block javascript %}
+    <script src="{{ asset('static-web/pull-refresh-master/pull-refresh.min.js') }}"></script>
+    <script id="balance-template" type="text/html">
+        <% for(i = 0; i < data.length; i++) { %>
+        <li class="list-item list-input-item">
+            <div class="content">
+                <div><%= data[i].content %></div>
+                <div class="text-muted"><%= data[i].created_at %></div>
+            </div>
+            <div class="addon text-danger">
+                <% if (data[i].amount > 0) { %>
+                    +
+                <% } %>
+                <%= data[i].amount %>元
+            </div>
+        </li>
+        <% } %>
+    </script>
+    <script id="empty-template" type="text/html">
+        <div class="empty-order text-center text-primary">
+            <i class="icon fa fa-file-text-o" style="font-size: 150px;"></i>
+            <p>抱歉,暂无消费</p>
+        </div>
+    </script>
+    <script>
+        var currentPage = 1;
+        $(function(){
+
+            //添加加载更多功能 仅需定义该函数
+            pullbox.onLoadMore = function (handle) {
+
+                loadList(handle);
+                $(".js-list").append($("#tpl").html());
+            }
+        });
+
+        function loadList(handle) {
+            var loading = rain.loading().start();
+            //加载服务列表
+            $.ajax({
+                url:"{{ url('member/balance') }}",
+                type:"post",
+                data:{currentPage:currentPage},
+                dataType:'json',
+                success:function(result){
+                    loading.stop();
+                    console.info(result);
+                    var html;
+
+                    //有服务
+                    if (result.data.length > 0 ) {
+                        var data = {
+                            data:result.data
+                        };
+                        html = template('balance-template',data);
+                        currentPage++;
+                        handle.finish();
+                    } else {
+
+                        //无服务
+                        //html = template('empty-template');
+                        $(".pull-refresh").hide();
+                        $(".load-txt").show();
+
+                    }
+                    //$("#show-balance-template").children().remove();
+                    $("#show-balance-template").append(html);
+                },
+                error: function () {
+                    currentPage--;
+                    loading.stop();
+                    rain.alert("网络错误，请刷新或稍后再试");
+                }
+
+            });
+        }
+
+
+
+
+    </script>
+{% endblock %}

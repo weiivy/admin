@@ -1,0 +1,7 @@
+{# 一次性消息提示 #}
+{% if app.session.hasFlash('message') %}
+    <div class="ui-tips bg-info mt15">
+        <span class="icon glyphicon glyphicon-info-sign"></span>
+        <span>{{ app.session.getFlash('message') }}</span>
+    </div>
+{% endif %}

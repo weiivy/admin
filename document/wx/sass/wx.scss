@@ -1,0 +1,17 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+
+@import "compass/reset";
+@import "variables";
+@import "messages";
+@import "contacts";
+@import "functions";
+@import "settings";
+@import "group";
+@import "news";
+@import "article";
+//自定义新增
+@import "style";
+@import "popup";

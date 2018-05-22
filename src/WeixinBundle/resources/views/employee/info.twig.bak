@@ -1,0 +1,168 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}技师详情{% endblock %}
+{% set leftMenuActive = 'employee/index' %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/technician.css') }}"/>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="container" id="show-employee-detail-template">项目</div>
+        <div class="common-panel">
+            <ul class="nav-btn-bar">
+                <li data-order-by="" class="current js-change-orderBy"><span>综合排序</span></li>
+                <li data-order-by="count" class="js-change-orderBy"><span>销量优先</span></li>
+                <li data-order-by="price" class="js-change-orderBy"><span>价格排序</span> <i class="icon fa fa-sort"></i></li>
+            </ul>
+        </div>
+        <ul class="service-list" id="show-employee-product-template"></ul>
+    </div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block javascript %}
+    {# 技师详情 #}
+    <script id="employee-detail-template" type="text/html">
+        <ul class="common-panel common-list technician-info">
+            <li class="list-item">
+                <% if(avatar.length == 0) { %>
+                <div class="thumb" style="background-image: url('{{ asset('images/') }}no-pic.jpg')"></div>
+                <% } else { %>
+                <div class="thumb" style="background-image: url('{{ asset('uploads/avatar/') }}<%= avatar %>')"></div>
+                <% } %>
+
+                <div class="content">
+                    <div class="title">
+                        <span class="name"><%= name %></span>
+                        <span class="man-tag"><%= grade %></span>
+                    </div>
+                    <div class="comment-stars">
+                        <i class="icon fa fa-star"></i>
+                        <i class="icon fa fa-star"></i>
+                        <i class="icon fa fa-star"></i>
+                        <i class="icon fa fa-star"></i>
+                        <i class="icon fa fa-star-empty"></i>
+                    </div>
+                    <div class="order-count">接单数:<%= count %></div>
+                </div>
+            </li>
+            <li class="service-circle list-item list-input-item">
+                <div class="addon vertical-top"><i class="icon fa fa-map-marker"></i> 服务商圈</div>
+                <div class="input">
+                    <%= area %>
+                </div>
+            </li>
+            <li class="customer-comment list-item">
+                <i class="icon fa fa-comment-alt"></i> 顾客评价 (190)
+            </li>
+        </ul>
+    </script>
+
+    {# 服务模板 #}
+    <script id="employee-product-template" type="text/html">
+        <% for(i = 0; i < data.length; i++) { %>
+        <li>
+            <% if (data[i].image.length == 0){ %>
+                <a href="{{ url('employee/product') }}?productId=<%= data[i].id %>&employeeId=<%= id %>"
+               style="background-image: url('{{ asset('images/') }}no-pic.jpg')">
+                     <div class="info">
+                        <p>
+                            <span class="name"><%= data[i].name %></span>
+                            <span class="price">&yen; <%= data[i].price %>/元</span>
+                        </p>
+
+                        <p class="history-count"><%= data[i].count %>人做过</p>
+                    </div>
+                </a>
+            <% } else { %>
+                 <a href="{{ url('employee/product') }}?productId=<%= data[i].id %>&employeeId=<%= id %>"
+               style="background-image: url('{{ asset('uploads/product/') }}<%= data[i].image %>')">
+                      <div class="info">
+                        <p>
+                            <span class="name"><%= data[i].name %></span>
+                            <span class="price">&yen; <%= data[i].price %>/元</span>
+                        </p>
+
+                        <p class="history-count"><%= data[i].count %>人做过</p>
+                    </div>
+                </a>
+            <% } %>
+        </li>
+        <% } %>
+    </script>
+
+    {# 暂无服务 #}
+    <script id="empty-template" type="text/html">
+        <div class="alert alert-warning mt15" role="alert">暂无技师</div>
+    </script>
+
+    <script>
+        var id = {{ id }};
+        var orderBy = null;
+        $(function () {
+            //加载服务列表
+            $.ajax({
+                url: "{{ url('employeeInterface/info') }}",
+                type: "post",
+                data: {id: id},
+                dataType: 'json',
+                success: function (result) {
+                    if (result.status != 1) {
+                        rain.alert(result.message);
+                        return false;
+                    } else {
+                        var html = template('employee-detail-template', result.data);
+                        $("#show-employee-detail-template").before(html);
+                        //技师的服务项目
+                        loadData();
+                    }
+                },
+                error: function () {
+                    rain.alert("系统出错");
+                }
+            });
+
+        });
+
+        //加载服务列表
+        function loadData() {
+            $("#show-employee-product-template").children().remove();
+            $.ajax({
+                url: "{{ url('employeeInterface/employee-products') }}",
+                type: "get",
+                data: {employeeId: id, orderBy: orderBy},
+                dataType: 'json',
+                success: function (result) {
+                    if (result.status != 1) {
+                        var html = template('empty-template');
+                    } else {
+                        var data = {
+                            data: result.data,
+                            id: id
+                        };
+                        var html = template('employee-product-template', data);
+                    }
+                    $("#show-employee-product-template").append(html);
+                },
+                error: function () {
+                    rain.alert("系统出错");
+                }
+            });
+        }
+
+        //切换项目排序(综合排序 销量优先 价格排序)
+        $(".js-change-orderBy").click(function () {
+            var _this = $(this);
+            _this.addClass("current");
+            _this.siblings().removeClass('current');
+
+            orderBy = _this.attr("data-order-by");
+            if (orderBy == 'price') {
+                _this.attr("data-order-by", "-price");
+            } else if (orderBy == '-price') {
+                _this.attr("data-order-by", "price");
+            }
+            loadData();
+        });
+    </script>
+{% endblock %}

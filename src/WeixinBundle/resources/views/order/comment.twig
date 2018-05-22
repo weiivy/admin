@@ -1,0 +1,101 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}评价{% endblock %}
+{% set leftMenuActive = 'order/index' %}
+{% block content %}
+    <div class="container un-select">
+        {% if comment is empty %}
+            <form>
+                <div class="common-panel common-list">
+                    <div class="list-item   list-input-item text-center">
+                        {% for key, val in rateParams %}
+                            <label class="addon js-click has-touch-bg">
+                                <i class="vertical-middle icon fa fa-2x fa-smile-o"></i>
+                                <span class="vertical-middle">{{ val }}</span>
+                                <input class="hide" type="radio" name="Comment[rate]" value="{{ key }}"/>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <div class="list-item list-input-item">
+                        <textarea placeholder="评价内容" class="input js-comment-content" rows="3"></textarea>
+                    </div>
+
+                    <div class="list-item text-muted">
+                        你的评价必将成为我进步的动力!
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-submit js-form">提交评价</button>
+            </form>
+        {% else %}
+             <div class="common-panel common-list">
+                    <div class="list-item   list-input-item text-center">
+                        {% for key, val in rateParams %}
+                            <label class="addon has-touch-bg {% if comment.rate == val %}text-primary{% endif %}">
+                                <i class="vertical-middle icon fa fa-2x fa-smile-o"></i>
+                                <span class="vertical-middle">{{ val }}</span>
+                                <input class="hide" type="radio" name="Comment[rate]" value="{{ key }}" {% if comment.rate == val %}checked{% endif %}disabled/>
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <div class="list-item list-input-item">
+                        <textarea placeholder="评价内容" class="input" rows="3" readonly>{{ comment.content }}</textarea>
+                    </div>
+                </div>
+        {% endif %}
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        var id = {{ app.request.get('id') }};
+        $(function(){
+            //切换评级
+            $(".js-click").click(function () {
+                $(".js-click").removeClass("text-primary");
+                $(this).addClass("text-primary");
+            });
+
+            //提交评论
+            $(".js-form").click(function () {
+                var rate = $("input[name='Comment[rate]']:checked").val();
+                if(rate == undefined){
+                    rain.alert("请选择评级等级");
+                    return false;
+                }
+                var content = $(".js-comment-content").val();
+
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('order/ajax-add-comment') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {rate:rate, content:content, id:id},
+                    success: function (result) {
+                        console.info(result);
+                        loading.stop();
+                        if (result.status == 1) {
+                            rain.cute(result.message, 1000, function(){
+                                window.location.href = "{{ url('order/index') }}";
+
+                            });
+                        } else {
+                            if(result.message == "请去登录") {
+                                window.location.href = "{{ url('default/login') }}";
+                                return false;
+                            }
+                            rain.alert(result.message);
+                            return false
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("网络错误，请刷新或稍后再试");
+                        return false
+                    }
+                });
+
+                return false;
+            })
+        });
+
+    </script>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}修改地址{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block content %}
+<div class="container">
+        <form id="memberAddForm">
+            <div class="common-panel ">
+                <ul class="common-list">
+                    <li class="list-item list-input-item">
+                        <span class="addon">上门地址:</span>
+                        <input type="text" id="detail" class="input" value="{{ address.detail }}"/>
+                    </li>
+                    <li class="list-item list-input-item">
+                        <span class="addon">联系电话:</span>
+                        <input type="text" id="mobile" class="input" value="{{ address.mobile }}"/>
+                    </li>
+                </ul>
+            </div>
+            <div class="btn-submit-group">
+                <div class="item">
+                    <button class="btn btn-primary js-save">保存并设为默认</button>
+                </div>
+                <div class="item">
+                    <button class="btn btn-danger js-delete">删除</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(function(){
+            var memberId = {{ memberId }};
+            var addressId = {{ addressId }};
+            var data = {
+                address:{
+                    memberId:memberId,
+                    addressId:addressId
+                }
+            };
+
+            //修改地址
+            $(".js-save").click(function(){
+                var detail = $("#detail").val();
+                if(detail.length == 0){
+                    rain.alert("请输入地址");
+                    return false;
+                }
+
+                var mobile = $("#mobile").val();
+                if(mobile.length == 0 || !rain.isNumber(mobile)){
+                    rain.alert("请输入手机号");
+                    return false;
+                }
+
+                data.address.detail = detail;
+                data.address.mobile = mobile;
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('member/ajax-edit-address') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: data,
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            rain.cute(result.message, 1000, function(){
+                                window.location.href = "{{ url('member/address-list') }}?id = {{ memberId }}";
+                            });
+                        } else {
+                            if(result.message == "请去登录") {
+                                window.location.href = "{{ url('default/login') }}";
+                                return false;
+                            }
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("网络错误，请刷新或稍后再试");
+                    }
+                });
+
+            });
+
+            //删除地址
+            $(".js-delete").click(function(){
+                rain.confirm("您确定要删除该地址吗?", function(){
+                    $.ajax({
+                        url: "{{ url('member/ajax-delete-address') }}",
+                        type: "POST",
+                        dataType: 'json',
+                        data: data,
+                        success: function (result) {
+                            if (result.status == 1) {
+                                rain.cute(result.message, 1000, function(){
+                                    window.location.href = "{{ url('member/address-list') }}?id = {{ memberId }}";
+                                });
+                            } else {
+                                rain.alert(result.message);
+                            }
+                        },
+                        error: function () {
+                            rain.alert("网络错误，请刷新或稍后再试");
+                        }
+                    });
+
+                }, function(){
+
+                });
+
+                return false;
+            });
+        });
+    </script>
+{% endblock %}

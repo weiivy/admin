@@ -1,0 +1,96 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}会员管理{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid content-main">
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="page-title">会员管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">会员列表</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                {# 一次性消息提示 #}
+                {{ include('@AppBundle/message.twig', {'session':app.session}) }}
+
+                {#<div class="mt15">#}
+                    {#<a class="btn btn-sm btn-success pull-right" href="{{ url('member/export-and-import') }}">导入导出</a>#}
+
+                    {#<div class="clearfix"></div>#}
+                {#</div>#}
+
+                {# 搜索表单 #}
+                <form action="{{ url('member/index') }}" method="get" class="form-inline form-search mt15">
+                    <div class="form-group">
+                        <label>会员名称</label>
+                        <input type="text" name="nickname" class="form-control"
+                               value="{{ app.request.get('nickname')|default('') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>手机</label>
+                        <input type="text" name="mobile" class="form-control"
+                               value="{{ app.request.get('mobile')|default('') }}">
+                    </div>
+                    <button type="submit" class="btn btn-default">搜索</button>
+                </form>
+
+                {% if list is empty %}
+                    <div class="alert alert-warning mt15" role="alert">暂无会员</div>
+                {% else %}
+
+                    {# 分类列表 #}
+                    <table class="table mt15">
+                        <tr class="active">
+                            <td>头像</td>
+                            <td>Id</td>
+                            <td>昵称</td>
+                            <td>手机</td>
+                            <td>openid</td>
+                            <td>等级</td>
+                            <td>金额</td>
+                            <td>操作</td>
+                        </tr>
+
+                        {% for item in list %}
+                            <tr>
+                                 <td>
+                                    <img src="{% if item.avatar is not empty %}
+                                    {{ item.avatar }}
+                                    {% else %}
+                                    {{ asset('images/no-pic.jpg') }}
+                                    {% endif %}
+                                    " width="100"/>
+                                </td>
+                                <td>{{ item.id }}</td>
+                                <td>{{ item.nickname }}</td>
+                                <td>{{ item.mobile }}</td>
+                                <td>{{ item.openid }}</td>
+                                <td>{{ item.gradeAlias }}</td>
+                                <td>{{ item.money }}</td>
+                                <td>
+                                    <a href="{{ url('member/view', {'id':item.id}) }}">查看</a>
+                                    <a href="{{ url('member/money', {'id':item.id}) }}">资金明细</a>
+                                    <a href="{{ url('member/children', {'id':item.id}) }}">下级</a>
+                                    {#<a href="{{ url('member/ticket', {'id':item.id}) }}">卡券</a>#}
+                                    {#<a href="{{ url('recharge/create', {'id':item.id}) }}">充值</a>#}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="pull-right">
+                        {{ page.createLinks(url('member/index'))|raw }}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

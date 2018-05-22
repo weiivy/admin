@@ -1,0 +1,66 @@
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">银行</label>
+
+    <div class="col-sm-6">
+        {% autoescape false %}
+            {{ app.html.dropDownList('BankConfig[bank]', bankConfig.bank|default('') , banks, {'class':"form-control", 'prompt':['--请选择--']}) }}
+        {% endautoescape %}
+    </div>
+
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">类型</label>
+
+    <div class="col-sm-6">
+        {% autoescape false %}
+            {{ app.html.dropDownList('BankConfig[type]', bankConfig.type|default(0) , typeArr, {'class':"form-control", 'prompt':['--请选择--']}) }}
+        {% endautoescape %}
+    </div>
+
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">积分</label>
+
+    <div class="col-sm-6">
+        <input type="number" name="BankConfig[score]" class="form-control" id="score"
+               value="{{ bankConfig.score|default(app.request.get('BankConfig').score|default(0)) }}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">金额</label>
+
+    <div class="col-sm-6">
+        <input type="text" name="BankConfig[money]" class="form-control" id="money"
+               value="{{ bankConfig.money|default(app.request.get('BankConfig').money|default(0.00)) }}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">状态</label>
+
+    <div class="col-sm-6">
+        {% autoescape false %}
+            {{ app.html.dropDownList('BankConfig[status]', bankConfig.status|default(10) , statusArr, {'class':"form-control"}) }}
+        {% endautoescape %}
+    </div>
+
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label"></label>
+
+    <div class="col-sm-6">
+        <button class="btn btn-success js-save">
+            {% if bankConfig is defined %}
+                保存
+            {% else %}
+                提交
+            {% endif %}
+        </button>
+    </div>
+</div>

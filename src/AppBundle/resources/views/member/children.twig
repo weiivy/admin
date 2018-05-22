@@ -1,0 +1,63 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}会员管理{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid content-main">
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="page-title">{{ member.nickname }}下级管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">{{ member.nickname }}下级列表</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                {# 一次性消息提示 #}
+                {{ include('@AppBundle/message.twig', {'session':app.session}) }}
+
+                {# 搜索表单 #}
+
+                {% if list is empty %}
+                    <div class="alert alert-warning mt15" role="alert">暂无下级</div>
+                {% else %}
+
+                    {# 分类列表 #}
+                    <table class="table mt15">
+                        <tr class="active">
+                            <td>头像</td>
+                            <td>昵称</td>
+                            <td>手机</td>
+                            <td>等级</td>
+                        </tr>
+
+                        {% for item in list %}
+                            <tr>
+                                <td>
+                                    <img src="{% if item.avatar is not empty %}
+                                    {{ item.avatar }}
+                                    {% else %}
+                                    {{ asset('images/no-pic.jpg') }}
+                                    {% endif %}
+                                    " width="100"/>
+                                </td>
+                                <td>{{ item.nickname }}</td>
+                                <td>{{ item.mobile }}</td>
+                                <td>{{ item.gradeAlias }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="pull-right">
+                        {{ page.createLinks(url('member/children'))|raw }}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

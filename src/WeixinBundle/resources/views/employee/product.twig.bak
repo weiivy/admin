@@ -1,0 +1,430 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}服务详情{% endblock %}
+{% set leftMenuActive = 'employee/index' %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/product-detail.css') }}"/>
+{% endblock %}
+{% block content %}
+
+    <form id="show-product-detail-template">
+         <div id="js-main-page">
+            {% if product.image is empty %}
+                 <img class="img-responsive" src="{{ asset('images/') }}no-pic.jpg" alt=""/>
+            {% else %}
+                <img class="img-responsive" src="{{ asset('uploads/product/') }}{{ product.image }}" alt=""/>
+            {% endif %}
+            <div class="container">
+                <div class="common-panel">
+                    <ul class="common-list">
+                        <li class="list-item product-info">
+                            <div class="price">&yen;{{ product.price }}</div>
+                            <div class="description">{{ product.content }}</div>
+                            <div class="count">{{ product.count }}人做过</div>
+                        </li>
+                        <li class="list-item overflow">
+                            <div class="pull-left">
+                                <span>耗时:&nbsp;</span><span class="text-primary">{{ product.time }}</span>&nbsp;
+                            </div>
+                           {# <div class="pull-right">
+                                <span>保持:&nbsp;</span><span class="text-primary">45</span>&nbsp;天
+                            </div>#}
+                        </li>
+                    </ul>
+                </div>
+                <div class="common-panel order-form-info">
+                    <ul class="common-list">
+                       {# <li class="list-item list-input-item time">
+                            <span class="addon time"><i class="icon fa fa-time"></i> 预约时间:</span>
+                            <input class="input js-date" type="text" name="Order[booking_time]" data-date-format="yyyy-mm-dd hh:ii" value="{{ 'now'|date('Y-m-d H:i') }}"/>
+                            <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+                        </li>#}
+                       <li class="list-item list-input-item" onclick="showTimeView()">
+                            <span class="addon time"><i class="icon fa fa-clock-o"></i> 预约时间:</span>
+                            <input id="js-order-time" type="text" name="Order[booking_time]" class="input" readonly/>
+                            <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+                       </li>
+                       <li class="list-item list-input-item">
+                            <span class="addon address"><i class="icon fa fa-map-marker"></i> 常用地址:</span>
+                            <input id="js-order-address" data-product_id="{{ productId }}" data-quantity="1" type="text" class="input" value="" readonly/>
+                            <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+                        </li>
+
+                    </ul>
+                </div>
+                <ul class="common-panel common-list technician-info" id="show-employee-detail-template">
+                     <li class="list-item">
+
+                         {% if employee.avatar is empty %}
+                             <div class="thumb" style="background-image: url('{{ asset('images/') }}no-pic.jpg')"></div>
+                         {% else %}
+                             <div class="thumb" style="background-image: url('{{ asset('uploads/avatar/') }}{{ employee.avatar }}')"></div>
+                         {% endif %}
+                        <div class="content">
+                            <div class="title">
+                                <span class="name">{{ employee.name }}</span>
+                                <span class="man-tag">{{ employee.grade }}</span>
+                            </div>
+                            <div class="comment-stars">
+                                <i class="icon fa fa-star"></i>
+                                <i class="icon fa fa-star"></i>
+                                <i class="icon fa fa-star"></i>
+                                <i class="icon fa fa-star"></i>
+                                <i class="icon fa fa-star-o"></i>
+                            </div>
+                            <div class="order-count">接单数:{{ employee.count }}</div>
+                        </div>
+                    </li>
+                    <li class="service-circle list-item list-input-item">
+                        <div class="addon vertical-top"><i class="icon fa fa-map-marker"></i> 服务商圈</div>
+                        <div class="input">
+                            {{ employee.area }}
+                        </div>
+                    </li>
+                    {#<li class="customer-comment list-item">
+                        <i class="icon fa fa-comment-alt"></i> 顾客评价 (190)
+                    </li>#}
+                </ul>
+                 <div class="btn btn-primary btn-lg btn-submit js-submit">选中该产品</div>
+            </div>
+        </div>
+    </form>
+    <div id="js-modal-address"  style="display: none;">
+        <div class="container">
+            <form id="addressForm">
+                <div class="common-panel ">
+                    <ul class="common-list">
+                        <li class="list-item list-input-item">
+                            <span class="addon">上门地址:</span>
+                            <input type="text" name="Address[address]" class="input"/>
+                        </li>
+                        <li class="list-item list-input-item">
+                            <span class="addon">上门牌号:</span>
+                            <input type="text" name="Address[number]" class="input"/>
+                        </li>
+                        <li class="list-item list-input-item">
+                            <span class="addon">联系电话:</span>
+                            <input type="text" name="Address[mobile]" class="input"/>
+                        </li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary btn-submit js-add-address">确定</button>
+            </form>
+        </div>
+    </div>
+    <div id="js-modal-address-list" style="display: none;">
+        <div class="container">
+            <h4 class="text-center">选择地址</h4>
+            <div class="common-panel">
+                <ul class="common-list" id="show-address-list-template">
+                    <div class="list-item has-touch-bg ">
+                        <span class="text-primary" id="js-show-modal-address" >添加新地址</span>
+                            {% for key, value in cities %}
+                               <li class="list-item has-touch-bg js-address" data-code="{{ key }}">
+                                    <div class="text-muted">上门地址:{{ value.detail }}</div>
+                                    <div class="text-muted">联系电话:{{ value.mobile }}</div>
+                               </li>
+                            {% endfor %}
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="js-modal-time" style="display: none;">
+    <div class="container">
+        <p class="text-primary"><i class="icon fa fa-info-sign"></i> <span>温馨提示:灰色时间段代表已被Ta人预约啦!</span></p>
+
+        <div class="common-panel">
+            <div id="common-popup-time" class="common-popup-time">
+                <div class="nav-day">
+                    <div class="day-item active">今天</div>
+                    <div class="day-item">明天</div>
+                    <div class="day-item">后天</div>
+                </div>
+                <div class="body">
+                    {% if product.time > 30 %}
+                        {% set offset = 2 %}
+                    {% else %}
+                        {% set offset = 1 %}
+                    {% endif %}
+                    <div class="time-list active">
+                        <!--当前的时间-->
+                        {% set current = ('now'|date('H:i')) %}
+
+                        <!--今天日期-->
+                        {% set today = ('now'|date('Y-m-d')) %}
+                        {% set todayArr = [] %}
+
+                        <!--技师是否有今天预约的订单-->
+                        {% if bookingArr[today] is defined %}
+                            {% set todayArr = bookingArr[today] %}
+                        {% endif %}
+
+                        <!--循环时间-->
+                        {% set nextKey = 0 %}
+                        {% set preKey = 0 %}
+                        {% for key, value in timeArr %}
+
+                            <!--有今天的预约时间不可预约-->
+                            {% set disabled1 = false %}
+                            {% set disabled4 = false %}
+                            {% for val in todayArr %}
+                                {% set preKey = key + 1 + 1  %}
+                                {% if val == value %}
+                                    {% set disabled1 = true %}
+                                    {% set nextKey =  key + 1 + + 1  %}
+                                {% endif %}
+
+                                <!--预约的前一个时间段不能预约-->
+                                {% if timeArr[preKey - 1] is defined and val == timeArr[preKey - 1] %}
+                                      {% set disabled4 = true %}
+                                {% endif %}
+                            {% endfor %}
+
+                            <!--今天过去时间不可预约-->
+                            {% set disabled2 = false %}
+                            {% if current > value %}
+                                  {% set disabled2 = true %}
+                            {% endif %}
+
+                            <!--预约的后一个时间段不能预约-->
+                            {% set disabled3 = false %}
+                            {% if nextKey == key + 1 %}
+                                  {% set disabled3 = true %}
+                            {% endif %}
+
+                            <li class="{% if disabled1 or disabled2 or disabled3 or disabled4 %} disabled
+                            {% endif %}"><span class="time-value" data-date="{{ 'now'|date('Y-m-d') }}">{{ value }}</span></li>
+                        {% endfor %}
+                    </div>
+                    <div class="time-list ">
+
+                        <!--明天日期-->
+                        {% set  tomorrow = ('+1days'|date('Y-m-d')) %}
+                        {% set tomorrowArr = [] %}
+
+                        <!--会员是否有明天预约的订单-->
+                        {% if bookingArr[tomorrow] is defined %}
+                            {% set tomorrowArr = bookingArr[tomorrow]%}
+                        {% endif %}
+
+                        <!--循环时间-->
+                        {% set tomorrowNext = 0 %}
+                        {% set tomorrowPre = 0 %}
+                        {% for tomorrowKey, tomorrowValue in timeArr %}
+                            {% set tomorrowPre = tomorrowKey + 1 + 1 %}
+                            {% set tomorrowDisabled3 = false %}
+                            {% set tomorrowDisabled1 = false %}
+
+                            <!--技师是否有预约时间-->
+                            {% for val in tomorrowArr %}
+                                 {% if val == tomorrowValue %}
+                                     {% set tomorrowDisabled1 = true %}
+                                     {% set tomorrowNext = tomorrowKey + 1 + 1 %}
+                                 {% endif %}
+
+                                <!--预约的前一个时间段不能预约-->
+                                {% if timeArr[tomorrowPre-1] is defined and val == timeArr[tomorrowPre-1] %}
+                                    {% set tomorrowDisabled3 = true %}
+                                {% endif %}
+
+                            {% endfor %}
+
+                            <!--预约的后一个时间段不能预约-->
+                            {% set tomorrowDisabled2 = false %}
+                            {% if tomorrowNext == tomorrowKey + 1 %}
+                                  {% set tomorrowDisabled2 = true %}
+                            {% endif %}
+
+                            <li class="{% if tomorrowDisabled1 or tomorrowDisabled2 or tomorrowDisabled3 %}disabled{% endif %}"><span class="time-value" data-date="{{ '+1days'|date('Y-m-d') }}">{{ tomorrowValue }}</span></li>
+                        {% endfor %}
+                    </div>
+                    <div class="time-list ">
+                        <!--循环时间-->
+                        {% for value in timeArr %}
+                            <li><span class="time-value" data-date="{{ '+2days'|date('Y-m-d') }}">{{ value }}</span></li>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %} {% endblock %}
+
+{% block javascript %}
+    <script>
+        var employeeId = {{ employeeId }};
+        var productId = {{ productId }};
+        var addressList = {% autoescape false%}{{ cities|json_encode() }} {% endautoescape %};
+        $(function(){
+            $('.js-date').datetimepicker({
+                    format: 'yyyy-mm-dd hh:ii'
+            });
+
+            //添加常用地址
+            $(".js-add-address").click(function(){
+                var mobile = $("input[name='Address[mobile]']").val();
+                var number = $("input[name='Address[number]']").val();
+                var address = $("input[name='Address[address]']").val();
+
+                //验证
+                if(address.length == 0){
+                    rain.alert("请填写地址");
+                    return false;
+                }
+
+                if(number.length == 0){
+                    rain.alert("请填写门牌号");
+                    return false;
+                }
+
+                if(!rain.isNumber(mobile) || mobile.length != 11){
+                    rain.alert("请填写正确的电话");
+                    return false;
+                }
+
+                var data = $("#addressForm").serialize();
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('member/ajax-add-address') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: data,
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            $("#js-main-page").show();
+                            $("#js-modal-address").hide();
+                            $("#js-order-address").val(result.data.detail);
+                            $("#js-order-address").attr('data-address_id', result.data.id);
+
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                    }
+                });
+
+            });
+
+            //从常用地址列表选择地址
+            $(document).on("click", ".js-address", function(){
+                var code = $(this).attr('data-code');
+                $("#js-modal-address-list").hide();
+                $("#js-main-page").show();
+                $("#js-order-address").val(addressList[code].detail);
+                $("#js-order-address").attr('data-address_id', addressList[code].id);
+
+            });
+
+            //显示常用地址列表
+            $(document).on('click', '#js-order-address', function(){
+                $("#js-main-page").hide();
+                $("#js-modal-address-list").show();
+            });
+
+            $(document).on('click', '#js-show-modal-address', function(){
+                $("#js-modal-address-list").hide();
+                $("#js-modal-address").show();
+                return false;
+            });
+
+            //预约
+            $(document).on('click', '.js-submit', function(){
+                var bookingTime = $("input[name='Order[booking_time]']").val();
+                var quantity = $("#js-order-address").attr("data-quantity");
+                var productId = $("#js-order-address").attr("data-product_id");
+                var addressId = $("#js-order-address").attr("data-address_id");
+
+                //验证地址
+                if(addressId == undefined){
+                    rain.alert("请添加地址");
+                    return false;
+                }
+
+                var data = {
+                    Order:{
+                        booking_time:bookingTime,
+                        quantity:quantity,
+                        product_id:productId,
+                        address_id:addressId,
+                        employee_id:employeeId
+                    }
+                };
+
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('order/ajax-create-order-from-employee') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: data,
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            rain.cute(result.message, 500, function(){
+                                  window.location.href = "{{ url('order/pay') }}?id="+ result.data;
+                            });
+
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("系统出错");
+                    }
+                });
+
+            });
+
+            $("#js-modal-time").find(".day-item").click(function () {
+                showTimeView($(this).index());
+            });
+
+            //选择上门时间
+            $("#js-modal-time").find(".time-value").click(function () {
+                var day = $(this).attr("data-date");
+                var hour = $(this).html();
+                var temp = day + " " + hour;
+                if(!$(this).parent().hasClass("disabled")){
+                    $("#js-order-time").val(temp);
+                }
+                hideTimeView();
+            });
+
+        });
+
+         /**
+         * 显示时间
+         */
+        function showTimeView(tabIndex) {
+            $("#js-main-page").hide();
+            $("#js-modal-time").show();
+            if (tabIndex != undefined) {
+                $("#js-modal-time").find(".day-item").removeClass("active");
+                $("#js-modal-time").find(".time-list").removeClass("active");
+                $("#js-modal-time").find(".day-item").eq(tabIndex).addClass("active");
+                $("#js-modal-time").find(".time-list").eq(tabIndex).addClass("active");
+            }
+        }
+
+        /**
+         * 隐藏时间
+         */
+        function hideTimeView() {
+            $("#js-modal-time").hide();
+            $("#js-main-page").show();
+        }
+
+
+    </script>
+
+{% endblock %}

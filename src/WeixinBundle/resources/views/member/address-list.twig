@@ -1,0 +1,185 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}常用地址列表{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block content %}
+<div id="js-modal-address" style="display: none;">
+    <div class="container">
+        <form id="memberAddForm">
+            <div class="container">
+                <div class="common-panel ">
+                    <ul class="common-list">
+                        <li class="list-item list-input-item">
+                            <span class="addon">上门地址:</span>
+                            <input type="hidden" name="detail" id="address" value=""/>
+                            <input id="suggestId" type="text" class="input"/>
+                            <div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;"></div>
+                        </li>
+                        <li class="list-item list-input-item">
+                            <span class="addon">详细门牌:</span>
+                            <input type="text" class="input" name="code" id="code" value=""/>
+                        </li>
+                        <li class="list-item list-input-item">
+                            <span class="addon">联系电话:</span>
+                            <input type="text" class="input" name="mobile" id="mobile" value="{{ member.mobile|default('') }}"/>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-submit js-add">确定</button>
+        </form>
+    </div>
+</div>
+<div id="js-modal-address-list">
+    <div class="container">
+
+        <div class="common-panel">
+            <ul class="common-list" id="show-add-address-template">
+                <div class="list-item has-touch-bg" onclick="showAddressEditView()">
+                    <span class="text-primary">添加新地址</span>
+                </div>
+                {% for key, value in list %}
+                    <a href="{{ url('member/update-address') }}?memberId={{ memberId }}&addressId={{ value.id }}" class="list-item list-input-item has-touch-bg">
+                        <div class="addon">
+                            {% if value.is_default == constant('InterfaceBundle\\Entity\\Address::DEFAULT_YES') %}
+                            <i class="fa fa-check text-primary"></i>
+                            {% else %}
+                            &nbsp; &nbsp;
+                            {% endif %}
+                        </div>
+                        <div class="input text-muted">
+                             {{ value.detail }} {{ value.mobile }}
+                         </div>
+                    </a>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block javascript %}
+<script>
+    $(function(){
+        //添加常用地址
+        $(".js-add").click(function () {
+             var mobile = $.trim($("#mobile").val());
+            var number = $.trim($("#code").val());
+            var address = $.trim($("#address").val());
+
+            //验证
+            if(address.length == 0){
+                rain.alert("请填写地址");
+                return false;
+            }
+
+            if(number.length == 0){
+                rain.alert("请填写门牌号");
+                return false;
+            }
+
+            if(!rain.isNumber(mobile) || mobile.length != 11){
+                rain.alert("请填写正确的电话");
+                return false;
+            }
+            var data = {
+                Address:{
+                    address:address,
+                    number:number,
+                    mobile:mobile
+                }
+            };
+
+            var loading = rain.loading(this).start();
+            $.ajax({
+                url: "{{ url('member/ajax-add-address') }}",
+                type: "POST",
+                dataType: 'json',
+                data: data,
+                success: function (result) {
+                    loading.stop();
+                    if (result.status == 1) {
+                        window.location.reload();
+                    } else {
+                        if(result.message == "请去登录") {
+                            window.location.href = "{{ url('default/login') }}";
+                            return false;
+                        }
+                        rain.alert(result.message);
+                        return false;
+                    }
+                    return false;
+                },
+                error: function () {
+                    loading.stop();
+                    rain.alert("网络错误，请刷新或稍后再试");
+                    return false;
+                }
+            });
+
+            return false;
+
+        });
+    });
+
+    //显示地址新增编辑
+    function showAddressEditView() {
+        $("#js-modal-address-list").hide();
+        $("#js-modal-address").show();
+    }
+
+    //显示地址新增编辑
+    function hideAddressEditView() {
+        $("#js-modal-address").hide();
+        $("#js-modal-address-list").show();
+    }
+
+    //显示地址列表
+    function showAddressListView() {
+        $("#js-main-page").hide();
+        $("#js-modal-address-list").show();
+    }
+    //隐藏地址列表
+    function hideAddressListView() {
+        $("#js-modal-address-list").hide();
+        $("#js-main-page").show();
+    }
+
+</script>
+     <script type="text/javascript">
+        // 百度地图API功能
+        function G(id) {
+            return document.getElementById(id);
+        }
+
+        var ac = new BMap.Autocomplete(    //建立一个自动完成的对象
+                {"input" : "suggestId"
+                });
+
+        ac.addEventListener("onhighlight", function(e) {  //鼠标放在下拉列表上的事件
+            var str = "";
+            var _value = e.fromitem.value;
+            var value = "";
+            if (e.fromitem.index > -1) {
+                value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            }
+            str = "FromItem<br />index = " + e.fromitem.index + "<br />value = " + value;
+
+            value = "";
+            if (e.toitem.index > -1) {
+                _value = e.toitem.value;
+                value = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            }
+            str += "<br />ToItem<br />index = " + e.toitem.index + "<br />value = " + value;
+            G("searchResultPanel").innerHTML = str;
+        });
+
+        var myValue;
+        ac.addEventListener("onconfirm", function(e) {    //鼠标点击下拉列表后的事件
+            var _value = e.item.value;
+            myValue = _value.province +  _value.city +  _value.district +  _value.street +  _value.business;
+            G("searchResultPanel").innerHTML ="onconfirm<br />index = " + e.item.index + "<br />myValue = " + myValue;
+            $("#address").val(myValue);
+        });
+
+    </script>
+{% endblock %}

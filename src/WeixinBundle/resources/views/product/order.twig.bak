@@ -1,0 +1,220 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}预约{% endblock %}
+{% block content %}
+    <div class="container" id="js-main-page">
+         <form>
+              <div class="common-panel order-panel">
+                <div class="thumb-content">
+                    <input type="hidden" name="Order[product_id]" value="{{ product.id }}"/>
+                    <div class="thumb">
+                        {% if product.image is empty %}
+                            <img src="{{ asset('images/') }}no-pic.jpg" alt=""/>
+                        {% else %}
+                             <img src="{{ asset('uploads/product/') }}{{ product.image }}" alt=""/>
+                        {% endif %}
+                    </div>
+                    <div class="content">
+                        <div class="name">{{ product.name }}</div>
+                        <div class="desc">推拿师:自动推荐</div>
+                        <div class="price">&yen;{{ product.price }}元</div>
+                    </div>
+                </div>
+                <div class="extras">
+                    <div class="price-fz"><span class="price">&yen;{{ product.price }}元</span>/ <span class="fz">{{ product.time }}</span></div>
+                    <div class="time">购买数量
+                        <div class="calc">
+                            <span class="min js-min">-</span>
+                            <span class="num js-num-value">1</span>
+                             <input type="hidden" name="Order[quantity]" value="1"/>
+                            <span class="max js-max">+</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="common-panel" id="show-order-template">
+                <ul class="common-list">
+                     <li class="list-item list-input-item" onclick="showTimeView()">
+                        <span class="addon time"><i class="icon fa fa-clock-o"></i> 上门时间:</span>
+                        <input id="js-order-time" type="text"  name="Order[booking_time]" class="input" readonly/>
+                        <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+                     </li>
+                    <li class="list-item list-input-item">
+                        <span class="addon vertical-top">上门地址:</span>
+                        <textarea class="input js-receiver_detail"  name="Order[receiver_detail]" rows="2" placeholder="请输入您的地址"></textarea>
+                    </li>
+
+                    <li class="list-item list-input-item">
+                        <span class="addon">联系电话:</span>
+                        <input class="input" type="text" name="Order[receiver_mobile]" placeholder="请输入您的手机号" value="{{ mobile }}"/>
+                    </li>
+                    <li class="list-item list-input-item ">
+                        <span class="addon">留&nbsp;&nbsp;&nbsp;&nbsp;言:</span>
+                        <input type="text" class="input"  name="Order[message]" placeholder="(选填)如有问题请填写"/>
+                    </li>
+                </ul>
+            </div>
+            <div class="text-tip">提示:如果有预约推拿师,请直接返回 <a class="text-primary" href="{{ url('employee/index') }}">推拿师</a> 页面[留言无效]</div>
+            <div class="btn btn-primary btn-lg btn-submit js-submit-order">下一步</div>
+        </form>
+    </div>
+
+<div id="js-modal-time" style="display: none;">
+    <div class="container">
+        <p class="text-primary"><i class="icon fa fa-info-sign"></i> <span>温馨提示:灰色时间段代表已被Ta人预约啦!</span></p>
+
+        <div class="common-panel">
+            <div id="common-popup-time" class="common-popup-time">
+                <div class="nav-day">
+                    <div class="day-item active">今天</div>
+                    <div class="day-item">明天</div>
+                    <div class="day-item">后天</div>
+                </div>
+                <div class="body">
+                    <div class="time-list active">
+                        <!--当前的时间-->
+                        {% set current = ('+1 hours 30 mins'|date('H:i')) %}
+
+                        <!--循环时间-->
+                        {% for value in timeArr %}
+                            <!--今天过去时间不可预约-->
+                            {% set disabled2 = false %}
+                            {% if current > value %}
+                                  {% set disabled2 = true %}
+                            {% endif %}
+                            <li class="{% if disabled2 %} disabled
+                            {% endif %}"><span class="time-value" data-date="{{ 'now'|date('Y-m-d') }}">{{ value }}</span></li>
+                        {% endfor %}
+                    </div>
+                    <div class="time-list ">
+                        <!--循环时间-->
+                        {% for value in timeArr %}
+                            <li><span class="time-value" data-date="{{ '+1days'|date('Y-m-d') }}">{{ value }}</span></li>
+                        {% endfor %}
+                    </div>
+                    <div class="time-list ">
+                        <!--循环时间-->
+                        {% for value in timeArr %}
+                            <li><span class="time-value" data-date="{{ '+2days'|date('Y-m-d') }}">{{ value }}</span></li>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-submit btn-primary">确认</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/order.css') }}"/>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        var number;
+        $(function(){
+
+            //减少购买数量，不能为0
+            $(document).on('click', '.calc .min', function(){
+                number = parseInt($(".js-num-value").html());
+                if(number <= 1){
+                    return false;
+                }
+                number--;
+                $(".js-num-value").html(number);
+                $("input[name='Order[quantity]']").val(number);
+            });
+
+            //添加购买数量
+            $(document).on('click', '.calc .max', function(){
+                number = parseInt($(".js-num-value").html());
+                number++;
+                $(".js-num-value").html(number);
+                $("input[name='Order[quantity]']").val(number);
+           });
+
+            //预约
+            $(".js-submit-order").click(function(){
+                var bookingTime = $("input[name='Order[booking_time]']").val();
+                var receiverDetail = $(".js-receiver_detail").val();
+                var receiverMobile = $("input[name='Order[receiver_mobile]']").val();
+
+                //预约时间
+                if(bookingTime.length == 0) {
+                    rain.alert("请选择预约时间");
+                    return false;
+                }
+
+                //上门地址
+                if(receiverDetail.length == 0) {
+                    rain.alert("请输入地址");
+                    return false;
+                }
+                var data = $("form").serialize();
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('order/ajax-create-order-from-product') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: data,
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            rain.cute(result.message, 500, function(){
+                                 window.location.href = "{{ url('order/pay') }}?id="+ result.data;
+                            });
+
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("网络错误，请刷新或稍后再试");
+                    }
+                });
+            });
+
+            $("#js-modal-time").find(".day-item").click(function () {
+                showTimeView($(this).index());
+            });
+
+            //选择上门时间
+            $("#js-modal-time").find(".time-value").click(function () {
+                var day = $(this).attr("data-date");
+                var hour = $(this).html();
+                var temp = day + " " + hour;
+                if(!$(this).parent().hasClass("disabled")){
+                    $("#js-order-time").val(temp);
+                }
+                hideTimeView();
+            });
+        });
+
+        /**
+         * 显示时间
+         */
+        function showTimeView(tabIndex) {
+            $("#js-main-page").hide();
+            $("#js-modal-time").show();
+            if (tabIndex != undefined) {
+                $("#js-modal-time").find(".day-item").removeClass("active");
+                $("#js-modal-time").find(".time-list").removeClass("active");
+                $("#js-modal-time").find(".day-item").eq(tabIndex).addClass("active");
+                $("#js-modal-time").find(".time-list").eq(tabIndex).addClass("active");
+            }
+        }
+
+        /**
+         * 隐藏时间
+         */
+        function hideTimeView() {
+            $("#js-modal-time").hide();
+            $("#js-main-page").show();
+        }
+
+    </script>
+{% endblock %}

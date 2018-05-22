@@ -1,0 +1,39 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}收藏{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/fav-technician.css') }}"/>
+{% endblock %}
+{% block content %}
+    <div class="container">
+    <ul class="btn-group-nav">
+        <a class="item" href="{{ url('member/collect-product') }}">产品</a>
+        <a class="item active" href="{{ url('member/collect-employee') }}">技师</a>
+    </ul>
+    {% if employee is empty %}
+        <div class="empty-order text-center text-primary">
+            <i class="icon fa fa-file-text-o" style="font-size: 150px;"></i>
+            <p>抱歉,暂无收藏</p>
+        </div>
+    {% else %}
+        {% for val in employee  %}
+            <a class="common-panel" href="{{ url('employee/info') }}?id={{ val.id }}">
+                <div class="thumb">
+                    <div class="thumb-image" style="background-image: url({% if val.avatar is empty %}'{{ asset('images/') }}no-pic.jpg'{% else %}'{{ asset('uploads/avatar/') }}{{ val.avatar }}'{% endif %})"></div>
+                    <span class="man-tag">{{ val.grade }}</span>
+                </div>
+
+                <div class="content ">
+                    <div class="title"><span class="name">{{ val.name }}</span> <span class="sex">{{ val.sex }}</span> <span class="count"><i
+                            class="icon fa fa-bookmark-o"></i>&nbsp;<span class="value">{{ val.count }}单</span></span></div>
+                    <div class="sub-title"><span class="distance"><i class="icon fa fa-map-marker"></i>&nbsp;</span> <span class="local">位置:{{ val.location }}</span></div>
+                    <div class="summary">
+                        <span class="summary-key">推拿师介绍:</span>
+                        <span class="summary-content">{{ val.intro }} <i class="icon fa fa-angle-right"></i></span>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

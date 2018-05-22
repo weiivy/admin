@@ -1,0 +1,89 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}密码登录{% endblock %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/login.css') }}"/>
+{% endblock %}
+{% block content %}
+    {% block login %}{% endblock %}
+    <h1 class="topbar">密码登录</h1>
+    <div class="container">
+        <div class="common-panel">
+            <div class="common-list">
+                <div class="list-item list-input-item">
+                    <span class="addon">手机号</span>
+                    <input class="input" type="tel" name="username" id="username" placeholder="请输入手机号"/>
+                </div>
+                <div class="list-item list-input-item">
+                    <span class="addon">密码</span>
+                    <input class="input" type="password" name="password" id="password" placeholder="请输入密码"/>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-submit js-login">登录</button>
+
+        <div class="text-center text-muted">点击登录, 即确定遵守骏到家的《<a href="{{ url('default/agreement') }}">免责声明</a>》
+        <div class="text-center text-muted"><a href="{{ url('default/note') }}">短信登录</a> | <a href="{{ url('default/register') }}">立即注册</a> ｜ <a href="{{ url('default/reset') }}">忘记密码?</a>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+        $(function(){
+            //Enter 键登陆
+            $("#password").keyup(function(event){
+                if (event.keyCode == 13) {
+                    checkForm(this);
+                }
+            });
+
+            //点击登录按钮
+            $(".js-login").click(function(){
+                checkForm(this);
+
+            });
+
+            /**
+             * 登录
+             * @param obj
+             * @returns {boolean}
+             */
+            function checkForm(obj) {
+                var username = $("#username").val();
+                if(!rain.isNumber(username) || username.length != 11){
+                    rain.alert("请输入正确的电话号码");
+                    return false;
+                }
+
+                var password = $("#password").val();
+                if(password.length == 0){
+                    rain.alert("请输入密码");
+                    return false;
+                }
+
+                var loading = rain.loading(obj).start();
+                $.ajax({
+                    url: "{{ url('default/login') }}",
+                    type: "post",
+                    dataType: 'json',
+                    data: {username:username, password:password},
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            window.location = result.returnUrl;
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("系统出错");
+                    }
+                });
+
+            }
+
+        });
+    </script>
+{% endblock %}

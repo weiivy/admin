@@ -1,0 +1,68 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}兑换比例管理{% endblock %}
+{% set leftMenuActive='bank-config/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="page-title">兑换比例管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">新增兑换比例</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+
+                {# 表单 #}
+                <form action="{{ url('bank-config/create') }}" method="post" class="form-horizontal mt15">
+                    {{ include('@AppBundle/bank-config/_form.twig', {'statusArr':statusArr, 'typeArr':typeArr,'banks':banks}) }}
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+{% block javascript %}
+<script type="application/javascript">
+
+    $(function(){
+        $(".js-save").click(function(){
+            var bank = $.trim($("#BankConfig_bank option:selected").val());
+            if(bank == 0) {
+                rain.alert("请输入银行");
+                return false;
+            }
+
+            var type = $.trim($("#BankConfig_type").val());
+            if(type == 0) {
+                rain.alert("请输入类型");
+                return false;
+            }
+
+            var score = $.trim($("#score").val());
+            if(score == 0) {
+                rain.alert("请输入积分");
+                return false;
+            }
+
+            var money = $.trim($("#money").val());
+            if(money == 0) {
+                rain.alert("请输入金额");
+                return false;
+            }
+
+
+        });
+    });
+</script>
+{% endblock %}
+
+

@@ -1,0 +1,67 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}银行管理{% endblock %}
+{% set leftMenuActive = 'bank/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid content-main">
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="page-title">银行管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">银行列表</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="mt15">
+                    <a class="btn btn-sm btn-success pull-right" href="{{ url('bank/create') }}">新增银行</a>
+
+                    <div class="clearfix"></div>
+                </div>
+
+                {# 一次性消息提示 #}
+                {{ include('@AppBundle/message.twig', {'session':app.session}) }}
+
+                {% if list is empty %}
+                    <div class="alert alert-warning mt15" role="alert">暂无银行</div>
+                {% else %}
+
+                    {# 分类列表 #}
+                    <table class="table mt15">
+                        <tr class="active">
+                            <td>名称</td>
+                            <td>缩写</td>
+                            <td>状态</td>
+                            <td>操作</td>
+                        </tr>
+
+                        {% for item in list %}
+                            <tr>
+                                <td>
+                                    {{ item.bank_name }}
+                                </td>
+                                <td>{{ item.bank }}</td>
+
+                                <td>{{ item.statusAlias }}</td>
+                                <td>
+                                    <a href="{{ url('bank-config/index', {'bank':item.bank}) }}">查看比例</a>
+                                    <a href="{{ url('bank/update', {'id':item.id}) }}">修改</a>
+                                    <a href="{{ url('bank/delete', {'id':item.id}) }}" class="rain-confirm">删除</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="pull-right">
+                        {{ page.createLinks(url('bank/index'))|raw }}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

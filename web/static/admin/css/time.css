@@ -1,0 +1,72 @@
+.common-popup-time .nav-day {
+    display: table;
+    width: 100%
+}
+
+.common-popup-time .nav-day .day-item {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    height: 40px;
+    cursor: pointer
+}
+
+.common-popup-time .nav-day .day-item:active {
+    background-color: #eee
+}
+
+.common-popup-time .nav-day .day-item.active {
+    background-color: #44b549 !important;
+    color: #fff !important
+}
+
+.common-popup-time .body {
+    overflow: auto;
+    max-height: none
+}
+
+.common-popup-time .time-list {
+    overflow: hidden;
+    zoom: 1;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    padding-left: 5px;
+    background-color: #fafafa;
+    padding-bottom: 5px;
+    display: none
+}
+
+.common-popup-time .time-list.active {
+    display: block
+}
+
+.common-popup-time .time-list > li {
+    width: 20%;
+    text-align: center;
+    line-height: 40px;
+    float: left;
+    cursor: pointer;
+    white-space: nowrap
+}
+
+.common-popup-time .time-list > li:active .time-value {
+    background-color: #eee
+}
+
+.common-popup-time .time-list > li.active .time-value {
+    background-color: #00cb9d !important;
+    color: #fff !important
+}
+
+.common-popup-time .time-list > li.disabled .time-value {
+    background-color: #dcdcdc !important;
+    color: #aaa
+}
+
+.common-popup-time .time-value {
+    margin-top: 5px;
+    margin-right: 5px;
+    display: block;
+    background-color: #fff
+}

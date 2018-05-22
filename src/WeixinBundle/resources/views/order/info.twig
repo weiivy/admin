@@ -1,0 +1,112 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}订单详情{% endblock %}
+{% set leftMenuActive = 'order/index' %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/order-detail.css') }}"/>
+{% endblock %}
+{% block content %}
+
+<div class="container">
+    <p class="text-lg">商品信息</p>
+
+    <div class="common-panel common-list">
+        <div class="list-item">
+            <div class="text-primary">{{ order.name }}（{{ order.position }}）</div>
+            <div>价格: <span class="text-danger">{{ order.price }}</span>元/{{ order.time }}</div>
+            <div>数量: {{ order.quantity }}</div>
+        </div>
+        <div class="list-item ">
+           <span class="text-danger text-lg">&yen;{{ order.total_fee }}元</span>
+        </div>
+    </div>
+    <p class="text-lg">订单信息</p>
+
+    <div class="common-panel common-list order-info-box">
+        <div class="list-item">
+
+            {#<div class="addon-content">
+                <span class="addon">服务类型:</span>
+
+                <span class="content text-muted">{{ order.service_type }}</span>
+            </div>#}
+            <div class="addon-content">
+                <span class="addon">手机:</span>
+
+                <span class="content text-muted">{{ order.receiver_mobile }}</span>
+            </div>
+
+            {% if order.receiver_detail is not empty %}
+                <div class="addon-content">
+                    <span class="addon vertical-top">地址:</span>
+
+                    <span class="content text-muted">{{ order.receiver_detail }}</span>
+                </div>
+            {% endif %}
+
+            {% if order.receiver_detail is not empty %}
+                <div class="addon-content">
+                    <span class="addon vertical-top">留言:</span>
+
+                    <span class="content text-muted">{{ order.message }}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="list-item">
+
+            <div class="addon-content">
+                <span class="addon">单<span class="word-blank"></span><span class="word-blank"></span>号:</span>
+
+                <span class="content text-muted">{{ order.out_trade_no }}</span>
+            </div>
+            <div class="addon-content">
+                <span class="addon ">下单时间:</span>
+
+                <div class="content text-muted">{{ order.created_at|date('Y-m-d H:i:s') }}</div>
+            </div>
+            <div class="addon-content">
+                <span class="addon">服务时间:</span>
+
+                <span class="content text-muted">{{ order.booking_time|date('Y-m-d H:i') }}</span>
+            </div>
+            {% if order.extra_fee != 0 %}
+                <div class="addon-content">
+                    <span class="addon">额外加收费用:</span>
+                    <span class="content text-danger">&yen;{{ order.extra_fee }}元</span>
+                </div>
+                <div class="addon-content">
+                    <span class="content text-danger">(22:00以后预约加收服务费)</span>
+                </div>
+            {% endif %}
+
+            <div class="addon-content">
+                <span class="addon ">实付金额:</span>
+
+                <span class="content text-danger">
+                    &yen;
+
+                    {{ actualPayTotal|default(0) }}
+                    元
+                </span>
+            </div>
+            {% if cardPay is not null %}
+                 <div class="addon-content">
+                    <span class="addon ">优惠劵:</span>
+
+                    <span class="content text-danger">&yen;{{ cardPay.fee }}元</span>
+                </div>
+            {% endif %}
+            <div class="addon-content">
+                <span class="addon ">订单状态:</span>
+
+                <span class="content text-danger">{{ order.status }}</span>
+            </div>
+        </div>
+    </div>
+    <a href="{{ url('product/info') }}?id={{ order.product_id }}" class="btn btn-primary btn-submit">再次预约</a>
+</div>
+{% endblock %}
+
+{% block jacascript %}
+
+{% endblock %}

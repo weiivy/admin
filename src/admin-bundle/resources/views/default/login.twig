@@ -1,0 +1,115 @@
+{% extends "@AdminBundle/layout.twig" %}
+{% block title %}登录{% endblock %}
+{% block stylesheet %}
+    <style>
+        body {
+            background-color: #fafafa;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-md-offset-3">
+                <div class="view-port">
+                    <div class="panel">
+                        <div class="panel-body">
+                            <div class="h-20"></div>
+                            <div class="alert alert-success">
+                                <b>登陆</b>
+                            </div>
+
+                            <form>
+
+                                <div class="form-group">
+                                    <label for="username">用户名</label>
+                                    <input name="username" type="text" class="form-control" id="username"
+                                           placeholder="请输入用户名">
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">密码</label>
+                                    <input name="password" type="password" class="form-control"
+                                           id="password"
+                                           placeholder="请输入密码">
+                                </div>
+                                {#<div class="checkbox">
+                                    <label>
+                                        <input name="rememberMe" type="checkbox" value="1"> Remember me next time
+                                    </label>
+                                </div>#}
+                                <div class="form-group">
+                                    <a class="btn btn-primary btn-block js-submit">登录</a>
+                                </div>
+
+                               {# <div class="mt15">
+                                    <a href="{{ url('register') }}">注册</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <a href="{{ url('forgot') }}">忘记密码</a>
+                                </div>#}
+
+                                {#<div class="mt15">
+                                    <a href="forgot">Reset your password</a>
+                                </div>
+
+                                <div class="mt15">
+                                    <a href="{{ '/' }}">Return home</a>
+                                </div>#}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(function () {
+            $(".js-submit").click(function () {
+                var name = $.trim($("#username").val());
+                var password = $.trim($("#password").val());
+
+                if (name.length == 0) {
+                    rain.alert("请输入用户名");
+                    return false;
+                }
+
+                if (password.length == 0) {
+                    rain.alert("请输入密码");
+                    return false;
+                }
+
+                var data = $("form").serialize();
+
+                var loading = rain.loading().start();
+
+                $.ajax({
+                    type: 'post',
+                    url: "{{ url('login') }}",
+                    data: data,
+                    dataType: 'json',
+                    success: function (result) {
+
+                        loading.stop();
+
+                        if (result.status == 1) {
+                            rain.cute("登陆成功...", 1000, function () {
+                                window.location = result.returnUrl;
+                            });
+                            return;
+                        }
+
+                        rain.alert(result.message);
+
+                    }, error: function () {
+
+                        loading.stop();
+                        rain.alert("系统错误");
+                    }
+                });
+            });
+            return false;
+        });
+    </script>
+{% endblock %}

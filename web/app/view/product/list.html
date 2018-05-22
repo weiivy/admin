@@ -1,0 +1,22 @@
+<div class="container">
+    <div ng-if="flag" ng-repeat="index in array" style="margin-bottom: 10px;">
+        <div class="common-panel">
+            <a href="#/product/info/{{ index.id }}" class="thumb">
+                <div class="thumb-image" style="background-image: url(../uploads/product/{{ index.image }})"></div>
+            </a>
+
+            <div class="content ">
+                <div class="title">{{ index.name }}<span class="price">&nbsp;&nbsp;&nbsp;&yen;{{ index.price }}&nbsp;起</span></div>
+                <div class="sub-title"><i class="icon fa fa-clock-o"></i> <span>{{ index.time }} ({{ index.min }}人起)</span></div>
+                <a class="btn" href="#/product/info/{{ index.id }}">立即预约</a>
+            </div>
+        </div>
+    </div>
+    <div ng-if="unflag">
+        <div class="empty-order text-center text-muted">
+            <i class="icon fa fa-file-text-o" style="font-size: 150px;"></i>
+            <p>抱歉,没有找到相关服务</p>
+        </div>
+    </div>
+
+</div>

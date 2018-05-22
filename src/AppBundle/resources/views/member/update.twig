@@ -1,0 +1,96 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}会员管理{% endblock %}
+{% set leftMenuActive='member/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="page-title">会员管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">修改会员</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                {# 错误提示信息 #}
+                {% for error in errors %}
+                    <div class="ui-tips bg-info">
+                        <span class="icon glyphicon glyphicon-info-sign"></span>
+                        <span>{{ error }}</span>
+                    </div>
+                {% endfor %}
+
+                {# 表单 #}
+                <form action="{{ url('member/update', {'id':member.id}) }}" method="post" class="form-horizontal mt15">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">手机号</label>
+
+                        <div class="col-sm-6">
+                            <input type="text" name="Member[mobile]" class="form-control" id="mobile" value="{{ member.mobile|default(app.request.get('Member').mobile|default('')) }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">等级</label>
+
+                        <div class="col-sm-6">
+                            {% autoescape false %}
+                            {{ app.html.dropDownList('Member[grade]', member.grade|default(0) , gradeArr, {'class':"form-control", 'prompt':['--请选择--']}) }}
+                            {% endautoescape %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">邮箱</label>
+
+                        <div class="col-sm-6">
+                            <input type="text" name="Member[email]" class="form-control" id="email"
+                                   value="{{ member.email|default(app.request.get('Member').email|default('')) }}">
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">状态</label>
+
+                        <div class="col-sm-6">
+                            {% autoescape false %}
+                            {{ app.html.dropDownList('Member[status]', member.status|default(1) , statusArr, {'class':"form-control"}) }}
+                            {% endautoescape %}
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"></label>
+
+                        <div class="col-sm-6">
+                            <button class="btn btn-success js-save"> 保存 </button>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block javascript %}
+    <script>
+        $(function(){
+            $(".js-save").click(function(){
+                var mobile = $.trim($("#mobile").val());
+                if(!rain.isNumber(mobile) || mobile.length != 11) {
+                    rain.alert("请输入正确的电话");
+                    return false;
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}粉丝管理{% endblock %}
+{% set leftMenuActive = 'contact/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid content-main">
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="page-title">粉丝管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">粉丝列表</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                {# 一次性消息提示 #}
+                {{ include('@AppBundle/message.twig', {'session':app.session}) }}
+
+                {# 搜索表单 #}
+                <form action="{{ url('contact/index') }}" method="get" class="form-inline form-search mt15">
+                    <div class="form-group">
+                        <label>昵称</label>
+                        <input type="text" name="nickname" class="form-control"
+                               value="{{ app.request.get('nickname')|default('') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>openid</label>
+                        <input type="text" name="openid" class="form-control"
+                               value="{{ app.request.get('openid')|default('') }}">
+                    </div>
+                    <button type="submit" class="btn btn-default">搜索</button>
+                </form>
+
+                {% if list is empty %}
+                    <div class="alert alert-warning mt15" role="alert">暂无粉丝</div>
+                {% else %}
+
+                    {# 分类列表 #}
+                    <table class="table mt15">
+                        <tr class="active">
+                            <td>头像</td>
+                            <td>昵称</td>
+                            <td>openid</td>
+                            <td>性别</td>
+                            <td>地址</td>
+                        </tr>
+
+                        {% for item in list %}
+                            <tr>
+                                <td>
+                                    <img src="{% if item.head_image is not empty %}
+                                    {{ item.head_image }}
+                                    {% else %}
+                                    {{ asset('images/no-pic.jpg') }}
+                                    {% endif %}
+                                    " width="100"/>
+                                </td>
+                                <td>
+                                    {{ item.nickname }}
+                                </td>
+                                <td>{{ item.openid }}</td>
+                                <td>{{ item.sexAlisa }}</td>
+                                <td>{{ item.address }}</td>
+
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="pull-right">
+                        {{ page.createLinks(url('contact/index'))|raw }}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

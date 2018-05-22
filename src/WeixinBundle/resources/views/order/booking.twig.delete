@@ -1,0 +1,85 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}技师列表{% endblock %}
+{% set leftMenuActive = 'order/index' %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/order-success.css') }}"/>
+{% endblock %}
+{% block content %}
+    <div class="container" id="show-order-success-template">
+
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script id="order-success-template" type="text/html">
+        <% for (i = 0; i < data.length; i++) { %>
+         <div class="common-panel">
+            <div class="common-list order-success-info">
+                <div class="list-item">
+                    <% if(data[i].image.length == 0) { %>
+                        <div class="thumb">
+                            <a href="{{ url('product/info') }}?id=<%= data[i].product_id %>">
+                                <div class="thumb-image" style="background-image: url('{{ asset('images/') }}no-pic.jpg')"></div>
+                            </a>
+                        </div>
+                    <% } else { %>
+                        <div class="thumb">
+                            <a href="{{ url('product/info') }}?id=<%= data[i].product_id %>">
+                                <div class="thumb-image" style="background-image: url('{{ asset('uploads/product/') }}<%= data[i].image %>')"></div>
+                            </a>
+                        </div>
+                    <% } %>
+                    <div class="content">
+                        <div class="title">
+                            <span class="text-lg"><%= data[i].name %></span>
+                            <span class="pull-right">
+                                <span class="text-danger">&yen;<%= data[i].price %></span>元/<%= data[i].time %>
+                            </span>
+                        </div>
+                        <div class="text-sm text-muted">推拿师:<% if (data[i].employee_id > 0) { %><%= data[i].employee_id %><% } else { %>自动推荐<% } %></div>
+                        <div class="text-sm text-muted">预约时间: <span class="text-danger"><%= data[i].booking_time %></span></div>
+                        <div class="status">预约成功</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% } %>
+    </script>
+
+    <script id="empty-template" type="text/html">
+           <div class="alert alert-warning mt15" role="alert">暂无预约</div>
+    </script>
+
+    <script>
+        $(function(){
+            $.ajax({
+                url: "{{ url('orderInterface/booking-list') }}",
+                type: "get",
+                dataType: 'json',
+                data: {},
+                success: function (result) {
+                    var html;
+                    if (result.status != 1) {
+                        html = template('empty-template');
+                    } else {
+                        var tempData = result.data;
+                        for(var i = 0; i < tempData.length; i++){
+                            tempData[i].booking_time = rain.dateFormat(new Date(parseInt(tempData[i].booking_time) * 1000), "yyyy-mm-dd h:i");
+                            tempData[i].employee_id = parseInt(tempData[i].employee_id);
+                        }
+                        var data = {
+                            data: tempData
+                        };
+                        html = template('order-success-template', data);
+                    }
+
+                    $("#show-order-success-template").append(html);
+                },
+                error: function () {
+                    rain.alert("网络错误，请刷新或稍后再试");
+                }
+            });
+
+        });
+    </script>
+{% endblock %}

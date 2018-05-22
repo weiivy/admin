@@ -1,0 +1,168 @@
+<?php
+
+namespace Rain;
+
+use Rain\Database\DBConnection;
+use Rain\Database\DBQuery;
+use Rain\Database\DBQueryBuilder;
+use Rain\Database\EntityManager;
+
+/**
+ * 数据库操作帮助类
+ *
+ * @author  Zou Yiliang
+ */
+class DB
+{
+    protected static $_db;
+
+    /**
+     * @return DBConnection
+     */
+    public static function getConnection()
+    {
+        if (self::$_db === null) {
+            $config = Application::$app['db.config'];
+            if (isset($config['slave'])) {
+                $slave = $config['slave'];
+                unset($config['slave']);
+            } else {
+                $slave = array();
+            }
+            self::$_db = new DBConnection($config, $slave);
+        }
+        return self::$_db;
+    }
+
+    public static function  __callStatic($name, $arguments)
+    {
+        $db = static::getConnection();
+        if (method_exists($db, $name)) {
+            return call_user_func_array([$db, $name], $arguments);
+        }
+        throw new \Exception('Call to undefined method ' . __CLASS__ . '::' . $name . '()');
+    }
+
+    /**
+     * 返回数据库查询对象
+     * 此方法将自动添加表前缀, 例如配置的表前缀为"cms_", 则"user"将被替换为 "cms_user", 相当于"{{%user}}"
+     * 如果希望使用后缀，使用'{{user%}}'
+     * 如果不希望添加表前缀，使用'{{user}}'
+     * 如果使用自定义表前缀，使用'{{wp_user}}'
+     * @param string $tableName
+     * @return DBQuery
+     */
+    public static function select($tableName = null)
+    {
+        return $query = new DBQuery($tableName, self::getConnection());
+    }
+
+    /**
+     * 执行数据库INSERT操作
+     * 执行成功后需要取自增ID, 使用DB::getConnection()->lastInsertId()
+     * @param $tableName
+     * @param array $data 关联数组
+     * 例如['name' => 'Jack', 'age' => 20] 其中key为列名，value为值, 列名只允许字母数字或下划线
+     * @return bool
+     * @throws Exception
+     */
+    public static function insert($tableName, array $data)
+    {
+        return self::getConnection()->execute(
+            DBQueryBuilder::insert($tableName, $data),
+            $data
+        ) > 0;
+    }
+
+    /**
+     * 执行数据库UPDATE操作
+     * @param string $tableName
+     * @param array $data 列名只允许字母数字或下划线
+     * @param string $condition
+     * @param array $params
+     * @return int
+     * @throws Exception
+     */
+    public static function update($tableName, $data, $condition, array $params = array())
+    {
+        return self::getConnection()->execute(
+            DBQueryBuilder::update($tableName, $data, $condition, $params),
+            $params
+        );
+    }
+
+    /**
+     * 执行数据库DELETE操作
+     * @param $tableName
+     * @param string $condition
+     * @param array $params
+     * @return int
+     * @throws Exception
+     */
+    public static function delete($tableName, $condition = '', array $params = array())
+    {
+        return self::getConnection()->execute(
+            DBQueryBuilder::delete($tableName, $condition),
+            $params
+        );
+    }
+
+//    /**
+//     * 查询
+//     * @param string $className 类名
+//     * 例如 AppBundle\Entity\User 对应表名为小写格式user。
+//     * 如果类名和多个单词组成，表名单词间默认下划线分隔 例如AppBundle\Entity\OrderDetail  对应表名为 order_detail
+//     * 如果类中有tableName()方法，则优先使用该方法的返回值作为表名
+//     * @return DBQuery
+//     */
+//    public static function selectEntity($className)
+//    {
+//        return static::select(static::getTableName($className))->asEntity($className);
+////        //加在findAllBySql中
+////        array_walk($arr, function ($obj) {
+////            $oid = spl_object_hash($obj);
+////            EntityManager::$entityPrimaryKeys[$oid] = $obj->id;
+////        });
+//    }
+//
+//    protected static function getTableName($className)
+//    {
+//        if (method_exists($className, 'tableName')) {
+//            return $className::tableName();
+//        } else {
+//            //return lcfirst(basename($className));
+//            return strtolower(trim(preg_replace('/[A-Z]/', '_\\0', basename($className)), '_'));
+//        }
+//    }
+
+//    public static function saveEntity($entity)
+//    {
+//        if (!is_object($entity)) {
+//            return false;
+//        }
+//
+//        $oid = spl_object_hash($entity);
+//
+//        $class = get_class($entity);
+//        $data = array();
+//        foreach ((array)$entity as $key => $value) {
+//            if ($value !== null) {
+//                $data[$key] = $value;
+//            }
+//        }
+//
+//        if (isset(EntityManager::$entityPrimaryKeys[$oid])) {
+//            //update
+//            return DB::update(static::getTableName($class), $data, '`id` = ?', [EntityManager::$entityPrimaryKeys[$oid]]) == 1;
+//        } else {
+//            //insert
+//            if (DB::insert(static::getTableName($class), $data)) {
+//                $entity->id = DB::getConnection()->getLastInsertId();
+//                EntityManager::$entityPrimaryKeys[$oid] = $entity->id;
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
+
+}

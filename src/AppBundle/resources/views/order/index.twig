@@ -1,0 +1,95 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}订单管理1{% endblock %}
+{% set leftMenuActive = 'order/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid content-main">
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="page-title">订单管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li {% if app.request.get('status') is  null %} class="active"{% endif %}>
+                            <a href="{{ url("order/index") }}">全部订单</a>
+                        </li>
+                        <li class="{% if app.request.get('status') is not null and app.request.get('status') == constant('Common\\Entity\\Order::STATUS_20')%}active {% endif %}">
+                            <a href="{{ url("order/index", {'status':constant('Common\\Entity\\Order::STATUS_20')}) }}">审核中</a>
+                        </li>
+                        <li class="{% if app.request.get('status') is not null and app.request.get('status') == constant('Common\\Entity\\Order::STATUS_30') %}active {% endif %}">
+                            <a href="{{ url("order/index", {'status':constant('Common\\Entity\\Order::STATUS_30')}) }}">审核成功</a>
+                        </li>
+                        <li class="{% if app.request.get('status') is not null and app.request.get('status') == constant('Common\\Entity\\Order::STATUS_40') %}active {% endif %}">
+                            <a href="{{ url("order/index", {'status':constant('Common\\Entity\\Order::STATUS_40')}) }}">审核失败</a>
+                        </li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                {# 一次性消息提示 #}
+                {{ include('@AppBundle/message.twig', {'session':app.session}) }}
+
+                {# 搜索表单 #}
+                <form action="{{ url('order/index') }}" method="get" class="form-inline form-search mt15">
+                    <div class="form-group">
+                        <label>订单号</label>
+                        <input type="text" name="out_trade_no" class="form-control"
+                               value="{{ app.request.get('out_trade_no')|default('') }}">
+                    </div>
+                    <div class="form-group">
+                        <label>银行</label>
+                        {% autoescape false %}
+                            {{ app.html.dropDownList('bank', app.request.get('bank')|default('') , banks, {'class':"form-control", 'prompt':['--请选择--']}) }}
+                        {% endautoescape %}
+                    </div>
+                    <button type="submit" class="btn btn-default">搜索</button>
+                </form>
+
+                {% if list is empty %}
+                    <div class="alert alert-warning mt15" role="alert">暂无订单</div>
+                {% else %}
+
+                    {# 分类列表 #}
+                    <table class="table mt15">
+                        <tr class="active">
+                            <td>下单时间</td>
+                            <td>订单号</td>
+                            <td>银行</td>
+                            <td>下单人</td>
+                            <td>兑换金额</td>
+                            <td>使用积分</td>
+                            <td>兑换码</td>
+                            <td>有效日期</td>
+                            <td>订单状态</td>
+                            <td>操作</td>
+                        </tr>
+
+                        {% for item in list %}
+                            <tr>
+                                <td>{{ item.created_at|date('Y-m-d') }}</td>
+                                <td>{{ item.out_trade_no }}</td>
+                                <td>{{ banks[item.bank] }}</td>
+                                <td>{{ item.getOrderMember }}</td>
+                                <td>{{ item.money }}</td>
+                                <td>{{ item.integral }}</td>
+                                <td>{% if item.exchange_code is empty %}-{% else %}{{ item.exchange_code }}{% endif %}</td>
+                                <td>{% if item.valid_time == '0000-00-00' %}-{% else %}{{ item.valid_time }}{% endif %}</td>
+                                <td>{{ item.statusAlisa }}</td>
+                                <td>
+                                    <a href="{{ url('order/view', {'id':item.id}) }}">查看</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="pull-right">
+                        {{ page.createLinks(url('order/index'))|raw }}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

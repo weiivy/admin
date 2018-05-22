@@ -1,0 +1,83 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}个人中心{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/login.css') }}"/>
+{% endblock %}
+{% block content %}
+<h1 class="topbar">重置密码</h1>
+
+<div class="container">
+    <div class="common-panel">
+        <div class="common-list">
+            <div class="list-item list-input-item">
+                <span class="addon">原密码</span>
+                <input class="input" type="password" name="Member[password]" id="oldpassword" placeholder="请输入原密码"/>
+            </div>
+            <div class="list-item list-input-item">
+                <span class="addon">新密码</span>
+                <input class="input" type="password" name="Member[password]" id="newpassword" placeholder="请输入新密码"/>
+            </div>
+            <div class="list-item list-input-item">
+                <span class="addon">确认密码</span>
+                <input class="input" type="password" id="repassword" placeholder="请再次输入新密码"/>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-primary btn-submit js-reset-password">重置密码</button>
+</div>
+{% endblock %}
+{% block javascript %}
+    <script>
+        $(function(){
+
+            $('.js-reset-password').click(function(){
+                 var oldPassword = $("#oldpassword").val();
+                var newPassword = $("#newpassword").val();
+                var repassword = $("#repassword").val();
+
+                if(oldPassword.length == 0){
+                    rain.alert("请输入原密码");
+                    return false;
+                }
+
+                if(newPassword == oldPassword){
+                    rain.alert("新密码与原密码一致");
+                    return false;
+                }
+
+                if(repassword != newPassword ){
+                    rain.alert("两次密码不一致");
+                    return false;
+                }
+
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('member/reset', {'id':member.id}) }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {oldPassword:oldPassword, password:newPassword },
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            rain.cute(result.message, 1000, function(){
+                                window.location.href = "{{ url('default/login') }}";
+                            });
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("系统出错");
+                    }
+                });
+            });
+
+        });
+
+
+    </script>
+{% endblock %}
+

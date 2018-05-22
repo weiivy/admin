@@ -1,0 +1,54 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}银行管理{% endblock %}
+{% set leftMenuActive='bank/index' %}
+
+{% block contentRight %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="page-title">银行管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">修改银行信息</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+
+                {# 表单 #}
+                <form action="{{ url('bank/update', {'id':bank.id|default('')}) }}" method="post" class="form-horizontal mt15">
+                    {{ include('@AppBundle/bank/_form.twig', {'bank':bank}) }}
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+{% block javascript %}
+<script type="application/javascript">
+
+    $(function(){
+        $(".js-save").click(function(){
+            var bankeName = $.trim($("#bank_name").val());
+            if(bankeName.length == 0) {
+                rain.alert("请输入银行名称");
+                return false;
+            }
+
+            var bank = $.trim($("#bank").val());
+            if(bank.length == 0) {
+                rain.alert("请输入银行缩写");
+                return false;
+            }
+
+        });
+    });
+</script>
+{% endblock %}

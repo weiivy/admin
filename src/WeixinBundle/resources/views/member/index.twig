@@ -1,0 +1,93 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}个人中心{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/personal.css') }}"/>
+{% endblock %}
+{% block content %}
+    <a class="info-panel" href="{{ url('member/member-info', {'id':member.id}) }}">
+    <div class="thumb-wrap">
+        {% if member.avatar is empty %}
+            <div class="thumb" style="background-image: url('{{ asset('images/') }}avatar.png')"></div>
+        {% else %}
+            <div class="thumb" style="background-image: url('{{ asset('uploads/member/') }}{{ member.avatar }}')"></div>
+        {% endif %}
+
+    </div>
+        {#<div class="name">{{ member.nickname|default('-') }}</div>#}
+        <div class="phone">{{ member.mobile }}</div>
+    </div>
+</a>
+    <style>
+        .icon{
+            width: 18px;
+            text-align: center;
+        }
+    </style>
+<div class="container">
+    <div class="common-panel">
+        <div class=" common-list">
+            <a href="{{ url('member/collect-product') }}" class="list-item list-input-item has-touch-bg">
+                <span class="addon"><i class="icon fa fa-star-o text-primary"></i></span>
+
+                <div class="input">我的收藏</div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>
+            <a href="{{ url('member/address-list') }}?id={{ member.id }}" class="list-item list-input-item has-touch-bg">
+                <span class="addon"><i class="icon fa fa-map-marker text-primary"></i></span>
+
+                <div class="input">常用地址</div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>
+           {# <a href="{{ url('member/reset') }}?id={{ member.id }}" class="list-item list-input-item has-touch-bg">
+                <span class="addon"><i class="icon fa fa-map-marker text-primary"></i></span>
+
+                <div class="input">重置密码</div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>#}
+        </div>
+    </div>
+
+    <div class="common-panel">
+        <div class=" common-list">
+           {# <a href="#" class="list-item list-input-item has-touch-bg">
+                <span class="addon">&#123;&#35;<i class="icon fa fa-star-o text-primary"></i>&#35;&#125;</span>
+
+                <div class="input">会员卡</div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>
+            <a href="#" class="list-item list-input-item has-touch-bg">
+                <span class="addon">&#123;&#35;<i class="icon fa fa-map-marker text-warning"></i>&#35;&#125;</span>
+
+                <div class="input">我的积分</div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>#}
+            <a href="{{ url('member/account') }}" class="list-item list-input-item has-touch-bg">
+                <span class="addon"><i class="icon fa fa-diamond text-primary"></i></span>
+
+                <div class="input">账号中心</div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>
+            <a href="{{ url('member/ticket') }}" class="list-item list-input-item has-touch-bg">
+                <span class="addon"><i style="font-size: 12px" class="icon fa fa-cc-mastercard text-primary"></i></span>
+
+                <div class="input">我的卡券</div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>
+        </div>
+    </div>
+
+    <div class="common-panel">
+        <div class=" common-list">
+
+            <a href="{{ url('default/our') }}" class="list-item list-input-item has-touch-bg">
+                <span class="addon"><i class="icon fa fa-home text-primary"></i></span>
+
+                <div class="input">关于我们</div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

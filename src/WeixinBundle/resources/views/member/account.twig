@@ -1,0 +1,50 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}消费明细{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/personal.css') }}"/>
+    <style>
+        .avatar {
+            width: 100px;
+            height: 100px;
+            background-color: #ddd;
+            margin: 20px auto 10px;
+            background-repeat: no-repeat;
+            background-position: center;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            background-size: cover;
+        }
+
+        .name {
+            text-align: center;
+            font-size: 12px;
+            margin-bottom: 40px;
+        }
+
+    </style>
+{% endblock %}
+{% block content %}
+<div class="container">
+    {% if member.avatar is not empty %}
+        <div class="avatar img-circle" style="background-image: url('{{ asset('uploads/member/') }}{{ member.avatar }}')"></div>
+    {% else %}
+        <div class="avatar img-circle" style="background-image: url('{{ asset('images/no-pic.jpg') }}')"></div>
+    {% endif %}
+    <div class="name">
+        余额: <span class="text-danger">&yen;{{ member.money|default(0,00) }}元</span>
+        <br/>
+        积分: <span class="text-danger">{{ member.score|default(0,00) }}分</span>
+    </div>
+
+    <div class="common-panel">
+        <div class=" common-list">
+            <a href="{{ url('member/balance') }}" class="list-item list-input-item has-touch-bg">
+                <span class="addon"></span>
+                <div class="input">消费明细</div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

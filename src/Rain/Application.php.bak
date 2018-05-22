@@ -1,0 +1,439 @@
+<?php
+
+namespace Rain;
+
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'functions.php';
+
+use Exception;
+
+use Pimple\Container;
+
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing\RouteCollection;
+//use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Symfony\Component\Routing\Exception\MethodNotAllowedException;
+
+use Symfony\Component\HttpKernel\Exception\HttpException;
+
+/**
+ * Application
+ * @author  Zou Yiliang
+ */
+class Application extends Container
+{
+    /**
+     * @var static
+     */
+    public static $app;
+
+    public function __construct(array $config = array())
+    {
+        $config = array_replace_recursive([
+            'id' => null,
+            'path' => null,
+            'timezone' => 'UTC',
+            'debug' => false,
+            'params' => [],
+            'aliases' => [],
+        ], $config);
+
+        if (empty($config['path'])) {
+            throw new Exception('app path is empty.');
+        }
+
+        if (is_null($config['id'])) {
+            $config['id'] = md5($config['path']);
+        }
+
+        parent::__construct($config);
+
+        static::$app = $this;
+
+    }
+
+    /**
+     * 返回配置内容
+     * @param $name
+     * @return mixed
+     * @throws Exception
+     */
+    public function getConfig($name)
+    {
+        if (array_key_exists($name, $this)) {
+            return $this[$name];
+        } else {
+            throw new Exception('Config "' . htmlspecialchars($name) . '"does not exist.');
+        }
+    }
+
+    /**
+     * 所有路由
+     * @var \Rain\Route[]
+     */
+    protected $routeHelpers = [];
+
+    public function addRoute(\Rain\Route $route)
+    {
+        $this->routeHelpers[$route->name] = $route;
+    }
+
+    /**
+     * 全部过滤器列表
+     * @var array
+     */
+    protected $filters = [];
+
+    public function addFilter($name, $filter)
+    {
+        $this->filters[$name] = $filter;
+    }
+
+    //基于模式的过滤器，对符合规则的所有路由生效
+    //e.g.  Route::whenRegex('/^admin/', 'admin');
+    protected $regexFilters = [];
+
+    public function addRegexFilter($pattern, $filter)
+    {
+        $this->regexFilters[$pattern] = $filter;
+    }
+
+    /**
+     * @var string 当前路由名
+     */
+    public $currentRouteName;
+
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    public function getRequest()
+    {
+        return $this->request;
+    }
+
+    /**
+     * @var \Symfony\Component\Routing\Generator\UrlGenerator
+     */
+    public $urlGenerator;
+
+    public function init()
+    {
+        date_default_timezone_set($this['timezone']);
+
+        //开启错误报告
+        ini_set('display_errors', 'On');
+        error_reporting(E_ALL);
+
+        //注册类自动加载器
+        //$this->autoloadRegister();
+
+        //错误处理
+        $errorHandler = new ErrorHandler();
+        set_error_handler(array($errorHandler, 'handleError'));
+        set_exception_handler(array($errorHandler, 'handleException'));
+
+    }
+
+    public function run(Request $request = null)
+    {
+        $this->init();
+
+        //创建Request对象
+        if ($request === null) {
+            $request = Request::createFromGlobals();
+        }
+        $this->request = $request;
+
+        $session = new \Symfony\Component\HttpFoundation\Session\Session();
+        $request->setSession($session);
+
+        //初始化RequestContext
+        $context = new RequestContext();
+        $context->fromRequest($this->request);
+
+        //加载过滤器和路由
+        require $this['path'] . DIRECTORY_SEPARATOR . 'filters.php';
+        require $this['path'] . DIRECTORY_SEPARATOR . 'routes.php';
+
+        $routes = new RouteCollection();
+        foreach ($this->routeHelpers as $route) {
+            $routes->add($route->name, new Route($route->path, $route->defaults, $route->where));
+        }
+
+        //Url生成器
+        $this->urlGenerator = new UrlGenerator($routes, $context);
+
+        try {
+
+            //匹配URL中的请求路径, match返回相关的路由属性数组(路由的名字自动赋值给_route)
+            $matcher = new UrlMatcher($routes, $context);
+            $attributes = $matcher->match($this->request->getPathInfo());
+            $this->currentRouteName = $attributes['_route'];
+
+            //匹配得到action
+            $action = $attributes[\Rain\Route::CALLBACK];
+            unset($attributes[\Rain\Route::CALLBACK]);
+
+
+            //正则过虑器
+            $path = ltrim($this->request->getPathInfo(), '/');
+            $path = empty($path) ? '/' : $path;
+
+            foreach ($this->regexFilters as $pattern => $filterName) {
+                if (preg_match($pattern, $path)) {
+                    //执行过滤器
+                    if (array_key_exists($filterName, $this->filters)) {
+
+                        //过滤器返回非null值，则不执行路由
+                        $return = call_user_func($this->filters[$filterName]);
+                        if ($return !== null) {
+                            if ($return instanceof Response) {
+                                $response = $return;
+                            } else {
+                                $response = new Response();
+                                $response->setContent((string)$return);
+                            }
+                            $this->end($request, $response);
+                        }
+
+                    } else {
+
+                        //找不到过滤器
+                        $response = new Response();
+                        $response->setContent('Filter error: "' . htmlspecialchars($filterName)) . '".';
+                        $this->end($request, $response);
+
+                    }
+                }
+            }
+
+
+            //检查路由的过滤器
+            $routeHelper = $this->routeHelpers[$this->currentRouteName];
+
+            //循环路由的before过滤器
+            foreach ($routeHelper->before as $filterName) {
+
+                //执行过滤器
+                if (array_key_exists($filterName, $this->filters)) {
+
+                    //过滤器返回非null值，则不执行路由
+                    $return = call_user_func($this->filters[$filterName]);
+                    if ($return !== null) {
+                        if ($return instanceof Response) {
+                            $response = $return;
+                        } else {
+                            $response = new Response();
+                            $response->setContent((string)$return);
+                        }
+                        $this->end($request, $response);
+                    }
+
+                } else {
+
+                    //找不到过滤器
+                    $response = new Response();
+                    $response->setContent('Filter error: "' . htmlspecialchars($filterName)) . '".';
+                    $this->end($request, $response);
+
+                }
+            }
+
+            //控制器对象
+            $controller = null;
+
+            if ($action instanceof \Closure) {
+
+                //匿名函数
+                $method = new \ReflectionFunction($action);
+
+            } else if (is_string($action)) {
+
+                //控制器类+方法
+                //e.g. UserController@getAllUsers
+                $arr = explode('@', $action);
+                if (count($arr) !== 2) {
+                    $response = new Response();
+                    $response->setContent('Router error: ' . htmlspecialchars($action));
+                    $this->end($request, $response);
+                }
+                $controller = new $arr[0];
+                $method = new \ReflectionMethod($controller, $arr[1]);
+            }
+
+            //执行Action
+            $return = $this->runWithParamsInternal($controller, $method, $attributes);
+            if ($return instanceof Response) {
+                $response = $return;
+            } else {
+                $response = new Response();
+                $response->setContent((string)$return);
+            }
+
+        } catch (MethodNotAllowedException $e) {
+
+            $message = '500 Method not allowed';
+            if (isset($this['debug']) && $this['debug']) {
+                $message = $e->getMessage() ?: $message;
+            }
+            throw new \Exception($message, 500);
+            //$response = new Response($message, 500);
+
+        } catch (ResourceNotFoundException $e) {
+
+            $message = '404 Not Found';
+            if (isset($this['debug']) && $this['debug']) {
+                $message = $e->getMessage() ?: $message;
+            }
+            //$response = new Response($message, 404);
+            throw new \Exception($message, 404);
+
+        }
+        $this->end($request, $response);
+    }
+
+    /**
+     * 输出Response并结束
+     * @param Response $response
+     */
+    public function end(Request $request, Response $response)
+    {
+        $response->prepare($request)->send();
+        exit;
+    }
+
+    /**
+     * 对应形参的name排列参数后调用方法
+     * @param $object 控制器对象，如果是匿名函数，则此参数为null
+     * @param $method ( ReflectionFunction|ReflectionMethod )
+     * @param array $params
+     * @return mixed
+     * @throws Exception Reflector
+     */
+    protected function runWithParamsInternal($object, $method, $params)
+    {
+        $class = [
+            'Rain\\Request' => $this->getRequest(),
+            'Rain\\Application' => $this,
+        ];
+
+        $ps = array();
+        if ($method->getNumberOfParameters() > 0) {
+            foreach ($method->getParameters() as $i => $param) {
+                $name = $param->getName();
+                if (array_key_exists($name, $params) && $params[$name] !== null) {
+                    if ($param->isArray()) {
+                        $ps[] = is_array($params[$name]) ? $params[$name] : array($params[$name]);
+                    } else {
+                        $ps[] = $params[$name];
+                    }
+                } elseif ($param->isDefaultValueAvailable()) {
+                    $ps[] = $param->getDefaultValue();
+                } else {
+
+                    $reflectionClass = $param->getClass();
+                    if ($reflectionClass !== null) {
+                        if (array_key_exists($reflectionClass->getName(), $class)) {
+                            $ps[] = $class[$reflectionClass->getName()];
+                            continue;
+                        }
+                    }
+
+                    //如果没有匹配参数和默认值时, 让控制器调用时报错(Missing argument)
+                    throw new Exception('Missing argument :' . $method . ' ' . $name);
+
+                }
+            }
+        }
+        if ($object === null) {
+            //ReflectionFunction::invokeArgs
+            return $method->invokeArgs($ps);
+        } else {
+            //ReflectionMethod::invokeArgs
+            return $method->invokeArgs($object, $ps);
+        }
+    }
+
+    /**
+     * 注册类加载器
+     */
+    public function autoloadRegister()
+    {
+        spl_autoload_register(function ($className) {
+
+            //只尝试加载没有命名空间的类
+            if (strpos('\\', $className) !== false) {
+                return;
+            }
+
+            //Controller
+            if ('Controller' == substr($className, -10)) {
+                $fileName = $this['path'] . '/controllers/' . $className . '.php';
+                if (file_exists($fileName)) {
+                    require_once $fileName;
+                    return;
+                }
+            }
+
+            //Service
+            if ('Service' == substr($className, -7)) {
+                $fileName = $this['path'] . '/services/' . $className . '.php';
+                if (file_exists($fileName)) {
+                    require_once $fileName;
+                    return;
+                }
+            }
+
+            //Model
+            $fileName = $this['path'] . '/models/' . $className . '.php';
+            if (file_exists($fileName)) {
+                require_once $fileName;
+                return;
+            }
+
+            //加载别名
+            if (array_key_exists($className, $this['aliases'])) {
+                class_alias($this['aliases'][$className], $className);
+            }
+
+        });
+    }
+
+    /**
+     * 中止当前请求发送一个适当的HTTP错误
+     *
+     * @param int $statusCode The HTTP status code
+     * @param string $message The status message
+     * @param array $headers An array of HTTP headers
+     */
+    public static function abort($statusCode, $message = '', array $headers = array())
+    {
+        if ($statusCode == 404) {
+            throw new ResourceNotFoundException($message);
+        }
+        throw new HttpException($statusCode, $message, null, $headers);
+    }
+
+    public function publishAsset($path)
+    {
+        $hash = sprintf('%x', crc32($path . static::getVersion()));
+
+        $dst = './asset/' . $hash;
+
+        Util::copyDirectory($path, $dst);
+
+        return Url::asset('/asset/' . $hash);
+    }
+
+    public static function getVersion()
+    {
+        return '0.1 dev';
+    }
+
+}

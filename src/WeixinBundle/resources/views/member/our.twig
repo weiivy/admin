@@ -1,0 +1,43 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}个人中心{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block stylesheet %}
+    <style>
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            background-color: #ddd;
+            margin: 20px auto 10px;
+
+            background-repeat: no-repeat;
+            background-position: center;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            background-size: cover;
+        }
+       .name{
+           text-align: center;
+           font-size: 30px;
+           margin-bottom: 40px;
+       }
+    </style>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="avatar" style="background-image: url('{{ asset('images/kangjun.jpg') }}')"></div>
+        <div class="name">骏到家</div>
+        <div class="common-panel ">
+            <div class="common-list text-center">
+
+               {# <a href="{{ url('default/duty') }}" class="list-item has-touch-bg">使用协议</a>#}
+                <a href="{{ url('default/agreement') }}" class="list-item has-touch-bg ">免责声明</a>
+            </div>
+        </div>
+        <div class="common-panel ">
+            <div class="common-list text-center">
+                <a href="tel:4000088301" class="list-item has-touch-bg "> <i class="icon fa fa-phone text-warning"></i>客服电话：<span class="text-primary">400 008 8301</span>（点击拨打）</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

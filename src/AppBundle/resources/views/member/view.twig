@@ -1,0 +1,84 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}会员管理{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid content-main">
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="page-title">会员管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">基本信息</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                 <form class="form-horizontal mt15">
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">头像</label>
+                        <div class="col-sm-6">
+                            <p class="form-control-static">
+                                {% if member is defined and member.avatar is not empty %}
+                                    <img src="{{ item.avatar }}" class="show-logo" width="200" style="max-width: 300px;">
+                                {% else %}
+                                    <img src="{{ asset('images/no-pic.jpg') }}" class="show-logo" style="max-width: 300px;">
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">昵称</label>
+                        <div class="col-sm-6">
+                            <p class="form-control-static">{{ member.nickname|default('-') }}</p>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">手机</label>
+                        <div class="col-sm-6">
+                            <p class="form-control-static">{{ member.mobile|default('-') }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">等级</label>
+                        <div class="col-sm-6">
+                            <p class="form-control-static">{{ member.gradeAlias }}</p>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">金额</label>
+                        <div class="col-sm-6">
+                            <p class="form-control-static">{{ member.money|default(0) }}</p>
+                        </div>
+                    </div>
+                     <div class="form-group">
+                        <label class="col-sm-2 control-label">状态</label>
+                        <div class="col-sm-6">
+                            <p class="form-control-static">{{ member.statusAlias }}</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">创建时间</label>
+                        <div class="col-sm-6">
+                            <p class="form-control-static">{{ member.created_at|date('Y-m-d') }}</p>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

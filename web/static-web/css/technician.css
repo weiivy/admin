@@ -1,0 +1,207 @@
+.technician-info {
+    display: table;
+    width: 100%
+}
+
+.technician-info .thumb {
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    width: 6em;
+    height: 6em
+}
+
+.technician-info .content {
+    padding-left: 12px
+}
+
+.technician-info .name {
+    font-size: 16px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 1em
+}
+
+.technician-info .man-tag {
+    display: inline;
+    border: 1px solid #00cb9d;
+    border-radius: 4px;
+    color: #00cb9d;
+    text-align: center;
+    text-decoration: none;
+    width: 6em;
+    overflow: hidden;
+    zoom: 1;
+    margin: 0 auto;
+    vertical-align: middle;
+    line-height: 1;
+    padding: .2em
+}
+
+.technician-info .comment-stars {
+    line-height: 3em
+}
+
+.technician-info .comment-stars .fa-star {
+    color: #00cb9d
+}
+
+.technician-info .comment-stars .fa-star-o {
+    color: #777
+}
+
+.technician-info .addon {
+    color: #666
+}
+
+.technician-info .service-circle .input {
+    font-size: 12px;
+    color: #777
+}
+
+.technician-info .customer-comment .icon {
+    color: #00cb9d
+}
+
+.service-list {
+    overflow: hidden;
+    zoom: 1
+}
+
+.service-list > li {
+    width: 50%;
+    float: left;
+    position: relative
+}
+
+.service-list > li a {
+    display: block;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    zoom: 1
+}
+
+.service-list > li .thumb {
+    display: block;
+    background-color: #ddd;
+    position: relative;
+    padding-bottom: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    color: #3c3c3c !important;
+    overflow: hidden;
+    zoom: 1
+}
+
+.service-list > li > a:active .info {
+    background-color: #fafafa
+}
+
+.service-list .info {
+    background-color: #fff;
+    padding: 4px;
+    height: 82px;
+    overflow: hidden;
+    zoom: 1
+}
+
+.service-list > li:nth-child(2n-1) > a {
+    margin-left: 0;
+    margin-bottom: 10px;
+    margin-right: 5px
+}
+
+.service-list > li:nth-child(2n) > a {
+    margin-right: 0;
+    margin-left: 5px;
+    margin-bottom: 10px
+}
+
+.service-list p {
+    overflow: hidden;
+    zoom: 1;
+    margin: 0;
+    font-size: 12px
+}
+
+.service-list .info .name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap
+}
+
+.service-list .info .price {
+    color: red
+}
+
+.service-list .info .history-count {
+    color: #777
+}
+
+body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none
+}
+
+.nav-btn-bar {
+    display: table;
+    width: 100%;
+    line-height: 1;
+    margin-bottom: 8px
+}
+
+.nav-btn-bar > li {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+    cursor: pointer
+}
+
+.nav-btn-bar > li:before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 1px;
+    height: 60%;
+    top: 20%;
+    bottom: 20%;
+    left: 0;
+    background-color: #ddd
+}
+
+.nav-btn-bar > li:first-child:before {
+    content: '';
+    display: none
+}
+
+.nav-btn-bar > li > span {
+    display: inline-block;
+    padding-top: 12px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid transparent
+}
+
+.nav-btn-bar > li.current > span {
+    color: #00cb9d;
+    border-bottom: 2px solid #00cb9d
+}
+
+.nav-btn-bar > li:active {
+    background-color: #fafafa
+}
+
+.nav-btn-bar .icon {
+    color: #00cb9d
+}

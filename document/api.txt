@@ -1,0 +1,191 @@
+    //注册
+	 http://kangjun.chehutong.cn/weixin.php/default/register
+	 参数：
+		mobile    手机号
+		code	  验证码
+		password  密码
+	 失败：{"status":"0", "message":"请输入验证码"}
+	 成功：{"status":"1", "message":"SUCCESS"}
+	 
+	 
+	//注册发送验证码
+	http://kangjun.chehutong.cn/weixin.php/default/ajax-send-register
+	参数：
+		username：手机号
+	失败：{"status":"0", "message":"系统出错"}
+	成功：{"status":"1", "message":"验证码已发送"}	
+	
+	//登录
+	http://kangjun.chehutong.cn/weixin.php/default/login
+	参数：
+		username   注册手机号
+		password   密码
+	失败：{"status":"0", "message":"你的账号已被冻结"}
+	成功：{"status":"1", "message":"登录成功", "returnUrl":""}	
+	
+	//找回密码,发送验证码
+	http://kangjun.chehutong.cn/weixin.php/default/ajax-send-code
+	参数：
+		username：手机号
+	失败：{"status":"0", "message":"系统出错"}
+	成功：{"status":"1", "message":"验证码已发送"}	
+	
+	//找回密码
+	http://kangjun.chehutong.cn/weixin.php/default/ajax-send-code
+	参数：
+		username   手机号
+		password   密码
+		code       验证码
+	失败：{"status":"0", "message":"新密码和原密码不能一致"}
+	成功：{"status":"1", "message":"密码已修改"}
+	
+	
+	//项目列表
+    http://kangjun.chehutong.cn/weixin.php/product/ajax-list
+    参数：
+        currentPage  当前页码
+        grade        等级id （可选）
+
+    有数据：{
+        "status":"1",
+        "message":"",
+        "data":
+          [
+            {
+                "id":"1",
+                "name":"m,.",
+                "image":"",
+                "time":"xz",
+                "price":"21.00",
+                "position":10,
+                "min":120,
+                "discount":0.48,
+            }
+            ...
+          ]
+        }
+    无数据：{"status":"1","message":"","data":[]}
+
+    //项目列表 => 判断是否有技师
+     http://kangjun.chehutong.cn/weixin.php/product/ajax-employee-exists
+     参数：
+        cityId      城市id
+        productId   产品id
+     无技师：{ "status":0, "message":"暂无技师"}
+     有技师：{ "status":1, "message":"有技师"}
+
+
+     //技师列表
+      http://kangjun.chehutong.cn/weixin.php/employee/ajax-list
+      参数：
+         currentPage    当前页码
+         cityId         城市id
+         grade          等级id（可选）
+      无数据：{"status":"1","message":"","data":[]}
+      有数据：{
+         "status":"1",
+         "message":"",
+         "data":[
+             {
+                 "id":"1",
+                 "name":"\u6211\u53bb\u73a9",
+                 "avatar":"201505\/04\/554715d93ec59.jpg",
+                 "sex":"男",
+                 "grade":"1星",
+                 "intro":"\u95ee\u95ee",
+                 "count":0,
+                 "location":"\u95ee\u95ee",
+                 "created_at":1430723344
+             },
+             {
+                 "id":"2",
+                 "name":"\u54c8\u54c8",
+                 "avatar":"201505\/04\/554715d93ec59.jpg",
+                 "sex":"女",
+                 "grade":"2星",
+                 "intro":"\u6492\u65bd",
+                 "count":0,
+                 "location":"\u6492",
+                 "created_at":1430721302
+             }
+             ...
+           ]
+         }
+
+      //技师评论
+      http://kangjun.chehutong.cn/weixin.php/employee/ajax-employee-comment
+      参数：
+         id                 技师id
+         currentPage        评论当前页
+      无数据：{"status":"0","message":"暂无评论","data":[]}
+      有数据：{
+         "status":"1",
+         "message":"",
+         "data":[
+             {
+                 "id":"1",
+                 "username":"\u6211\u53bb\u73a9",
+                 "nickname":"\u6211\u53bb\u73a9",
+                 "rate":"好评",
+                 "content":"jhdjksdssj",
+                 "created_at":1430723344
+             },
+             ...
+           ]
+         }
+
+      //技师产品
+      http://kangjun.chehutong.cn/weixin.php/employee/ajax-employee-products
+      参数：
+         employeeId     技师id
+         orderBy        排序方式
+      无数据：{ "status":"0", "message":"暂无服务", "data": []}
+      有数据：{
+        "status":"1",
+        "message":"",
+        "data":
+          [
+            {
+                "id":"1",
+                "name":"m,.",
+                "image":"",
+                "discount":0.48,
+                "count":11,
+                "time":"xz",
+                "price":"21.00",
+                "position":10
+            },
+            ...
+          ]
+        }
+
+
+      //技师服务评论
+      http://kangjun.chehutong.cn/weixin.php/employee/ajax-employee-product-comment
+      参数：
+         productId         产品id
+         employeeId        技师id
+         currentPage       评论当前页
+      无数据：{"status":"0","message":"暂无评论","data":[]}
+      有数据：{
+         "status":"1",
+         "message":"评论",
+         "data":[
+             {
+                 "id":"1",
+                 "username":"\u6211\u53bb\u73a9",
+                 "nickname":"\u6211\u53bb\u73a9",
+                 "rate":"好评",
+                 "content":"jhdjksdssj",
+                 "created_at":1430723344
+             },
+             ...
+           ]
+         }
+
+      //修改城市
+       http://kangjun.chehutong.cn/weixin.php/employee/ajax-change-city
+       参数：
+            defaultCity  城市id
+       失败：{ "status":"0", "message":"城市不存在"}
+       成功：{ "status":"1", "message":"success"}

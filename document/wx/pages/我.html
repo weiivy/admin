@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <title>wx demo</title>
+    <link rel="stylesheet" href="../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../stylesheets/wx.css">
+</head>
+<body>
+<script>
+    // 支持物理像素
+    if (window.devicePixelRatio && devicePixelRatio >= 2) {
+        var testElem = document.createElement('div');
+        testElem.style.border = '.5px solid transparent';
+        document.body.appendChild(testElem);
+        if (testElem.offsetHeight == 1) {
+            document.querySelector('html').classList.add('hairlines');
+        }
+        document.body.removeChild(testElem);
+    }
+</script>
+<div class="wx-auto-list">
+    <div class="wx-group">
+        <div class="wx-title"></div>
+        <ul class="wx-settings">
+            <li class="wx-item avatar-item">
+                <label for="up-avatar" class="block">
+                    <div class="wx-name">头像</div>
+                    <span class="wx-content">
+                           <img src="../images/icon/demo.png" alt="" class="avatar"/>
+                          <input type="file" id="up-avatar" class="hide"/>
+                    </span>
+                </label>
+            </li>
+            <a class="wx-item" href="我/姓名.html">
+                <div class="wx-name">姓名</div>
+                <span class="wx-content">张某某</span>
+            </a>
+            <li class="wx-item">
+                <div class="wx-name">等级</div>
+                <span class="wx-content">lv.7</span>
+            </li>
+            <a class="wx-item" href="我/介绍.html">
+                <div class="wx-name">介绍</div>
+                <span class="wx-content text-content">
+                    介绍内容介绍内容介绍内容介绍内容
+                </span>
+            </a>
+        </ul>
+    </div>
+    <div class="wx-group">
+        <div class="wx-title"></div>
+        <ul class="wx-settings">
+
+            <a class="wx-item" href="我/服务商圈.html">
+                <div class="wx-name">服务商圈</div>
+                <span class="wx-content text-content">
+                    内容内容内容内容内容内容内内容内容内容内容内容内容内
+                </span>
+            </a>
+
+            <li class="wx-item avatar-item">
+                <label for="up-auth" class="block">
+                    <div class="wx-name">认证资料</div>
+                    <span class="wx-content">
+                        <a href="我/查看图片.html">
+                            <img src="../images/icon/demo.png" alt="" class="avatar"/>
+                        </a>
+                        <input type="file" id="up-auth" class="hide"/>
+                    </span>
+                </label>
+            </li>
+
+            <a class="wx-item text-item" href="我/服务项目.html">
+                <div class="wx-name">服务项目</div>
+            </a>
+
+            <a class="wx-item text-item" href="我/时间管理.html">
+                <div class="wx-name">时间管理</div>
+            </a>
+        </ul>
+    </div>
+</div>
+<div class="wx-group">
+
+    <div class="wx-title"></div>
+    <div class="wx-settings">
+
+        <a class="wx-item text-item" href="我/业绩查询.html">
+            <div class="wx-name">业绩查询</div>
+        </a>
+    </div>
+    <div class="wx-title"></div>
+
+</div>
+<div id="global-nav-height"></div>
+<div id="global-nav">
+    <div class="wrapper">
+        <a href="消息中心.html">
+            <div class="nav-icon fa fa-comment"></div>
+            <div class="nav-text">消息</div>
+        </a>
+        <a href="订单管理.html">
+            <div class="nav-icon fa fa-bullseye"></div>
+            <div class="nav-text">订单管理</div>
+        </a>
+        <a href="我.html" class="active">
+            <div class="nav-icon fa fa-user"></div>
+            <div class="nav-text">我</div>
+        </a>
+    </div>
+</div>
+</body>
+</html>
+

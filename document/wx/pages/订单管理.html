@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <title>wx demo</title>
+    <link rel="stylesheet" href="../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../stylesheets/wx.css?a=2015">
+    <script type="text/javascript" src="../javascripts/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="../javascripts/common.js"></script>
+
+</head>
+<body>
+<script>
+    // 支持物理像素
+    if (window.devicePixelRatio && devicePixelRatio >= 2) {
+        var testElem = document.createElement('div');
+        testElem.style.border = '.5px solid transparent';
+        document.body.appendChild(testElem);
+        if (testElem.offsetHeight == 1) {
+            document.querySelector('html').classList.add('hairlines');
+        }
+        document.body.removeChild(testElem);
+    }
+</script>
+<ul class="wx-messages">
+
+    <a class="wx-item" href="订单管理/订单详情.html">
+        <div class="wx-time">2015-12-12</div>
+        <div class="wx-icon has-badge">
+            <img src="../images/icon/demo.png" class="img-responsive">
+        </div>
+        <div class="wx-name">订单号:888888888888</div>
+        <div class="wx-content">
+            <div>服务项目</div>
+        </div>
+    </a>
+
+
+    <a class="wx-item" href="订单管理/订单详情.html">
+        <div class="wx-time">2015-12-12</div>
+        <div class="wx-icon has-badge">
+            <img src="../images/icon/demo.png" class="img-responsive">
+        </div>
+        <div class="wx-name">订单号:888888888888</div>
+        <div class="wx-content">
+            <div>服务项目</div>
+        </div>
+    </a>
+</ul>
+
+
+<div class="wx-group" >
+    <div class="hr-5"></div>
+    <div class="wx-title text-center" id="js-load-more" style="height: 50px;">加载更多</div>
+    <div class="wx-title text-center" id="js-no-more" style="display: none;">没有更多消息了</div>
+    <div class="wx-title"></div>
+</div>
+<script>
+    (function () {
+        var totalHeight = 0;     //定义一个总的高度变量
+        var isLoading = false;
+        var tmpCount = 0;
+        var loadData = function () {
+            //浏览器的高度加上滚动条的高度
+            totalHeight = parseFloat($(window).height()) + parseFloat($(window).scrollTop());
+
+            //当文档的高度小于或者等于总的高度的时候，开始动态加载数据
+            var condition = $(document).height() <= totalHeight;
+            var condition = $(document).height() <= totalHeight + 300;
+            if (condition) {
+                if (isLoading == true) {
+                    return;
+                }
+                isLoading = true;
+
+                //ajax 模拟
+                setTimeout(function () {
+
+                    if(tmpCount >2){
+                        //没有更多消息了
+                        $("#js-load-more").hide();
+                        $("#js-no-more").show();
+                    }else{
+                        //加载数据
+                        $(".wx-messages").append($("#tpl-message-item").html());
+                        isLoading = false;
+                        tmpCount++;
+                    }
+
+                }, 400);
+            }
+        }
+
+        $(window).scroll(function () {
+            loadData();
+        });
+
+        $("#js-load-more").click(function(){
+            loadData();
+        })
+
+    })()
+</script>
+<script type="text/html" id="tpl-message-item">
+    <a class="wx-item" href="订单管理/订单详情.html">
+        <div class="wx-time">2015-12-12</div>
+        <div class="wx-icon has-badge">
+            <img src="../images/icon/demo.png" class="img-responsive">
+        </div>
+        <div class="wx-name">订单号:888888888888</div>
+        <div class="wx-content">
+            <div>服务项目</div>
+        </div>
+    </a>
+
+    <a class="wx-item" href="订单管理/订单详情.html">
+        <div class="wx-time">2015-12-12</div>
+        <div class="wx-icon has-badge">
+            <img src="../images/icon/demo.png" class="img-responsive">
+        </div>
+        <div class="wx-name">订单号:888888888888</div>
+        <div class="wx-content">
+            <div>服务项目</div>
+        </div>
+    </a>
+</script>
+
+<script>
+
+    app.cute("提示信息")
+</script>
+
+<div id="global-nav-height"></div>
+<div id="global-nav">
+    <div class="wrapper">
+        <a href="消息中心.html">
+            <div class="nav-icon fa fa-comment"></div>
+            <div class="nav-text">消息</div>
+        </a>
+        <a href="订单管理.html" class="active">
+            <div class="nav-icon fa fa-bullseye"></div>
+            <div class="nav-text">订单管理</div>
+        </a>
+        <a href="我.html">
+            <div class="nav-icon fa fa-user"></div>
+            <div class="nav-text">我</div>
+        </a>
+    </div>
+</div>
+</body>
+</html>
+

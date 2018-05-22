@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <title>wx demo</title>
+    <link rel="stylesheet" href="../../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="../../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../stylesheets/wx.css">
+</head>
+<body>
+<script>
+    // 支持物理像素
+    if (window.devicePixelRatio && devicePixelRatio >= 2) {
+        var testElem = document.createElement('div');
+        testElem.style.border = '.5px solid transparent';
+        document.body.appendChild(testElem);
+        if (testElem.offsetHeight == 1) {
+            document.querySelector('html').classList.add('hairlines');
+        }
+        document.body.removeChild(testElem);
+    }
+</script>
+<form action="">
+    <div class="wx-group">
+        <div class="wx-title"></div>
+        <ul class="wx-settings">
+            <li class="wx-item auto-height-item">
+                <textarea class="input" rows="3">文字文字文字文字</textarea>
+            </li>
+        </ul>
+    </div>
+    <div class="box">
+        <a class="btn btn-wx btn-block" href="../我.html">保存</a>
+    </div>
+</form>
+</body>
+</html>
+

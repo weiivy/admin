@@ -1,0 +1,114 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}个人详情{% endblock %}
+{% set leftMenuActive = 'member/index' %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{{ asset('static-web/css/personal-info.css') }}"/>
+     <!-- 按钮样式  -->
+    <link rel="stylesheet" href="{{ asset('static/jquery-file-upload/css/jquery.fileupload.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="container">
+    <div class="common-panel">
+        <div class=" common-list">
+            <label for="upload" class="list-item list-input-item has-touch-bg">
+                <span class="addon">头像</span>
+                <div class="input text-right text-muted">
+                    {% if list.avatar is empty %}
+                         <div class="avatar show-logo" style="background-image: url('{{ asset('images/') }}avatar.png')"></div>
+                    {% else %}
+                         <div class="avatar show-logo" style="background-image: url('{{ asset('uploads/member/') }}{{ list.avatar }}')"></div>
+                    {% endif %}
+                    <input id="upload" type="file" class="hide jquery-file-upload" />
+                </div>
+            </label>
+            <div class="list-item list-input-item">
+                <span class="addon">名字</span>
+                 <input type="text" id="js-change-nickname" class="input text-right text-muted" value="{% if list.nickname is not empty %}{{ list.nickname }}{% else %}-{% endif %}"/>
+            </div>
+            <div class="list-item list-input-item has-touch-bg">
+                <span class="addon">手机号</span>
+
+                <div class="input text-right text-muted">{{ list.mobile }}</div>
+            </div>
+            <a href="{{ url('member/address-list') }}?id={{ list.id }}" class="list-item list-input-item has-touch-bg">
+                <span class="addon">我的地址</span>
+
+                <div class="input text-right text-muted"></div>
+                <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+            </a>
+        </div>
+    </div>
+    <a class="btn btn-submit btn-danger" href="{{ url('default/logout') }}">退出</a>
+</div>
+{% endblock %}
+{% block javascript %}
+ <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+    <script src="{{ asset('static/jquery-file-upload/js/vendor/jquery.ui.widget.js') }}"></script>
+    <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+    <script src="{{ asset('static/jquery-file-upload/js/jquery.iframe-transport.js') }}"></script>
+    <!-- The basic File Upload plugin -->
+    <script src="{{ asset('static/jquery-file-upload/js/jquery.fileupload.js') }}"></script>
+    <script>
+        $(function () {
+            'use strict';
+            $('.jquery-file-upload').fileupload({
+                url: "{{ url('member/ajax-upload') }}",	//接收文件上传action
+                dataType: 'json',
+                done: function (e, data) {
+                    //上传失败
+                    if (data.result.status == 0) {
+                        //错误消息
+                        var message = data.result.message;
+                        rain.alert(message);
+                        return;
+                    }
+
+                    //上传成功
+                    $.each(data.result.files, function (index, file) {
+                        $(".show-logo").attr('style', "background-image: url('"+ file.url +"')");
+                        return;
+                    });
+                }
+            }).prop('disabled', !$.support.fileInput).parent().addClass($.support.fileInput ? undefined : 'disabled');
+        });
+
+    </script>
+
+    <script>
+        $(function(){
+            $("#js-change-nickname").blur(function(){
+                var nickname = $(this).val();
+                if(nickname.length == 0){
+                    rain.alert("昵称不能为空");
+                    return false;
+                }
+                var id = "{{ list.id }}";
+
+                $.ajax({
+                    url: "{{ url('member/ajax-change-nickname') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {id:id, nickname:nickname},
+                    success: function (result) {
+                        if (result.status == 1) {
+                            rain.cute(result.message);
+                        } else {
+                            if(result.message == "请去登录") {
+                                window.location.href = "{{ url('default/login') }}";
+                                return false;
+                            }
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        rain.alert("网络错误，请刷新或稍后再试");
+                    }
+                });
+
+
+                return false;
+            });
+        });
+    </script>
+{% endblock %}

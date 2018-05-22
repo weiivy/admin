@@ -1,0 +1,35 @@
+.main-menu .active {
+    color: red;
+}
+
+.main-menu .active:hover {
+    color: red;
+}
+
+.pagination {
+    padding: 3px;
+    text-align: center;
+    padding-right: 15px;
+}
+
+.pagination a, .pagination span {
+    border: #dddddd 1px solid;
+    text-decoration: none;
+    color: #666666;
+    padding: 5px 10px;
+    margin-left: 4px;
+}
+
+.pagination a:hover {
+    border: #a0a0a0 1px solid;
+}
+
+.pagination .active {
+    font-weight: bold;
+    background-color: #f0f0f0;
+}
+
+.pagination .disabled {
+    border: #f3f3f3 1px solid;
+    color: #aaaaaa;
+}

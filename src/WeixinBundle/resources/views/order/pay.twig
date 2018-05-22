@@ -1,0 +1,347 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}支付{% endblock %}
+{% set leftMenuActive = 'order/index' %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/pay.css') }}"/>
+<link rel="stylesheet" href="{{ asset('static-web/css/kaquan.css') }}"/>
+{% endblock %}
+{% block content %}
+
+    <div id="js-main-view" class="container">
+    {% if order is not empty %}
+        <form action="" id="js-form">
+
+            <div class="common-panel">
+                <ul class="common-list">
+                    <li class="list-item">
+                        <div class="has-corner">
+                            <span class="corner">
+                                {% if order.discount == 0 %}
+                                    {{ order.position }}
+                                {% else %}
+                                    特
+                                {% endif %}
+                            </span>
+                            <img class="img-responsive" src="{% if order.image is not empty %}{{ asset('uploads/product/') }}{{ order.image }}{% else %}{{ asset('images/no-pic.jpg') }}{% endif %}" alt=""/>
+                        </div>
+                        <p><span class="field">服务内容: </span><span class="text-muted">{{ order.name }}（{{ order.position }}）{{ order.time }} <span
+                                class="">x{{ order.quantity }}</span></span></p>
+
+                        <p><span class="field">上门时间: </span><span class="text-muted">{{ order.booking_time|date('Y-m-d H:i') }}</span></p>
+
+                        <p><span class="field">上门地址: </span><span class="text-muted">{{ order.receiver_detail }}</span></p>
+
+                        <p><span class="field">联系电话: </span><span class="text-muted">{{ order.receiver_mobile }}</span></p>
+
+                        <p><span class="field">总金额:</span><span class="text-muted">{{ order.total_fee }}元</span></p>
+                    </li>
+
+                    <li id="js-qun-result" class="list-item list-input-item has-touch-bg" >
+                        <span class="addon text-primary">优惠券:</span>
+                        <div class="input text-danger">
+                            <span class="js-text">
+                                {% if actualPay is not empty and actualPay.ticket.reduce_cost is defined %}
+                                    &yen;{{ actualPay.ticket.reduce_cost }}元优惠劵
+                                {% else %}
+                                    请选择
+                                {% endif %}
+                            </span>
+                            <input class="js-input" type="hidden" data-least="{{ actualPay.ticket.least_cost|default(0) }}" data-reduce="{{ actualPay.ticket.reduce_cost|default(0) }}" name="qun_id" value="{{ actualPay.ticket.id|default(0) }}"/>
+                        </div>
+                        <span class="addon"><i class="icon fa fa-angle-right"></i></span>
+                    </li>
+
+                      <label class="list-item list-input-item has-touch-bg">
+                            <div class="input">
+                                <span class="text-primary">账号余额:</span>
+                                <span class="text-danger"><span class="js-need-account">{{ member.money }}</span>元</span>
+                            </div>
+                            <span class="addon addon-icon js-icon">
+                                 <input  class="hide js-account" type="checkbox" name="account" {% if actualPay.accountFlag is defined and actualPay.accountFlag %} checked {% endif %}
+                                         {% if member.money == 0 %}disabled{% endif %} value="{{ member.money }}"/>
+                                <i style="width: 20px" class="checked text-primary icon fa fa-check-square"></i>
+                                <i style="width: 20px"  class="no-checked text-primary icon fa fa-square-o"></i>
+                            </span>
+                        </label>
+
+                    <li class="list-item text-lg ">
+                        <span class="text-primary">需支付:</span>
+                        <span class="text-danger"><span class="js-need-pay">
+                                {% if order.discount == 0 %}
+                                    {{ (order.total_fee * discountPercent)|number_format(2, '.', '')|round }}
+                                {% else %}
+                                    {{ order.total_fee }}
+                                {% endif %}
+                            </span>元</span>
+                    </li>
+
+                </ul>
+            </div>
+            <p>请选择支付方式</p>
+
+            <div id="js-pay-method" class="common-panel">
+                <div class="common-list">
+                    {% for key, value in payType %}
+                        <label class="list-item list-input-item has-touch-bg" for="radio-{{ key }}">
+                            <div class="input">
+                                {{ value }}
+                            </div>
+                            <span class="addon addon-icon js-icon">
+                                <input id="radio-{{ key }}" class="hide" type="radio" name="pay_method" value="{{ key }}" {% if actualPay is not empty and actualPay.pay_type is defined and actualPay.pay_type == key %}checked{% endif %}
+                                        {% if order.pay_type != '0' and value == order.pay_type %}checked{% endif %}/>
+                                <i class="checked text-primary icon fa fa-check-circle-o"></i>
+                                <i class="no-checked text-primary icon fa fa-circle-o"></i>
+                            </span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+            <a class="js-submit btn btn-primary btn-submit" data-order-id="{{ order.id }}">确认支付</a>
+        </form>
+    {% endif %}
+</div>
+<div id="js-qun-view" style="display: none">
+
+    <div class="container">
+        <div class=" text-default js-close-ticket-show">
+            <div class="btn btn-sm btn-primary"><i class="fa fa-angle-left"></i>&nbsp;&nbsp;返回</div>
+        </div>
+    </div>
+   <div class="container">
+        <div class="common-panel">
+            <ul class="common-list">
+                {% if tickets is not empty or (actualPay is not empty and actualPay.ticket is defined) %}
+                    {% if  actualPay.ticket is defined %}
+                     <label class="js-select-ticket kaquan kaquan-primary" data-reduce="{{ actualPay.ticket.reduce_cost|number_format }}"
+                                data-least="{{ actualPay.ticket.least_cost|number_format }}" data-value="{{ actualPay.ticket.id }}"
+                                data-text="{{ actualPay.ticket.reduce_cost|number_format }}元优惠券">
+                                <div class="content">
+                                    <p class="text-lg">{{ actualPay.ticket.title|default('-') }}
+                                        <small>{{ actualPay.ticket.notice|default('-') }}</small>
+                                    </p>
+                                    <p class="text-right">￥<span>{{ actualPay.ticket.reduce_cost }}</span></p>
+                                    <p class="text-sm">{{ actualPay.ticket.description|default('-') }}</p>
+                                    <p class="text-center">发券日期: {{ actualPay.ticket.created_at }}</p>
+                                </div>
+                                <span class="addon text-center addon-icon">
+                                    <div style="width:15px;height: 15px;display: inline-block">
+                                        <input id="radio-{{ actualPay.ticket.id }}" class="hide" type="checkbox" checked name="ticket" value="{{ actualPay.ticket.id }}"/>
+                                        <i class="checked  icon fa fa-check-circle-o" ></i>
+                                        <i class="no-checked  icon fa fa-circle-o"></i>
+                                   </div>
+                                </span>
+                         </label>
+                     {% endif %}
+                    {% for key, ticket in tickets %}
+                       <label class="js-select-ticket kaquan kaquan-primary" data-reduce="{{ ticket.reduce_cost|number_format }}" data-least="{{ ticket.least_cost|number_format }}" data-value="{{ ticket.id }}" data-text="{{ ticket.reduce_cost|number_format }}元优惠券">
+                            <div class="content">
+                                <p class="text-lg">{{ ticket.title|default('-') }}
+                                    <small>{{ ticket.notice|default('-') }}</small>
+                                </p>
+                                <p class="text-right">￥<span>{{ ticket.reduce_cost }}</span></p>
+                                <p class="text-sm">{{ ticket.description|default('-') }}</p>
+                                <p class="text-center">发券日期: {{ ticket.created_at }}</p>
+                            </div>
+                            <span class="addon text-center addon-icon">
+                                <div style="width:15px;height: 15px;display: inline-block">
+                                    <input id="radio-{{ ticket.id }}" class="hide" type="checkbox" name="ticket" value="{{ ticket.id }}"/>
+                                    <i class="checked  icon fa fa-check-circle-o" ></i>
+                                    <i class="no-checked  icon fa fa-circle-o"></i>
+                               </div>
+                            </span>
+                       </label>
+
+                    {% endfor %}
+                {% else %}
+                    <li class="list-item has-touch-bg" data-value="" data-text="不使用优惠券">
+                        <span class="text-primary">没有可用的优惠券</span>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </div>
+    </div>
+</div>
+{% block footer %}{% endblock %}
+{% endblock %}
+
+{% block javascript %}
+
+<script>
+    var globalData = {};
+    var accountFlag = {% if actualPay.accountFlag is defined %}{{ actualPay.accountFlag }}{% else %}false{% endif %};
+    var ticketFlag = {% if actualPay.ticketFlag is defined %}{{ actualPay.ticketFlag }}{% else %}false{% endif %};
+    var totalFee = {{ order.total_fee|default(0) }};
+    changeNeedPay();
+
+
+    $(function(){
+        //点击账户余额是修改需要支付
+        $(".js-account").change(function(){
+            if($(this).is(":checked")) {
+                accountFlag = true;
+            } else {
+                accountFlag = false;
+            }
+            changeNeedPay();
+        });
+
+        //提交
+        $("#js-form .js-submit").click(function () {
+           var ticketDetailId = $(".js-input").val();
+           var needPay = parseFloat($(".js-need-pay").html());
+           var checked = $("input[name='pay_method']:checked").val();
+
+           //订单id
+           var orderId = $(this).attr("data-order-id");
+
+           var url = '';
+           var data = {};
+
+            if(needPay == 0) {
+                //在线支付
+                url = "{{ url('order/ajax-pay-account') }}";
+                data = {
+                    id:orderId,
+                    ticketDetailId:ticketDetailId
+                };
+            } else {
+                //方式
+               if(checked == undefined){
+                  rain.alert("请选择支付方式");
+                  return false;
+               }
+
+                if(checked == {{ constant('Common\\Entity\\Order::PAY_TYPE_DELIVERY') }}){
+
+                    //货到付款
+                    url = "{{ url('order/ajax-pay-delivery') }}";
+                    data = {
+                        id:orderId,
+                        ticketDetailId:ticketDetailId,
+                        accountFlag:accountFlag
+                    };
+
+                } else if(checked == {{ constant('Common\\Entity\\Order::PAY_TYPE_WECHAT') }}){
+                    //微信支付
+                    window.location="{{ url('wxpay/pay',{'orderId':order.id}) }}&ticketDetailId=" + ticketDetailId + "&accountFlag=" + accountFlag;
+                    return false;
+
+                }
+            }
+
+            var loading = rain.loading(this).start();
+            $.ajax({
+                url:url,
+                type: "POST",
+                dataType: 'json',
+                data: data,
+                success: function (result) {
+                    loading.stop();
+                    if (result.status == 1) {
+                        window.location.href = "{{ url('order/index') }}"
+                    } else {
+                        if(result.message == "请去登录") {
+                            window.location.href = "{{ url('default/login') }}";
+                            return false;
+                        }
+                        rain.alert(result.message);
+                        return false;
+                    }
+                },
+                error: function () {
+                    loading.stop();
+                    rain.alert("网络错误，请刷新或稍后再试");
+                }
+            });
+        });
+
+        $(".js-close-ticket-show").click(function(){
+            hideQunView();
+        });
+
+        $("#js-qun-result").click(function(){
+            showQunView();
+        });
+
+         $("#js-qun-view .js-select-ticket input").change(function () {
+             var item = $(this).closest(".js-select-ticket");
+             item.siblings().find("input").prop('checked',false);
+             hideQunView();
+         });
+
+        $("#js-qun-view .js-select-ticket").click(function () {
+           if ($("input[name='ticket']").is(':checked')){
+               ticketFlag = true;
+
+               $("#js-qun-result").find(".js-text").html($(this).data("text"));
+               $("#js-qun-result").find(".js-input").val($(this).data("value"));
+               $("#js-qun-result").find(".js-input").attr("data-least", $(this).data("least"));
+               $("#js-qun-result").find(".js-input").attr("data-reduce", $(this).data("reduce"));
+
+           } else {
+               $("#js-qun-result").find(".js-text").html("请选择");
+               $("#js-qun-result").find(".js-input").val("0");
+               $("#js-qun-result").find(".js-input").attr("data-least", 0);
+               $("#js-qun-result").find(".js-input").attr("data-reduce", 0);
+                ticketFlag = false;
+           }
+            changeNeedPay();
+            hideQunView();
+        });
+    });
+
+    function hideQunView() {
+        $("#js-qun-view").hide();
+        $("#js-main-view").show();
+    }
+
+    function showQunView() {
+        $("#js-main-view").hide();
+        $("#js-qun-view").show();
+    }
+
+    //改变需要支付金额
+    function changeNeedPay() {
+
+        //会员折扣价
+        var discountPercent = {{ discountPercent|default(0) }};
+        var discountProduct = {% if order.discount == 0 %}true{% else %}false{% endif %};
+        var reduce = parseFloat($(".js-input").attr("data-reduce"));
+        var least = parseFloat($(".js-input").attr("data-least"));
+        var accountVal = parseFloat($(".js-account").val());
+
+        var value = 0;
+        if(accountFlag && ticketFlag) {
+
+            //需要支付
+            if(totalFee >= least) {
+                value = discountProduct && discountPercent != 1 ? Math.round((totalFee - reduce) * discountPercent) - accountVal  : totalFee - reduce - accountVal ;
+            } else {
+                value = discountProduct && discountPercent != 1 ? Math.round(totalFee * discountPercent) - accountVal : totalFee - accountVal  ;
+            }
+        } else if(!accountFlag && ticketFlag) {
+             if(totalFee >= least) {
+                 value = discountProduct && discountPercent != 1 ? Math.round((totalFee - reduce) * discountPercent) : totalFee - reduce;
+             } else {
+                 value = discountProduct && discountPercent != 1 ? totalFee * discountPercent : totalFee  ;
+             }
+
+
+        } else if(accountFlag && !ticketFlag) {
+            value = discountProduct && discountPercent != 1 ? Math.round(totalFee * discountPercent) - accountVal : totalFee - accountVal ;
+        } else {
+             value = discountProduct && discountPercent != 1 ? Math.round(totalFee * discountPercent) : totalFee ;
+        }
+
+        if(value < 0) {
+            value = 0;
+        }
+
+        $(".js-need-pay").html((value).toFixed(2));
+    }
+
+
+
+</script>
+{% endblock %}

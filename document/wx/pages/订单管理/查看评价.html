@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <title>wx demo</title>
+    <link rel="stylesheet" href="../../stylesheets/bootstrap.min.css">
+    <link rel="stylesheet" href="../../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../../stylesheets/wx.css">
+</head>
+<body>
+<script>
+    // 支持物理像素
+    if (window.devicePixelRatio && devicePixelRatio >= 2) {
+        var testElem = document.createElement('div');
+        testElem.style.border = '.5px solid transparent';
+        document.body.appendChild(testElem);
+        if (testElem.offsetHeight == 1) {
+            document.querySelector('html').classList.add('hairlines');
+        }
+        document.body.removeChild(testElem);
+    }
+</script>
+<div class="wx-group">
+    <ul class="wx-settings wx-auto-list">
+        <li class="wx-item">
+            <div class="wx-name">评分</div>
+            <div class="wx-content">99</div>
+        </li>
+        <li class="wx-item ">
+            <div class="wx-name">评文</div>
+            <div class="wx-content text-content">
+                简单评价文字简单评价文字简单评价文字简单评价文字
+            </div>
+        </li>
+        <li class="wx-item ">
+            <div class="wx-name">评价时间</div>
+            <div class="wx-content">2015-12-22</div>
+        </li>
+    </ul>
+</div>
+</body>
+</html>
+

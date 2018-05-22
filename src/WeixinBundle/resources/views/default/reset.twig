@@ -1,0 +1,147 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}重置密码{% endblock %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/login.css') }}"/>
+{% endblock %}
+{% block content %}
+{% block login %}{% endblock %}
+<h1 class="topbar">忘记密码</h1>
+
+<div class="container">
+    <div class="common-panel">
+        <div class="common-list">
+            <div class="list-item list-input-item">
+                <span class="addon">账号</span>
+                <input class="input" type="tel" name="Member[username]" id="username" placeholder="请输入手机号"/>
+            </div>
+            <div class="list-item list-input-item">
+                <span class="addon">密码</span>
+                <input class="input" type="password" name="Member[password]" id="password" placeholder="请输入新密码"/>
+            </div>
+            <div class="list-item list-input-item">
+                <span class="addon">确认</span>
+                <input class="input" type="password" id="repassword" placeholder="请再次输入新密码"/>
+            </div>
+            <div class="list-item list-input-item">
+                <span class="addon">验证码</span>
+                <input class="input" type="text" name="Member[code]" id="code" placeholder="请输入验证码"/>
+                <span class="addon text-primary js-send-code">发送验证码</span>
+            </div>
+
+        </div>
+    </div>
+    <button class="btn btn-primary btn-submit js-reset-password">重置密码</button>
+    <div class="text-center text-muted"><a  href="{{ url('default/login') }}">登录</a> ｜ <a  href="{{ url('default/register') }}">注册</a> {#｜ <a href="免责声明.html">免责声明</a>#}</div>
+</div>
+{% endblock %}
+{% block javascript %}
+    <script>
+        var time = 60;
+        $(function(){
+            $('.js-send-code').click(function(){
+                var username = $("#username").val();
+                if(username.length == 0){
+                    rain.alert("请输入账号");
+                    return false;
+                }
+
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('default/ajax-send-code') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {username:username},
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            rain.cute(result.message, 1000);
+                            setTimeout(count, 1000);
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("系统出错");
+                    }
+                });
+            });
+
+            $('.js-reset-password').click(function(){
+                if(time == 0){
+                    rain.alert("验证码已失效，请重新发送验证码");
+                    return false;
+                }
+
+                var username = $("#username").val();
+                if(username.length == 0){
+                    rain.alert("请输入账号");
+                    return false;
+                }
+
+                var password = $("#password").val();
+                var repassword = $("#repassword").val();
+
+                if(password.length == 0){
+                    rain.alert("请输入密码");
+                    return false;
+                }
+
+                //两次密码不一致
+                if(password != repassword){
+                    rain.alert("两次密码不一致");
+                    return false;
+                }
+
+                //验证码
+                var code = $("#code").val();
+                if(code.length == 0){
+                    rain.alert("请输入验证码");
+                    return false;
+                }
+
+                var loading = rain.loading(this).start();
+                $.ajax({
+                    url: "{{ url('default/reset') }}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: {username:username, password:password, code:code},
+                    success: function (result) {
+                        loading.stop();
+                        if (result.status == 1) {
+                            rain.cute(result.message, 1000, function(){
+                                window.location.href = "{{ url('default/login') }}";
+                            });
+                        } else {
+                            rain.alert(result.message);
+                            return false;
+                        }
+                    },
+                    error: function () {
+                        loading.stop();
+                        rain.alert("系统出错");
+                    }
+                });
+            });
+
+        });
+
+        /**
+         * 倒计时
+         */
+        function count(){
+            if(time > 0){
+                time--;
+                $(".js-send-code").html(time + "秒后,请重新发送验证码");
+                setTimeout(count, 1000);
+            } else {
+                $(".js-send-code").html( "发送验证码");
+            }
+
+        }
+
+
+    </script>
+{% endblock %}
+

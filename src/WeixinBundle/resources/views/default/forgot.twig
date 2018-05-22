@@ -1,0 +1,22 @@
+{% extends "@WeixinBundle/layout.twig" %}
+{% block title %}忘记密码{% endblock %}
+{% block stylesheet %}
+<link rel="stylesheet" href="{{ asset('static-web/css/login.css') }}"/>
+{% endblock %}
+{% block content %}
+{% block login %}{% endblock %}
+<h1 class="topbar">忘记密码</h1>
+
+<div class="container">
+    <div class="common-panel">
+        <div class="common-list">
+            <div class="list-item list-input-item">
+                <span class="addon">账号</span>
+                <input class="input" type="tel" placeholder="请输入手机号"/>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-primary btn-submit">密码找回</button>
+    <div class="text-center text-muted"><a  href="{{ url('default/login') }}">登录</a> ｜ <a  href="{{ url('default/register') }}">注册</a>{# ｜ <a href="免责声明.html">免责声明</a>#}</div>
+</div>
+{% endblock %}
