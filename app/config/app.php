@@ -23,7 +23,6 @@ $app->error(function (\Exception $e, \Symfony\Component\HttpFoundation\Request $
     if ($app['debug']) {
         throw $e;
     }
-
     // 404.twig, or 40x.twig, or 4xx.twig, or default.twig
     $templates = array(
         'errors/' . $code . '.twig',

@@ -2,11 +2,15 @@
 
 namespace AppBundle\Service;
 
+use AppBundle\Entity\BankConfig;
+use AppBundle\Entity\CapitalDetails;
+use AppBundle\Entity\Member;
 use AppBundle\Entity\Order;
 use AppBundle\Entity\OrderPhoto;
 use Rain\DB;
 use Rain\Log;
 use Rain\Pagination;
+use Rain\Validator;
 
 /**
  * 订单管理服务类
@@ -93,18 +97,21 @@ class OrderService
             return false;
         }
 
+        DB::getConnection()->beginTransaction();
         if ($order->status == Order::STATUS_20) {
             $data['status'] = Order::STATUS_30;
             $data['updated_at'] = time();
             if (DB::update(Order::tableName(), $data, 'id = ?', [$id]) == 1) {
-                return true;
-            } else {
-                $errors[] = "服务器错误";
-                Log::error("订单确认修改失败\n" . DB::getLastSql());
+                if(static::commission($id)) {
+                    DB::getConnection()->commit();
+                    return true;
+                }
+                
             }
         }
-
+        Log::error("订单确认修改失败\n" . DB::getLastSql());
         $errors[] = "服务器错误";
+        DB::getConnection()->rollBack();
         return false;
     }
 
@@ -148,6 +155,96 @@ class OrderService
     {
         return DB::select(OrderPhoto::tableName())->where('order_id =:oid', [':oid' =>  $order->id])
             ->asEntity(OrderPhoto::className())->findAll();
+    }
+
+
+    /**
+     * 提成
+     * @author Ivy Zhang<ivyzhang@lulutrip.com>
+     * @copyright 2018-05-04
+     * @param $orderId
+     * @return bool
+     */
+    public static function commission($orderId)
+    {
+        //检查订单是否存在
+        $order = DB::select(Order::tableName())->asEntity(Order::className())->findByPk($orderId);
+        if(empty($order)) return true;
+
+        //检查该用户是否有父级
+        $pid = MemberService::getPid($order->member_id);
+        if( $pid === 0) {
+            return true;
+        }
+
+        $currentMember = MemberService::findMember($order->member_id);
+        $topMember = MemberService::findMember($pid);
+        if($currentMember->grade <= $topMember->grade) {
+            return true;
+        }
+
+        //获取银行配置点数
+        $bankConfig = DB::select(BankConfig::tableName())
+            ->asEntity(BankConfig::className())
+            ->find('bank=:bank', [':bank'=> $order->bank]);
+        if(empty($bankConfig)) return true;
+
+        DB::getConnection()->beginTransaction();
+        //有父级给父级提成
+        $commission = round((($bankConfig->money / $bankConfig->score) * $order->integral), 2);
+        $commission =  round(($bankConfig->money - $commission) * 0.01, 2);
+
+
+        //新增
+        $capitalDetails = [
+            'member_id' => $pid,
+            'type' => '+',
+            'status' => CapitalDetails::STATUS_1,
+            'kind' => CapitalDetails::KIND_30,
+            'money' => $commission,
+        ];
+        if(!static::addCapitalDetails($capitalDetails)) {
+            DB::getConnection()->rollBack();
+            return false;
+        }
+
+        //修改用户金额
+        if(Member::editMoney($commission, $pid)) {
+
+            Log::error(DB::getLastSql());
+            DB::getConnection()->rollBack();
+            return false;
+        }
+        DB::getConnection()->commit();
+        return true;
+    }
+
+    /**
+     * 给上级提出
+     * @param $data
+     * @return bool
+     */
+    public static function addCapitalDetails($data)
+    {
+        $rule = [
+            [['member_id', 'kind','money', 'type', 'status'], 'required'],
+            [['member_id', 'kind', 'type', 'status'], 'integer'],
+            [['money'], 'double'],
+        ];
+
+        if(!Validator::validate($data, $rule)) {
+            $errors = Validator::getFirstErrors();
+            return false;
+        }
+
+        $data['created_at'] = $data['updated_at'] = time();
+        if(DB::insert(CapitalDetails::tableName(), $data)) {
+            return true;
+        } else {
+            Log::error("提出失败\n". DB::getLastSql());
+            $errors[] = "服务器错误";
+            return false;
+        }
     }
 
 }

@@ -267,4 +267,19 @@ class MemberService
 
     }
 
+
+    /**
+     * 获取会员父级ID
+     * @author Ivy Zhang<ivyzhang@lulutrip.com>
+     * @copyright 2018-05-04
+     * @param $memberId
+     * @return mixed|null
+     */
+    public static function getPid($memberId)
+    {
+        $member = static::findMember($memberId);
+        return empty($member) ? 0 : $member->pid;
+    }
+
+
 }
