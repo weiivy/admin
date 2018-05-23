@@ -19,7 +19,6 @@ $app['db.config'] = [
 //$app['runtime.path'] = __DIR__ . '/../app/runtime/';
 
 
-require __DIR__ . '/../../common/weixin.php';
 $app->error(function (\Exception $e, \Symfony\Component\HttpFoundation\Request $request, $code) use ($app) {
     if ($app['debug']) {
         throw $e;
