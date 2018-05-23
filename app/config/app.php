@@ -9,7 +9,7 @@ $app['path'] = dirname(__DIR__);
 $app['db.config'] = [
     'dsn' => 'mysql:host=localhost;dbname=jifen',
     'username' => 'root',
-    'password' => 'root',
+    'password' => 'zz515',
     'charset' => 'utf8',
     'tablePrefix' => 'pre_',
     'slave' => [],
