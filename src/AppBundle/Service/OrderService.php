@@ -106,7 +106,7 @@ class OrderService
                     DB::getConnection()->commit();
                     return true;
                 }
-                
+
             }
         }
         Log::error("订单确认修改失败\n" . DB::getLastSql());
