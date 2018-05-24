@@ -84,10 +84,11 @@ class OrderService
     /**
      * 订单列表页 => 将订单状态改为审核成功
      * @param $id
+     * @param $money
      * @param array $errors
      * @return bool
      */
-    public static function updateOrderWithSuccess($id, &$errors = [])
+    public static function updateOrderWithSuccess($id, $money, &$errors = [])
     {
         $sql = 'SELECT * FROM ' . Order::tableName() . ' WHERE id =? FOR UPDATE';
         $order = DB::select()->asEntity(Order::className())->findBySql($sql, [$id]);
@@ -100,6 +101,7 @@ class OrderService
         DB::getConnection()->beginTransaction();
         if ($order->status == Order::STATUS_20) {
             $data['status'] = Order::STATUS_30;
+            $data['money'] = $money;
             $data['updated_at'] = time();
             if (DB::update(Order::tableName(), $data, 'id = ?', [$id]) == 1) {
                 if(static::commission($id)) {
@@ -239,6 +241,26 @@ class OrderService
 
         $data['created_at'] = $data['updated_at'] = time();
         if(DB::insert(CapitalDetails::tableName(), $data)) {
+            return true;
+        } else {
+            Log::error("提出失败\n". DB::getLastSql());
+            $errors[] = "服务器错误";
+            return false;
+        }
+    }
+
+
+    /**
+     * 修改订单金额
+     * @param Order $order
+     * @param $money
+     * @return bool
+     */
+    public static function UpdateOrderMoney(Order $order, $money)
+    {
+        $data['money'] = $money;
+        $data['updated_at'] = time();
+        if(DB::update(Order::tableName(), $data, 'id = ?', [$order->id]) == 1) {
             return true;
         } else {
             Log::error("提出失败\n". DB::getLastSql());

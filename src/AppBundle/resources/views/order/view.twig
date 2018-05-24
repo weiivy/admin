@@ -126,17 +126,26 @@
                 </div>
 
                 {# 操作 #}
-                <div class="js-show-todo">
-                    <div class="heading-bar mt15">操作</div>
-                    <div class="js-todo-content">
-                        {% if order.status == constant('Common\\Entity\\Order::STATUS_10') %}
-                            <a href="javascript:;" class="btn btn-default js-review-order" data-id="{{ order.id }}">审核中</a>
-                        {% elseif order.status == constant('Common\\Entity\\Order::STATUS_20') %}
-                            <a href="javascript:;" class="btn btn-default js-success-order" data-id="{{ order.id }}" >审核成功</a>
-                            <a href="javascript:;" class="btn btn-default js-fail-order" data-id="{{ order.id }}">审核失败</a>
-                        {% endif %}
+                {% if order.status == constant('Common\\Entity\\Order::STATUS_10') or  order.status == constant('Common\\Entity\\Order::STATUS_20') %}
+                    <div class="js-show-todo">
+                        <div class="heading-bar mt15">操作</div>
+                        <div class="js-todo-content">
+                            {% if order.status == constant('Common\\Entity\\Order::STATUS_10') %}
+                                <a href="javascript:;" class="btn btn-default js-review-order" data-id="{{ order.id }}">审核中</a>
+                            {% elseif order.status == constant('Common\\Entity\\Order::STATUS_20') %}
+                                <form  class="form-inline form-search mt15">
+                                    <div class="form-group">
+                                        <label>金额</label>
+                                        <input type="text" name="money" class="form-control"
+                                               value="" id="money">
+                                    </div>
+                                    <a href="javascript:;" class="btn btn-default js-success-order" data-id="{{ order.id }}" >审核成功</a>
+                                </form>
+                                <a href="javascript:;" class="btn btn-default js-fail-order" data-id="{{ order.id }}">审核失败</a>
+                            {% endif %}
+                        </div>
                     </div>
-                </div>
+                {% endif %}
 
                 <div class="heading-bar">上传截图</div>
                 <table>
@@ -273,6 +282,12 @@
             //设为审核成功
             $(".js-success-order").click(function(){
                 var orderId = parseInt($(this).attr("data-id"));
+                var money = $.trim($("#money").val());
+                if(money.length == 0 ) {
+                    rain.alert("请输入金额");
+                    return;
+                }
+
                 var flag = $(this).attr("data-flag");
                 var cute = "您确定要将订单设为审核成功吗";
                 rain.confirm(cute, function(){
@@ -280,7 +295,7 @@
                     $.ajax({
                         type:'post',
                         url:"{{ url('order/ajax-success') }}",
-                        data:{id:orderId},
+                        data:{id:orderId, money:money},
                         dataType:'json',
                         success:function(result){
 

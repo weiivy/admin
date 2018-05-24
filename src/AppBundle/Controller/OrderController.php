@@ -129,14 +129,20 @@ class OrderController
 
         //获取订单
         $id = $request->get("id");
+        $money = $request->get("money");
         $order = OrderService::findOrder($id);
         if ($order == null) {
             $result['message'] = "订单不存在";
             return json_encode($result);
         }
 
+        if(!is_numeric($money) || $money <= 0) {
+            $result['message'] = "输入订单金额";
+            return json_encode($result);
+        }
+
         $errors = [];
-        if(OrderService::updateOrderWithSuccess($id, $errors)){
+        if(OrderService::updateOrderWithSuccess($id,$money, $errors)){
 
             $result['status'] = 1;
             $result['message'] = "订单审核成功";
