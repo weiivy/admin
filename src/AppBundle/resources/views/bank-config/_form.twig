@@ -5,7 +5,7 @@
 
     <div class="col-sm-6">
         {% autoescape false %}
-            {{ app.html.dropDownList('BankConfig[bank]', bankConfig.bank|default('') , banks, {'class':"form-control", 'prompt':['--请选择--']}) }}
+            {{ app.html.dropDownList('BankConfig[bank_id]', bankConfig.bank_id|default('') , banks, {'class':"form-control", 'prompt':['--请选择--']}) }}
         {% endautoescape %}
     </div>
 

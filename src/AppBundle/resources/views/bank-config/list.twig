@@ -52,7 +52,7 @@
                     {# 分类列表 #}
                     <table class="table mt15">
                         <tr class="active">
-                            <td>银行缩写</td>
+                            <td>银行</td>
                             <td>类型</td>
                             <td>金额</td>
                             <td>积分</td>
@@ -62,7 +62,7 @@
                         {% for item in list %}
                             <tr>
                                 <td>
-                                    {{ item.bank }}
+                                    {{ banks[item.bank_id] }}
                                 </td>
                                 <td>{{ item.typeAlisa }}</td>
                                 <td>{{ item.money }}</td>

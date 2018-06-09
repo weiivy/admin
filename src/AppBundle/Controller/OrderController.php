@@ -48,8 +48,8 @@ class OrderController
 
         $bank = $request->get('bank');
         if(!empty($bank)) {
-            $condition[] = 'bank = :bank';
-            $params[':bank'] = $bank;
+            $condition[] = 'bank_id= :bank_id';
+            $params[':bank_id'] = $bank;
         }
 
         $banks = BankService::getBankKey();

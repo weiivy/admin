@@ -18,7 +18,7 @@ class BankConfigService
      * @param string $order
      * @return array
      */
-    public static function findBankConfigList(Pagination $page, $condition = [], $params = [], $order = 'bank desc')
+    public static function findBankConfigList(Pagination $page, $condition = [], $params = [], $order = 'bank_id desc')
     {
         $condition[] = 'status = :status';
         $params[':status'] = BankConfig::STATUS_NORMAL;
@@ -51,9 +51,8 @@ class BankConfigService
     public static function addBankConfig($data, &$errors = [])
     {
         $rule = [
-            [['bank', 'type','money', 'score'], 'required'],
-            [['bank'], 'string', 'length' => [0, 20]],
-            [['score', 'status', 'type'], 'integer'],
+            [['bank_id', 'type','money', 'score'], 'required'],
+            [['score', 'status', 'type', 'bank_id'], 'integer'],
             [['money'], 'double'],
         ];
 
@@ -82,9 +81,8 @@ class BankConfigService
     public static function updateBankConfig($id, $data, &$errors = [])
     {
         $rule = [
-            [['bank', 'type','money', 'score'], 'required'],
-            [['bank'], 'string', 'length' => [0, 20]],
-            [['score', 'status', 'type'], 'integer'],
+            [['bank_id', 'type','money', 'score'], 'required'],
+            [['score', 'status', 'type', 'bank_id'], 'integer'],
             [['money'], 'double'],
         ];
 

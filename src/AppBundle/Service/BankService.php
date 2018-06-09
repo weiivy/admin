@@ -133,7 +133,7 @@ class BankService
         }
 
         foreach ($banks as $bank){
-            $data[$bank->bank] = $bank->bank_name;
+            $data[$bank->id] = $bank->bank_name;
         }
         return $data;
     }

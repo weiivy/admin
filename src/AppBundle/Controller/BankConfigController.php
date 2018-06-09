@@ -26,8 +26,8 @@ class BankConfigController
         $condition = $params = [];
         $bank = $request->get('bank');
         if(!empty($bank)) {
-            $condition[] = 'bank = :bank';
-            $params[':bank'] = $bank;
+            $condition[] = 'bank_id = :bank_id';
+            $params[':bank_id'] = $bank;
         }
 
         $type = $request->get('type');

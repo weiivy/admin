@@ -36,7 +36,7 @@
 
     $(function(){
         $(".js-save").click(function(){
-            var bank = $.trim($("#BankConfig_bank option:selected").val());
+            var bank = $.trim($("#BankConfig_bank_id option:selected").val());
             if(bank == 0) {
                 rain.alert("请输入银行");
                 return false;
