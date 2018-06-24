@@ -20,9 +20,9 @@ class Member extends Object implements IdentityInterface
     const STATUS_ON = 10;  //启用
     const STATUS_OFF = 20; //冻结
 
-    const GRADE_1 = 1;  //会员
-    const GRADE_2 = 2;  //代理
-    const GRADE_3 = 3;  //股东
+    const GRADE_10 = 10;  //会员
+    const GRADE_20 = 20;  //代理
+    const GRADE_30 = 30;  //股东
     /**
      * 表名
      * @return string
@@ -39,9 +39,9 @@ class Member extends Object implements IdentityInterface
     public static function gradeParams()
     {
         return [
-            static::GRADE_1=> "会员",
-            static::GRADE_2 => "代理",
-            static::GRADE_3 => "股东"
+            static::GRADE_10=> "会员",
+            static::GRADE_20 => "代理",
+            static::GRADE_30 => "股东"
         ];
     }
 

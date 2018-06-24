@@ -1,6 +1,7 @@
 <?php
 namespace AppBundle\Controller;
 use AppBundle\Entity\BankConfig;
+use AppBundle\Entity\Member;
 use AppBundle\Service\BankConfigService;
 use AppBundle\Service\BankService;
 use Rain\Application;
@@ -43,7 +44,7 @@ class BankConfigController
             'list' => BankConfigService::findBankConfigList($page, $condition, $params),
             'page' => $page,
             'banks' => $banks,
-            'typeArr'   => BankConfig::typeParams(),
+            'typeArr'   => Member::gradeParams(),
         ]);
     }
 
@@ -64,7 +65,7 @@ class BankConfigController
         return View::render('@AppBundle/bank-config/create.twig', [
             'errors' => $errors,
             'statusArr' => BankConfig::statusParams(),
-            'typeArr'   => BankConfig::typeParams(),
+            'typeArr'   => Member::gradeParams(),
             'banks' => BankService::getBankKey()
         ]);
 
@@ -94,7 +95,7 @@ class BankConfigController
             'errors' => $errors,
             'bankConfig' => $bankConfig,
             'statusArr' => BankConfig::statusParams(),
-            'typeArr'   => BankConfig::typeParams(),
+            'typeArr'   => Member::gradeParams(),
             'banks' => BankService::getBankKey()
         ]);
     }

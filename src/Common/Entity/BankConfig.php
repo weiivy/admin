@@ -6,7 +6,7 @@ use Rain\Object;
 
 class BankConfig extends Object
 {
-    const TYPE_10 = 10; //合伙人
+    const TYPE_10 = 10; //会员
     const TYPE_20 = 20; //代理
     const TYPE_30 = 30; //股东
 
@@ -29,7 +29,7 @@ class BankConfig extends Object
     public static function typeParams()
     {
         return [
-            static::TYPE_10 => '合伙人',
+            static::TYPE_10 => '会员',
             static::TYPE_20 => '代理',
             static::TYPE_30 => '股东',
         ];
