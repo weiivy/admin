@@ -47,6 +47,12 @@
                 return false;
             }
 
+            var note = $.trim($("#note").val());
+            if(note.length == 0) {
+                rain.alert("请输入银行备注");
+                return false;
+            }
+
         });
     });
 </script>

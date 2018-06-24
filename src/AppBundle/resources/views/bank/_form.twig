@@ -17,6 +17,14 @@
                value="{{ bank.bank|default(app.request.get('Bank').bank|default('')) }}">
     </div>
 </div>
+<div class="form-group">
+    <label class="col-sm-2 control-label">银行备注</label>
+
+    <div class="col-sm-6">
+        <input type="text" name="Bank[note]" class="form-control" id="note"
+               value="{{ bank.note|default(app.request.get('Bank').note|default('')) }}">
+    </div>
+</div>
 
 <div class="form-group">
     <label class="col-sm-2 control-label">状态</label>

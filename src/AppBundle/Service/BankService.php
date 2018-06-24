@@ -46,9 +46,10 @@ class BankService
     public static function addBank($data, &$errors = [])
     {
         $rule = [
-            [['bank', 'bank_name',], 'required'],
+            [['bank', 'bank_name', 'note'], 'required'],
             [['bank'], 'string', 'length' => [0, 20]],
             [['bank_name'], 'string', 'length' => [0, 100]],
+            [['note'], 'string', 'length' => [0, 255]],
             [['status'], 'safe']
         ];
 
@@ -77,9 +78,10 @@ class BankService
     public static function updateBank($id, $data, &$errors = [])
     {
         $rule = [
-            [['bank', 'bank_name',], 'required'],
+            [['bank', 'bank_name', 'note'], 'required'],
             [['bank'], 'string', 'length' => [0, 20]],
             [['bank_name'], 'string', 'length' => [0, 100]],
+            [['note'], 'string', 'length' => [0, 255]],
             [['status'], 'safe']
         ];
 
