@@ -84,11 +84,10 @@ class OrderService
     /**
      * 订单列表页 => 将订单状态改为审核成功
      * @param $id
-     * @param $money
      * @param array $errors
      * @return bool
      */
-    public static function updateOrderWithSuccess($id, $money, &$errors = [])
+    public static function updateOrderWithSuccess($id, &$errors = [])
     {
         $sql = 'SELECT * FROM ' . Order::tableName() . ' WHERE id =? FOR UPDATE';
         $order = DB::select()->asEntity(Order::className())->findBySql($sql, [$id]);
@@ -98,13 +97,41 @@ class OrderService
             return false;
         }
 
+        $member = MemberService::findMember($order->member_id);
+        if(!$member) {
+            $errors[] = "会员不存在";
+            return false;
+        }
+
+        //获取银行配置点数
+        $bankConfig = DB::select(BankConfig::tableName())
+            ->asEntity(BankConfig::className())
+            ->find('bank_id=:bank and type=:type', [':bank'=> $order->bank_id, ':type' => $member->grade]);
+        if(empty($bankConfig)){
+            $errors[] = "银行未配置兑换比例";
+            return false;
+        }
+        $money = round((($bankConfig->money / $bankConfig->score) * $order->integral), 2);
         DB::getConnection()->beginTransaction();
         if ($order->status == Order::STATUS_20) {
             $data['status'] = Order::STATUS_30;
             $data['money'] = $money;
             $data['updated_at'] = time();
             if (DB::update(Order::tableName(), $data, 'id = ?', [$id]) == 1) {
-                if(static::commission($id)) {
+
+                //添加交易明细
+                $capitalDetails = [
+                    'member_id' => $order->member_id,
+                    'type' => '+',
+                    'status' => CapitalDetails::STATUS_1,
+                    'kind' => CapitalDetails::KIND_50,
+                    'money' => $money,
+                ];
+                if(!static::addCapitalDetails($capitalDetails)) {
+                    DB::getConnection()->rollBack();
+                    return false;
+                }
+                if(Member::editMoney($order->member_id, $money) && static::commission($id, $member, $money)) {
                     DB::getConnection()->commit();
                     return true;
                 }
@@ -165,12 +192,14 @@ class OrderService
      * @author Ivy Zhang<ivyzhang@lulutrip.com>
      * @copyright 2018-05-04
      * @param $orderId
+     * @param $money
      * @return bool
      */
-    public static function commission($orderId)
+    public static function commission($orderId, Member $member, $money)
     {
         //检查订单是否存在
         $order = DB::select(Order::tableName())->asEntity(Order::className())->findByPk($orderId);
+
         if(empty($order)) return true;
 
         //检查该用户是否有父级
@@ -179,22 +208,20 @@ class OrderService
             return true;
         }
 
-        $currentMember = MemberService::findMember($order->member_id);
         $topMember = MemberService::findMember($pid);
-        if($currentMember->grade <= $topMember->grade) {
+        if($member->grade >= $topMember->grade) {
             return true;
         }
 
         //获取银行配置点数
         $bankConfig = DB::select(BankConfig::tableName())
             ->asEntity(BankConfig::className())
-            ->find('bank=:bank', [':bank'=> $order->bank]);
+            ->find('bank_id=:bank and type=:type', [':bank'=> $order->bank_id, ':type' => $topMember->grade]);
         if(empty($bankConfig)) return true;
 
         DB::getConnection()->beginTransaction();
         //有父级给父级提成
-        $commission = round((($bankConfig->money / $bankConfig->score) * $order->integral), 2);
-        $commission =  round(($bankConfig->money - $commission) * 0.01, 2);
+        $commission =  round(($bankConfig->money - $money), 2);
 
 
         //新增
@@ -202,7 +229,7 @@ class OrderService
             'member_id' => $pid,
             'type' => '+',
             'status' => CapitalDetails::STATUS_1,
-            'kind' => CapitalDetails::KIND_30,
+            'kind' => CapitalDetails::KIND_20,
             'money' => $commission,
         ];
         if(!static::addCapitalDetails($capitalDetails)) {
@@ -210,13 +237,14 @@ class OrderService
             return false;
         }
 
-        //修改用户金额
-        if(Member::editMoney($commission, $pid)) {
-
+        //修改pid用户金额
+        if(!Member::editMoney($pid, $commission)) {
             Log::error(DB::getLastSql());
             DB::getConnection()->rollBack();
             return false;
         }
+
+
         DB::getConnection()->commit();
         return true;
     }
@@ -230,12 +258,15 @@ class OrderService
     {
         $rule = [
             [['member_id', 'kind','money', 'type', 'status'], 'required'],
-            [['member_id', 'kind', 'type', 'status'], 'integer'],
+            [['member_id', 'kind', 'status'], 'integer'],
             [['money'], 'double'],
+            [['type'], 'string'],
         ];
 
         if(!Validator::validate($data, $rule)) {
+
             $errors = Validator::getFirstErrors();
+            Log::error(json_encode($errors));
             return false;
         }
 

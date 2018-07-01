@@ -134,13 +134,14 @@
                                 <a href="javascript:;" class="btn btn-default js-review-order" data-id="{{ order.id }}">审核中</a>
                             {% elseif order.status == constant('Common\\Entity\\Order::STATUS_20') %}
                                 <form  class="form-inline form-search mt15">
-                                    <div class="form-group">
-                                        <label>金额</label>
-                                        <input type="text" name="money" class="form-control"
-                                               value="" id="money">
-                                    </div>
-                                    <a href="javascript:;" class="btn btn-default js-success-order" data-id="{{ order.id }}" >审核成功</a>
+                                    {#<div class="form-group">#}
+                                        {#<label>金额</label>#}
+                                        {#<input type="text" name="money" class="form-control"#}
+                                               {#value="" id="money">#}
+                                    {#</div>#}
                                 </form>
+                                <a href="javascript:;" class="btn btn-default js-success-order" data-id="{{ order.id }}" >审核成功</a>
+
                                 <a href="javascript:;" class="btn btn-default js-fail-order" data-id="{{ order.id }}">审核失败</a>
                             {% endif %}
                         </div>
@@ -282,11 +283,11 @@
             //设为审核成功
             $(".js-success-order").click(function(){
                 var orderId = parseInt($(this).attr("data-id"));
-                var money = $.trim($("#money").val());
-                if(money.length == 0 ) {
-                    rain.alert("请输入金额");
-                    return;
-                }
+                // var money = $.trim($("#money").val());
+                // if(money.length == 0 ) {
+                //     rain.alert("请输入金额");
+                //     return;
+                // }
 
                 var flag = $(this).attr("data-flag");
                 var cute = "您确定要将订单设为审核成功吗";
@@ -295,7 +296,7 @@
                     $.ajax({
                         type:'post',
                         url:"{{ url('order/ajax-success') }}",
-                        data:{id:orderId, money:money},
+                        data:{id:orderId},
                         dataType:'json',
                         success:function(result){
 
