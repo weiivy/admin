@@ -130,6 +130,10 @@ class OrderController
         //获取订单
         $id = $request->get("id");
         $money = $request->get("money");
+        if($money > 1000) {
+            $result['message'] = "订单异常请检查";
+            return json_encode($result);
+        }
         $order = OrderService::findOrder($id);
         if ($order == null) {
             $result['message'] = "订单不存在";
