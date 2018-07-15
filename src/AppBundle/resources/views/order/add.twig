@@ -2,6 +2,7 @@
 {% block title %}订单管理{% endblock %}
 {% set leftMenuActive='order/index' %}
 {% block stylesheet %}
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
     <link href="{{ asset('themes/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css') }}"
           rel="stylesheet" media="screen">
 {% endblock %}
@@ -22,7 +23,7 @@
 
 
                 {# 表单 #}
-                <form  class="form-horizontal mt15" >
+                <form  class="form-horizontal mt15" id="orderForm" >
                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                     <input type="hidden" name="info[member_id]" value="{{ mid }}">
@@ -77,8 +78,11 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <div class="col-sm-1">
-                            <img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKNLtoo9TeTAlrCMN6Wucic5DAA40jWN5jVZDh46wbczeobz9DKylEzLd2suhKRxVenXtt1r95IZJQ/132" width="100"/>
+                        <label class="col-sm-2 control-label">
+                            <input id="files" type="hidden" name="files[]" value="">
+                        </label>
+                        <div class="col-sm-5">
+                            <img id="show-files" src="" width="100"/>
                         </div>
                     </div>
 
@@ -142,7 +146,6 @@ src="{{ asset('themes/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js') 
                     reader.onload = function () {
                         get_data(this.result);
                     }
-                    console.info(file);
                     reader.readAsDataURL(file);
                 } catch (e) {
                     alert('图片转Base64出错啦！' + e.toString())
@@ -166,13 +169,15 @@ src="{{ asset('themes/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js') 
                 $.ajax({
                     type: "POST",
                     url: 'http://api.jifen.com/upload-product',
-                    data: {file: img.substr(img.indexOf(',') + 1)},    //视情况将base64的前面字符串data:image/png;base64,删除
+                    data: {file: img},    //视情况将base64的前面字符串data:image/png;base64,删除
                     dataType:"json",
                     success: function(data) {
-                        console.info(data);
-                        return;
-                        alert("上传成功");
-                        $("#articleImg").attr('src', JSON.parse(data).imageUrl);
+                        if(data.status == 200){
+                            $("#files").val(data.files.image);
+                            $("#show-files").attr("src", data.files.url);
+                            return;
+                        }
+                        alert(data.message);
                     },
                     error: function(XMLHttpRequest, textStatus, errorThrown) {
                         alert("上传失败，请检查网络后重试");
@@ -181,23 +186,43 @@ src="{{ asset('themes/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js') 
             }
 
         $(".js-save").click(function(){
-            var bankeName = $.trim($("#bank_name").val());
-            if(bankeName.length == 0) {
-                rain.alert("请输入银行名称");
+            var bankId = $.trim($("#info_bank_id option:selected").val());
+            if(bankId == 0) {
+                rain.alert("请选择银行");
+                return false;
+            }
+            var exchangeCode = $.trim($("#exchange_code").val());
+            if(exchangeCode.length == 0) {
+                rain.alert("请兑换码");
                 return false;
             }
 
-            var bank = $.trim($("#bank").val());
-            if(bank.length == 0) {
-                rain.alert("请输入银行缩写");
+            var score = $.trim($("#score").val());
+            if(score.length == 0) {
+                rain.alert("请积分");
                 return false;
             }
 
-            var note = $.trim($("#note").val());
-            if(note.length == 0) {
-                rain.alert("请输入银行备注");
-                return false;
-            }
+            var obj = $('#orderForm').serialize();
+            $.ajax({
+                type: "POST",
+                url: 'http://api.jifen.com/add-order',
+                data: obj,
+                dataType:"json",
+                success: function(data) {
+                    if(data.status != 200){
+                        alert(data.message);
+                        return false;
+                    }
+                    window.location.href="{{ url('order/index') }}";
+
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert("上传失败，请检查网络后重试");
+                }
+            });
+            return false;
+
 
         });
     });
