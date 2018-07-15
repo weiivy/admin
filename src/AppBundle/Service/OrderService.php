@@ -244,7 +244,7 @@ class OrderService
             'member_id' => $pid,
             'type' => '+',
             'status' => CapitalDetails::STATUS_1,
-            'kind' => CapitalDetails::KIND_30,
+            'kind' => CapitalDetails::KIND_20,
             'money' => $commission,
         ];
         if(!static::addCapitalDetails($capitalDetails)) {
