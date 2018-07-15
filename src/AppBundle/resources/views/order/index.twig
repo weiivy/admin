@@ -39,6 +39,11 @@
                                value="{{ app.request.get('out_trade_no')|default('') }}">
                     </div>
                     <div class="form-group">
+                        <label>下单人手机</label>
+                        <input type="text" name="mobile" class="form-control"
+                               value="{{ app.request.get('mobile')|default('') }}">
+                    </div>
+                    <div class="form-group">
                         <label>银行</label>
                         {% autoescape false %}
                             {{ app.html.dropDownList('bank', app.request.get('bank')|default('') , banks, {'class':"form-control", 'prompt':['--请选择--']}) }}
@@ -58,10 +63,10 @@
                             <td>订单号</td>
                             <td>银行</td>
                             <td>下单人</td>
+                            <td>手机号</td>
                             <td>兑换金额</td>
                             <td>使用积分</td>
                             <td>兑换码</td>
-                            <td>有效日期</td>
                             <td>订单状态</td>
                             <td>操作</td>
                         </tr>
@@ -71,10 +76,10 @@
                                 <td>{{ item.created_at|date('Y-m-d') }}</td>
                                 <td>{{ item.out_trade_no }}</td>
                                 <td>{{ banks[item.bank_id] }}</td>
-                                <td>{{ item.getOrderMember }}</td>
+                                <td>{{ item.nickname }}</td>
+                                <td>{{ item.mobile }}</td>
                                 <td>{{ item.money }}</td>
                                 <td>{{ item.integral }}</td>
-                                <td>{% if item.exchange_code is empty %}-{% else %}{{ item.exchange_code }}{% endif %}</td>
                                 <td>{% if item.valid_time == '0000-00-00' %}-{% else %}{{ item.valid_time }}{% endif %}</td>
                                 <td>{{ item.statusAlisa }}</td>
                                 <td>

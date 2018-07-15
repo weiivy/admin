@@ -12,7 +12,10 @@
 
                 <div class="content-top">
                     <ul class="top-nav">
-                        <li class="active"><a href="">会员列表</a></li>
+                        <li {% if app.request.get('grade') is  null %} class="active"{% endif %}><a href="{{ url("member/index") }}">全部会员</a></li>
+                        <li {% if app.request.get('grade') is not null and app.request.get('grade') == 10 %}active {% endif %}><a href="{{ url("member/index", {'grade':10}) }}">会员列表</a></li>
+                        <li {% if app.request.get('grade') is not null and app.request.get('grade') == 20 %}active {% endif %}><a href="{{ url("member/index", {'grade':20}) }}">代理列表</a></li>
+                        <li {% if app.request.get('grade') is not null and app.request.get('grade') == 30 %}active {% endif %}><a href="{{ url("member/index", {'grade':30}) }}">股东列表</a></li>
                     </ul>
                     <div class="clearfix"></div>
                 </div>

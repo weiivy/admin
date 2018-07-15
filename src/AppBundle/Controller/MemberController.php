@@ -37,6 +37,11 @@ class MemberController
             $condition[] = "nickname like '%" . trim($name) . "%'";
         }
 
+        $grade = $request->get('grade');
+        if ($grade) {
+            $condition[] = "grade = ". $grade;;
+        }
+
         //搜索手机号
         $mobile = $request->get('mobile');
         if($mobile){

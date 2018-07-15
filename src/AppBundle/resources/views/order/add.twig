@@ -1,0 +1,207 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}订单管理{% endblock %}
+{% set leftMenuActive='order/index' %}
+{% block stylesheet %}
+    <link href="{{ asset('themes/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css') }}"
+          rel="stylesheet" media="screen">
+{% endblock %}
+{% block contentRight %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="page-title">订单管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">补单</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+
+                {# 表单 #}
+                <form  class="form-horizontal mt15" >
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                    <input type="hidden" name="info[member_id]" value="{{ mid }}">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">银行</label>
+
+                        <div class="col-sm-5">
+                            {% autoescape false %}
+                                {{ app.html.dropDownList('info[bank_id]', '' , banks, {'class':"form-control", 'prompt':['--请选择--']}) }}
+                            {% endautoescape %}
+                        </div>
+
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">兑换码</label>
+
+                        <div class="col-sm-5">
+                            <input type="text" name="info[exchange_code]" class="form-control" id="exchange_code"
+                                   value="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">使用积分</label>
+
+                        <div class="col-sm-5">
+                            <input type="text" name="info[score]" class="form-control" id="score"
+                                   value="">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">有效时间</label>
+                        <div class="col-sm-5">
+                            <input type="text" name="info[valid_time]" class="form-control input-sm js-date" id="valid_time"
+                                   value="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">备注</label>
+
+                        <div class="col-sm-5">
+                            <textarea name="info[remark]" class="form-control" id="remark"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">上传图片</label>
+
+                        <div class="col-sm-5">
+                            <input type="file" id="articleImgBtn" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-1">
+                            <img src="http://thirdwx.qlogo.cn/mmopen/vi_32/Q0j4TwGTfTKNLtoo9TeTAlrCMN6Wucic5DAA40jWN5jVZDh46wbczeobz9DKylEzLd2suhKRxVenXtt1r95IZJQ/132" width="100"/>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label"></label>
+
+                        <div class="col-sm-6">
+                            <button class="btn btn-success js-save">保存</button>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript"
+src="{{ asset('themes/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js') }}"
+            charset="UTF-8"></script>
+    <script type="text/javascript"
+            src="{{ asset('themes/bootstrap-datetimepicker/js/bootstrap-datetimepicker.zh-CN.js') }}"
+            charset="UTF-8"></script>
+<script type="application/javascript">
+
+    $(function(){
+       //时间控件初始化
+        $('.js-date').datetimepicker({
+            language: 'zh-CN', //汉化
+            format: 'yyyy-mm-dd',
+            startView: 2,
+            minView: 2
+        });
+
+
+        $('#articleImgBtn').change(function(){
+            run(this, function (data) {
+                uploadImage(data);
+            });
+        });
+
+        function run(input_file, get_data) {
+            /*input_file：文件按钮对象*/
+            /*get_data: 转换成功后执行的方法*/
+            if (typeof (FileReader) === 'undefined') {
+                alert("抱歉，你的浏览器不支持 FileReader，不能将图片转换为Base64，请使用现代浏览器操作！");
+            } else {
+                try {
+                    /*图片转Base64 核心代码*/
+                    var file = input_file.files[0];
+                    //这里我们判断下类型如果不是图片就返回 去掉就可以上传任意文件
+                    if (!/image\/\w+/.test(file.type)) {
+                        alert("请确保文件为图像类型");
+                        return false;
+                    }
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        get_data(this.result);
+                    }
+                    console.info(file);
+                    reader.readAsDataURL(file);
+                } catch (e) {
+                    alert('图片转Base64出错啦！' + e.toString())
+                }
+            }
+        }
+
+        function uploadImage(img) {
+            //判断是否有选择上传文件
+                var imgPath = $("#articleImgBtn").val();
+                if (imgPath == "") {
+                    alert("请选择上传图片！");
+                    return;
+                }
+                //判断上传文件的后缀名
+                var strExtension = imgPath.substr(imgPath.lastIndexOf('.') + 1);
+                if (strExtension != 'jpg' && strExtension != 'gif' && strExtension != 'png' && strExtension != 'bmp') {
+                    alert("请选择图片文件");
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: 'http://api.jifen.com/upload-product',
+                    data: {file: img.substr(img.indexOf(',') + 1)},    //视情况将base64的前面字符串data:image/png;base64,删除
+                    dataType:"json",
+                    success: function(data) {
+                        console.info(data);
+                        return;
+                        alert("上传成功");
+                        $("#articleImg").attr('src', JSON.parse(data).imageUrl);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        alert("上传失败，请检查网络后重试");
+                    }
+                });
+            }
+
+        $(".js-save").click(function(){
+            var bankeName = $.trim($("#bank_name").val());
+            if(bankeName.length == 0) {
+                rain.alert("请输入银行名称");
+                return false;
+            }
+
+            var bank = $.trim($("#bank").val());
+            if(bank.length == 0) {
+                rain.alert("请输入银行缩写");
+                return false;
+            }
+
+            var note = $.trim($("#note").val());
+            if(note.length == 0) {
+                rain.alert("请输入银行备注");
+                return false;
+            }
+
+        });
+    });
+</script>
+{% endblock %}
+
+

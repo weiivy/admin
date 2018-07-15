@@ -36,23 +36,30 @@ class OrderController
         //订单号搜索
         $outTradeNo = $request->get('out_trade_no');
         if($outTradeNo){
-            $condition[] = 'out_trade_no = :no';
+            $condition[] = 'o.out_trade_no = :no';
             $params[':no'] = $outTradeNo;
+        }
+
+        $mobile = $request->get('mobile');
+        if($mobile){
+            $condition[] = 'm.mobile = :mobile';
+            $params[':mobile'] = $mobile;
         }
 
         $status = $request->get('status');
         if($status){
-            $condition[] = 'status = :status';
+            $condition[] = 'o.status = :status';
             $params[':status'] = $status;
         }
 
         $bank = $request->get('bank');
         if(!empty($bank)) {
-            $condition[] = 'bank_id= :bank_id';
+            $condition[] = 'o.bank_id= :bank_id';
             $params[':bank_id'] = $bank;
         }
 
         $banks = BankService::getBankKey();
+
         $list = OrderService::findOrderList($page, implode(' and ', $condition), $params);
         return View::render('@AppBundle/order/index.twig',[
             'list' => $list,
@@ -180,6 +187,16 @@ class OrderController
         }
 
         return json_encode($result);
+    }
+
+    public function getCreate(Request $request)
+    {
+        $mid = $request->get('mid');
+        $banks = BankService::getBankKey();
+        return View::render('@AppBundle/order/add.twig',[
+            'banks' => $banks,
+            'mid' => $mid,
+        ]);
     }
 
 }

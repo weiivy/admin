@@ -19,4 +19,10 @@ class Order extends \Common\Entity\Order
         $member = DB::select(Member::tableName())->asEntity(Member::className())->findByPk($this->member_id);
         return $member === null ? '' : $member->nickname;
     }
+
+    public function getOrderMobile()
+    {
+        $member = DB::select(Member::tableName())->asEntity(Member::className())->findByPk($this->member_id);
+        return $member === null ? '' : $member->mobile;
+    }
 }

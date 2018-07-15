@@ -28,16 +28,32 @@ class OrderService
      * @param string $order
      * @return array
      */
-    public static function findOrderList(Pagination $page, $condition = '', $params = [], $order = 'id desc')
+    public static function findOrderList(Pagination $page, $condition = '', $params = [], $order = 'o.id desc')
     {
-        $query = DB::select(Order::tableName())->where($condition, $params);
+        $sql = "select o.*, m.nickname, m.mobile from " . Order::tableName() . " o left join " . Member::tableName() . " m 
+        on(m.id = o.member_id) ";
+        $sqlCount = "select count(*) from " . Order::tableName() . " o left join " . Member::tableName() . " m 
+        on(m.id = o.member_id) ";
+        if(!empty($condition)) {
+            $sql .= " where {$condition}";
+            $sqlCount .= " where {$condition}";
+        }
+        $page->itemCount = DB::getConnection()->queryScalar($sqlCount, $params);
+
+
+        $sql .= " order by {$order} limit {$page->limit}";
+        return DB::select(Order::tableName())->asEntity(Order::className())->findAllBySql($sql, $params);
+
+
+
+        /*$query = DB::select(Order::tableName())->where($condition, $params);
         $queryCount = clone $query;
         $page->itemCount = $queryCount->count();
 
         return $query->asEntity(Order::className())
             ->limit($page->limit)
             ->orderBy($order)
-            ->findAll();
+            ->findAll();*/
     }
 
     /**
@@ -212,9 +228,16 @@ class OrderService
         if(empty($bankConfig)) return true;
 
         DB::getConnection()->beginTransaction();
-        //有父级给父级提成
-        $commission =  round(($bankConfig->money - $order->money), 2);
 
+
+        //有父级给父级提成
+        $pmoney = ($bankConfig->money / $bankConfig->score) * $order->integral;
+        if($pmoney < $order->money)
+        {
+            DB::getConnection()->rollBack();
+            return false;
+        }
+        $commission = round(($pmoney - $order->money), 2);
 
         //新增
         $capitalDetails = [
@@ -290,6 +313,12 @@ class OrderService
             $errors[] = "服务器错误";
             return false;
         }
+    }
+
+
+    public static function saveOrder()
+    {
+
     }
 
 }
