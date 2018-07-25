@@ -103,17 +103,18 @@
 
 {% endblock %}
 {% block javascript %}
-    <script>
+    <script type="application/javascript">
         $(function () {
             //设置为审核中
             $("#grade").change(function(){
                 var mid = parseInt($(this).attr("data-id"));
                 var grade = $(this).val();
+                data = {mid:mid, grade:grade};
                 rain.confirm("您确定要修改会员等级吗?", function(){
                     $.ajax({
                         type:'post',
                         url:"{{ url('member/ajax-update-grade') }}",
-                        data:{mid:mid, grade:grade},
+                        data:data,
                         dataType:'json',
                         success:function(result){
 
