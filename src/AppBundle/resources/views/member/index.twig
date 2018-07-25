@@ -76,9 +76,11 @@
                                 <td>{{ item.mobile }}</td>
                                 <td>{{ item.openid }}</td>
                                 <td>
-                                    {% autoescape false %}
-                                        {{ app.html.dropDownList('grade', item.grade|default(10) , gradeList, {'data-id':item.id, 'prompt':['--请选择--']}) }}
-                                    {% endautoescape %}
+                                    <select name="grade" class="grade" data-id="{{ item.id }}">
+                                        {% for key ,grade in gradeList %}
+                                            <option {% if key ==item.grade  %}selected {% endif %} value="{{ key }}">{{ grade }}</option>
+                                        {% endfor %}
+                                    </select>
                                 </td>
                                 <td>{{ item.money }}</td>
                                 <td>
@@ -103,13 +105,14 @@
 
 {% endblock %}
 {% block javascript %}
-    <script type="application/javascript">
+    <script>
         $(function () {
             //设置为审核中
-            $("#grade").change(function(){
+            $(".grade").change(function(){
                 var mid = parseInt($(this).attr("data-id"));
                 var grade = $(this).val();
                 data = {mid:mid, grade:grade};
+                console.info(data);
                 rain.confirm("您确定要修改会员等级吗?", function(){
                     $.ajax({
                         type:'post',
@@ -140,10 +143,7 @@
                 }, function(){
 
                 });
-
-                return false;
-
             });
-        })
+        });
     </script>
 {% endblock %}
