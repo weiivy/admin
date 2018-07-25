@@ -75,7 +75,11 @@
                                 <td>{{ item.nickname }}</td>
                                 <td>{{ item.mobile }}</td>
                                 <td>{{ item.openid }}</td>
-                                <td>{{ item.gradeAlias }}</td>
+                                <td>
+                                    {% autoescape false %}
+                                        {{ app.html.dropDownList('grade', item.grade|default(10) , gradeList, {'data-id':item.id, 'prompt':['--请选择--']}) }}
+                                    {% endautoescape %}
+                                </td>
                                 <td>{{ item.money }}</td>
                                 <td>
                                     <a href="{{ url('member/view', {'id':item.id}) }}">查看</a>
@@ -97,4 +101,48 @@
         </div>
     </div>
 
+{% endblock %}
+{% block javascript %}
+    <script>
+        $(function () {
+            //设置为审核中
+            $("#grade").change(function(){
+                var mid = parseInt($(this).attr("data-id"));
+                var grade = $(this).val();
+                rain.confirm("您确定要修改会员等级吗?", function(){
+                    $.ajax({
+                        type:'post',
+                        url:"{{ url('member/ajax-update-grade') }}",
+                        data:{mid:mid, grade:grade},
+                        dataType:'json',
+                        success:function(result){
+
+                            //失败
+                            if(result.status != 1){
+                                rain.alert(result.message);
+                                return false;
+                            }
+
+                            //成功
+                            rain.cute(result.message, 1500, function(){
+                                window.location.reload();
+                            });
+
+
+                        },error:function(){
+                            rain.alert("网络出错,请稍后刷新再次尝试");
+                            return false;
+                        }
+
+
+                    });
+                }, function(){
+
+                });
+
+                return false;
+
+            });
+        })
+    </script>
 {% endblock %}

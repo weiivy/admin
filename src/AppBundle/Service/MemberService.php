@@ -78,87 +78,6 @@ class MemberService
         }
     }
 
-    /**
-     * 获取所有导出会员信息
-     * @return array
-     */
-    /*public static function findAllMemberForExport()
-    {
-        $members = DB::select(Member::tableName())->asEntity(Member::className())->findAll();
-        $data = [];
-        foreach($members as $key => $member) {
-            $data[$key]['username'] = empty($member->username) ? '-' : $member->username;
-            $data[$key]['nickname'] = empty($member->nickname) ? '-' : $member->nickname;
-            $data[$key]['email'] = empty($member->emial) ? '-' : $member->emial;
-            $data[$key]['status'] = Member::statusParams()[$member->status];
-            $data[$key]['grade'] = Member::gradeParams()[$member->grade];
-            $data[$key]['point'] = $member->point;
-            $data[$key]['money'] = $member->money;
-            $data[$key]['total_fee'] = $member->total_fee;
-            $data[$key]['end_timestamp'] = date('Y/m/d', $member->end_timestamp);
-        }
-
-        return $data;
-    }*/
-
-    /**
-     * 添加用户
-     * @param $data
-     * @param string $error
-     * @return bool
-     */
-    /*public static function addMember($data, &$error = '')
-    {
-
-
-        $successCount = 0;
-        $existsCount = 0;
-        $grades = array_flip(Member::gradeParams());
-        DB::getConnection()->beginTransaction();
-        foreach(array_filter($data) as $val) {
-            //账号不能为空
-            if(empty($val['username'])) {
-                continue;
-            }
-            $temp = [];
-            $temp['mobile'] = $temp['username'] = $val['username'];
-            $temp['nickname'] = $val['nickname'];
-            $temp['password_hash'] = static::makePasswordHash('jundaojia');
-            $temp['email'] = $val['email'];
-            $temp['point'] = (int)$val['point'];
-            $temp['money'] = (float)$val['money'];
-            $temp['total_fee'] = (float)$val['total_fee'];
-            if($val['status'] == "启用") {
-                $temp['status'] = Member::STATUS_ON;
-            } else if($val['status'] == "冻结") {
-                $temp['status'] = Member::STATUS_OFF;
-            }
-
-            $temp['grade'] = $grades[$val['grade']];
-
-            $temp['end_timestamp'] = $val['end_timestamp'] == 0 ? 0 : strtotime(date('Y-m-d 23:59:59', intval(($val['end_timestamp']) - 25569) * 3600 * 24));
-
-            //验证有无记录
-            $member = DB::select(Member::tableName())->asEntity(Member::className())->find('username =?', [$temp['username']]);
-            if($member != null) {
-                $existsCount++;
-                continue;
-            }
-
-            $temp['created_at'] = $temp['updated_at'] = time();
-            if(!DB::insert(Member::tableName(), $temp)) {
-                Log::error("导入会员信息失败.\n". DB::getLastSql());
-                DB::getConnection()->rollBack();
-                return false;
-            }
-
-            $successCount++;
-        }
-
-        DB::getConnection()->commit();
-        $error = "成功导入". $successCount . "人会员信息，已存在会员" . $existsCount . "人";
-        return true;
-    }*/
 
 
     /**
@@ -221,15 +140,16 @@ class MemberService
     /**
      * 将会员改为普通会员
      * @param $memberId
+     * @return bool
      */
-    public static function updateGrade($memberId)
+    public static function updateGrade($id, $data)
     {
-        $data['grade'] = 0;
-        $data['end_timestamp'] = 0;
         $data['updated_at'] = time();
-        if(!DB::update(Member::tableName(), $data, 'id = ?', [$memberId]) == 1){
-           Log::error("会员到期修改会员为普通等级失败\n" . DB::getLastSql());
+        if(!DB::update(Member::tableName(), $data, 'id = ?', [$id]) == 1){
+           Log::error("会员等级失败\n" . DB::getLastSql());
+           return false;
         }
+        return true;
     }
 
     /**
