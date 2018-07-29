@@ -1,0 +1,85 @@
+<input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">银行</label>
+
+    <div class="col-sm-6">
+        {% autoescape false %}
+            {{ app.html.dropDownList('Goods[bank_id]', goods.bank_id|default('') , banks, {'class':"form-control", 'prompt':['--请选择--']}) }}
+        {% endautoescape %}
+    </div>
+
+</div>
+
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">兑换商品</label>
+
+    <div class="col-sm-6">
+        <input type="text" name="Goods[goods]" class="form-control" id="goods"
+               value="{{ goods.goods|default(app.request.get('Goods').goods|default()) }}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">起兑积分</label>
+
+    <div class="col-sm-6">
+        <input type="number" name="Goods[codenum]" class="form-control" id="codenum"
+               value="{{ goods.codenum|default(app.request.get('Goods').codenum|default()) }}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">兑换数量</label>
+
+    <div class="col-sm-6">
+        <input type="text" name="Goods[num]" class="form-control" id="num"
+               value="{{ goods.num|default(app.request.get('Goods').num|default()) }}">
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">状态</label>
+
+    <div class="col-sm-6">
+        {% autoescape false %}
+            {{ app.html.dropDownList('Goods[status]', bankConfig.status|default(10) , statusArr, {'class':"form-control"}) }}
+        {% endautoescape %}
+    </div>
+
+</div>
+
+
+<div class="form-group">
+    <label class="col-sm-2 control-label">金额</label>
+</div>
+{% for key, value in grade %}
+    <div class="form-group">
+        <label class="col-sm-2 control-label"></label>
+        <div class="col-sm-6">
+            <div class="col-sm-2" >{{ value }}</div>
+            <div class="col-sm-10" >
+                <input type="number" name="Goods[money][{{ key }}]" class="form-control"
+                       value="{{ goods.money[key]|default(app.request.get('Goods').money[key]|default()) }}" step="0.01">
+            </div>
+
+        </div>
+    </div>
+{% endfor %}
+
+
+
+<div class="form-group">
+    <label class="col-sm-2 control-label"></label>
+
+    <div class="col-sm-6">
+        <button class="btn btn-success js-save">
+            {% if bankConfig is defined %}
+                保存
+            {% else %}
+                提交
+            {% endif %}
+        </button>
+    </div>
+</div>

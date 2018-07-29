@@ -1,0 +1,84 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}兑换商品管理{% endblock %}
+{% set leftMenuActive = 'goods/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid content-main">
+        <div class="row">
+            <div class="col-md-12">
+
+
+                <div class="page-title">兑换商品管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">兑换商品列表</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+                <div class="mt15">
+                    <a class="btn btn-sm btn-success pull-right" href="{{ url('goods/create') }}">新增兑换商品</a>
+
+                    <div class="clearfix"></div>
+                </div>
+
+                {# 一次性消息提示 #}
+                {{ include('@AppBundle/message.twig', {'session':app.session}) }}
+
+                {% if list is empty %}
+                    <div class="alert alert-warning mt15" role="alert">暂无兑换商品</div>
+                {% else %}
+                    <form action="{{ url('goods/index') }}" method="get" class="form-inline form-search mt15">
+                        <div class="form-group">
+                            <label>银行</label>
+                            {% autoescape false %}
+                                {{ app.html.dropDownList('bank', app.request.get('bank')|default('') , banks, {'class':"form-control", 'prompt':['--请选择--']}) }}
+                            {% endautoescape %}
+                        </div>
+                        <button type="submit" class="btn btn-default">搜索</button>
+                    </form>
+
+                    {# 分类列表 #}
+                    <table class="table mt15">
+                        <tr class="active">
+                            <td>银行</td>
+                            <td>起购积分</td>
+                            <td>兑换数量</td>
+                            <td>兑换商品</td>
+                            <td>金额</td>
+                            <td>操作</td>
+                        </tr>
+
+                        {% for item in list %}
+                            <tr>
+                                <td>
+                                    {% if item.banks is not empty %}
+                                        {{ item.banks.bank_name }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.codenum }}</td>
+                                <td>{{ item.num }}</td>
+                                <td>{{ item.goods }}</td>
+                                <td>
+                                    {% for key, value in item.money %}
+                                        {{ grade[key] }}：{{ value }}<br/>
+                                    {% endfor %}
+                                </td>
+                                <td>
+                                    <a href="{{ url('goods/update', {'id':item.id}) }}">修改</a>
+                                    <a href="{{ url('goods/delete', {'id':item.id}) }}" class="rain-confirm">删除</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <div class="pull-right">
+                        {{ page.createLinks(url('bank/index'))|raw }}
+                    </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -8,4 +8,5 @@ Route::group(array('before' => 'login'), function(){
     Route::controller('bank', 'AppBundle\Controller\BankController');
     Route::controller('bank-config', 'AppBundle\Controller\BankConfigController');
     Route::controller('contact', 'AppBundle\Controller\ContactController');
+    Route::controller('goods', 'AppBundle\Controller\GoodsController');
 });

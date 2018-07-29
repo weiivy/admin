@@ -1,0 +1,88 @@
+{% extends "@AppBundle/layout.twig" %}
+{% block title %}兑换商品管理{% endblock %}
+{% set leftMenuActive='goods/index' %}
+{% block contentRight %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="page-title">兑换商品管理</div>
+
+                <div class="content-top">
+                    <ul class="top-nav">
+                        <li class="active"><a href="">新增兑换商品</a></li>
+                    </ul>
+                    <div class="clearfix"></div>
+                </div>
+
+
+                {# 表单 #}
+                <form action="{{ url('goods/create') }}" method="post" class="form-horizontal mt15">
+                    {{ include('@AppBundle/goods/_form.twig', {'statusArr':statusArr,'grade':grade,'banks':banks}) }}
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+
+{% block javascript %}
+<script type="application/javascript">
+
+    $(function(){
+        $(".js-save").click(function(){
+            var bank = $.trim($("#Goods_bank_id option:selected").val());
+            if(bank == 0) {
+                rain.alert("请选择银行");
+                return false;
+            }
+
+            var goods = $.trim($("#goods").val());
+            if(goods.length == 0) {
+                rain.alert("请输入兑换商品");
+                return false;
+            }
+
+            var codenum = $.trim($("#codenum").val());
+            ///^\d+\.\d\d$/
+            if(codenum.length == 0) {
+                rain.alert("请输入起兑积分");
+                return false;
+            }
+
+            var num = $.trim($("#num").val());
+            if(num.length == 0) {
+                rain.alert("请输入兑换数量");
+                return false;
+            }
+
+            //金额判断
+            var money1 = $.trim($("input[name='Goods[money][1]']").val());
+            if(money1.length == 0) {
+                rain.alert("请输入会员金额");
+                return false;
+            }
+
+            var money2 = $.trim($("input[name='Goods[money][2]']").val());
+            if(money2.length == 0) {
+                rain.alert("请输入代理金额");
+                return false;
+            }
+
+            var money3 = $.trim($("input[name='Goods[money][3]']").val());
+            if(money3.length == 0) {
+                rain.alert("请输入股东金额");
+                return false;
+            }
+
+
+        });
+    });
+</script>
+{% endblock %}
+
+
