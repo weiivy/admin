@@ -24,7 +24,7 @@
                         <div class="col-sm-6">
                             <p class="form-control-static">
                                 {% if member is defined and member.avatar is not empty %}
-                                    <img src="{{ item.avatar }}" class="show-logo" width="200" style="max-width: 300px;">
+                                    <img src="{{ member.avatar }}" class="show-logo" width="200" style="max-width: 300px;">
                                 {% else %}
                                     <img src="{{ asset('images/no-pic.jpg') }}" class="show-logo" style="max-width: 300px;">
                                 {% endif %}
@@ -61,6 +61,19 @@
                             <p class="form-control-static">{{ member.money|default(0) }}</p>
                         </div>
                     </div>
+
+                     <div class="form-group">
+                         <label class="col-sm-2 control-label">上级</label>
+                         <div class="col-sm-6">
+                             <p class="form-control-static">
+                                 {% if member.pidInfo is null %}
+                                 {% else %}
+                                 <a target="_blank" href="{{ url('member/index', {'mobile':member.pidInfo.mobile}) }}">
+                                     {{ member.pidInfo.nickname }}    {{ member.pidInfo.mobile }}
+                                 </a>
+                                 {% endif %}
+                         </div>
+                     </div>
                      <div class="form-group">
                         <label class="col-sm-2 control-label">状态</label>
                         <div class="col-sm-6">

@@ -31,6 +31,7 @@
                         <tr class="active">
                             <td>类型</td>
                             <td>金额</td>
+                            <td>来源</td>
                         </tr>
 
                         {% for item in list %}
@@ -39,6 +40,15 @@
                                    {{ item.kindAlisa }}
                                 </td>
                                 <td>{{ item.type }} {{ item.money }}</td>
+                                <td>
+                                    {% if item.fromInfo is null %}
+                                        -
+                                    {% else %}
+                                        <a target="_blank" href="{{ url('member/index', {'mobile':item.fromInfo.mobile}) }}">
+                                            {{ item.fromInfo.nickname }}    {{ item.fromInfo.mobile }}
+                                        </a>
+                                    {% endif %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </table>

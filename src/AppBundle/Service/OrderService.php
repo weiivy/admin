@@ -131,6 +131,7 @@ class OrderService
                 //添加交易明细
                 $capitalDetails = [
                     'member_id' => $order->member_id,
+                    'from_id' => 0,
                     'type' => '+',
                     'status' => CapitalDetails::STATUS_1,
                     'kind' => CapitalDetails::KIND_50,
@@ -242,6 +243,7 @@ class OrderService
         //新增
         $capitalDetails = [
             'member_id' => $pid,
+            'from_id' => $order->member_id,
             'type' => '+',
             'status' => CapitalDetails::STATUS_1,
             'kind' => CapitalDetails::KIND_20,
@@ -276,6 +278,7 @@ class OrderService
             [['member_id', 'kind', 'status'], 'integer'],
             [['money'], 'double'],
             [['type'], 'string'],
+            [['from_id'], 'safe'],
         ];
 
         if(!Validator::validate($data, $rule)) {
@@ -315,10 +318,5 @@ class OrderService
         }
     }
 
-
-    public static function saveOrder()
-    {
-
-    }
 
 }
