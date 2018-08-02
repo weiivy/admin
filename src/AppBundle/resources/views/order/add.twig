@@ -168,7 +168,7 @@ src="{{ asset('themes/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js') 
                 }
                 $.ajax({
                     type: "POST",
-                    url: 'http://api.t5iz.com/upload-product',
+                    url: 'https://api.t5iz.com/upload-product',
                     data: {file: img},    //视情况将base64的前面字符串data:image/png;base64,删除
                     dataType:"json",
                     success: function(data) {
@@ -206,7 +206,7 @@ src="{{ asset('themes/bootstrap-datetimepicker/js/bootstrap-datetimepicker.js') 
             var obj = $('#orderForm').serialize();
             $.ajax({
                 type: "POST",
-                url: 'http://api.t5iz.com/add-order',
+                url: 'https://api.t5iz.com/add-order',
                 data: obj,
                 dataType:"json",
                 success: function(data) {
