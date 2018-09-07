@@ -50,6 +50,7 @@ class BankService
             [['bank'], 'string', 'length' => [0, 20]],
             [['bank_name'], 'string', 'length' => [0, 100]],
             [['note'], 'string', 'length' => [0, 255]],
+            [['sort'], 'integer'],
             [['status'], 'safe']
         ];
 
@@ -82,6 +83,7 @@ class BankService
             [['bank'], 'string', 'length' => [0, 20]],
             [['bank_name'], 'string', 'length' => [0, 100]],
             [['note'], 'string', 'length' => [0, 255]],
+            [['sort'], 'integer'],
             [['status'], 'safe']
         ];
 
