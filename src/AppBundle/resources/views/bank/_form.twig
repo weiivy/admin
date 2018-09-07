@@ -25,7 +25,15 @@
                value="{{ bank.note|default(app.request.get('Bank').note|default('')) }}">
     </div>
 </div>
+<div class="form-group">
+    <label class="col-sm-2 control-label">排序</label>
 
+    <div class="col-sm-6">
+        <input type="text" name="Bank[sort]" class="form-control" id="sort"
+               value="{{ bank.sort|default(app.request.get('Bank').sort|default(0)) }}">
+        <span>值越大排序越前</span>
+    </div>
+</div>
 <div class="form-group">
     <label class="col-sm-2 control-label">状态</label>
 

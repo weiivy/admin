@@ -19,7 +19,7 @@ class BankService
      * @param string $order
      * @return array
      */
-    public static function findAllBank(Pagination $page, $order = 'id desc')
+    public static function findAllBank(Pagination $page, $order = 'sort desc, id desc')
     {
         $query = DB::select(Bank::tableName())->where('status =:status', [':status' => Bank::STATUS_NORMAL]);
         $queryCount = clone $query;
@@ -46,7 +46,7 @@ class BankService
     public static function addBank($data, &$errors = [])
     {
         $rule = [
-            [['bank', 'bank_name', 'note'], 'required'],
+            [['bank', 'bank_name', 'note', 'sort'], 'required'],
             [['bank'], 'string', 'length' => [0, 20]],
             [['bank_name'], 'string', 'length' => [0, 100]],
             [['note'], 'string', 'length' => [0, 255]],
@@ -78,7 +78,7 @@ class BankService
     public static function updateBank($id, $data, &$errors = [])
     {
         $rule = [
-            [['bank', 'bank_name', 'note'], 'required'],
+            [['bank', 'bank_name', 'note', 'sort'], 'required'],
             [['bank'], 'string', 'length' => [0, 20]],
             [['bank_name'], 'string', 'length' => [0, 100]],
             [['note'], 'string', 'length' => [0, 255]],
